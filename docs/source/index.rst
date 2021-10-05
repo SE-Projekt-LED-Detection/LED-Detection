@@ -11,10 +11,16 @@ Welcome to LED / Board Status Detection's documentation!
    :caption: Contents:
 
 
+Components
+==========
+.. uml::
+
+   Alice -> Bob: Hi!
+   Alice <- Bob: How are you?
+
 
 Indices and tables
 ==================
 
 * :ref:`genindex`
-* :ref:`modindex`
 * :ref:`search`
