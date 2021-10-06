@@ -14,3 +14,7 @@ The code for that was copied from
 
 ### Creating a virtual enviroment
 We highly recommend to use a virtual environment such as pyenv or conda.
+
+## Documentation
+
+The Docs are hosted on readthedocs and can be find [here](https://led-detection.readthedocs.io/en/latest/)
