@@ -14,7 +14,9 @@ Welcome to LED / Board Status Detection's documentation!
 Components
 ==========
 
+.. uml::
 
+   Bob -> Anna
 
 
 Indices and tables
