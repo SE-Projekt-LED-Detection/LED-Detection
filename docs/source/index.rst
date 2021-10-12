@@ -14,9 +14,7 @@ Welcome to LED / Board Status Detection's documentation!
 Components
 ==========
 
-.. uml::
-
-   Bob -> Anna
+.. uml:: ../uml/PipeLine.uml
 
 
 Indices and tables
