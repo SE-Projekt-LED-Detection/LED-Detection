@@ -35,6 +35,7 @@ The Components
 ==============
 
 Our main architecture is based on a MVC pattern.
+
 .. uml:: ./uml/BoSS_component.uml
 
 The user can connect to the Board State Controller (BSC) either inside of labgrid or outside an application.
