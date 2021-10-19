@@ -31,12 +31,22 @@ Creating a virtual enviroment
 We highly recommend to use a virtual environment such as pyenv or conda.
 
 
-The Pipeline
-============
+The Components
+==============
+
+Our main architecture is based on a MVC pattern.
+.. uml:: ./uml/BoSS_component.uml
+
+The user can connect to the Board State Controller (BSC) either inside of labgrid or outside an application.
+By naming the local path or an global url the BSC uses the Board-Information-Provider to load a predefined Board
+specification which contains an reference image as well as LED locations and state-events.
+Those information are send to the Board State Provider (BSP) which opens a webcam stream and
+first locate the region of interest of all LEDs.
+It also classifies the state of the led signals.
+Those events can be displayed with the Board State Visualizer (BSV).
+It can be displayed either as command line inside labgrid or as annotated video stream.
 
 
-
-.. uml:: ./uml/PipeLine.uml
 
 
 Indices and tables

@@ -1,0 +1,25 @@
+@startuml
+[Board Information Provider] as BIP
+[Board State Provider] as BSP
+[Board State Visualizer] as BSV
+[Board State Logger] as BSL
+[Board State Controller] as BSC
+
+
+BSC ..> BSP : getBoardInformations
+BSC ..> BIP : getStateInformations
+user -- BSC : userInput
+user - BSV : userOutput
+
+
+
+Webcam - BSP: use
+BSP .> BSV: update
+BSC ..> BSL: logging
+BIP -- Database
+BIP -- local_files
+
+
+
+
+@enduml
