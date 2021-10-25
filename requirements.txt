@@ -1,4 +1,6 @@
 sphinx
 sphinx_rtd_theme
 sphinxcontrib-plantuml 
-numpy
+numpy~=1.19.5
+matplotlib~=3.3.4
+opencv-python~=4.5.4.58
