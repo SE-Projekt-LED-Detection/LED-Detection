@@ -37,10 +37,10 @@ def get_all_rect(root, attribute="led"):
     rect_obj = []
 
     for rect in rects:
-        x = round(float(rect.get('x')))
-        y = round(float(rect.get('y')))
-        width = round(float(rect.get('width')))
-        height = round(float(rect.get('height')))
+        x = (float(rect.get('x')))
+        y = (float(rect.get('y')))
+        width = (float(rect.get('width')))
+        height = (float(rect.get('height')))
         id = rect.get('id')
         description = rect.get('description')
         rect_obj.append(LED_ROI(x, y, width, height, id, description))
@@ -81,7 +81,7 @@ def parse_embedded_image(svg):
 def extract_roi(rois:typing.List[LED_ROI],img):
     croped_img_lst = []
     for roi in rois:
-        cropped_img = img[roi.y-1:roi.y + roi.height, roi.x-1:roi.x + roi.width]
+        cropped_img = img[roi.y:roi.y + roi.height, roi.x:roi.x + roi.width]
         plt.imshow(cropped_img)
         plt.title(roi.id)
         plt.show()
@@ -90,7 +90,7 @@ def extract_roi(rois:typing.List[LED_ROI],img):
 
 
 if __name__ == '__main__':
-    svg = load_svg('test.jpg.svg')
+    svg = load_svg('prototyping/resources/test3.svg')
     img = parse_embedded_image(svg)
     rects = get_all_rect(svg)
     extract_roi(rects, img)
