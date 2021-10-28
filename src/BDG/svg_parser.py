@@ -89,12 +89,6 @@ def extract_roi(rois:typing.List[LED_ROI],img):
     return croped_img_lst
 
 
-if __name__ == '__main__':
-    svg = load_svg('prototyping/resources/test3.svg')
-    img = parse_embedded_image(svg)
-    rects = get_all_rect(svg)
-    extract_roi(rects, img)
-    plt.imshow(img)
-    plt.show()
+
 
 
