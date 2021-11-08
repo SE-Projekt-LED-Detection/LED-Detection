@@ -1,6 +1,7 @@
 import cv2
 import numpy as np
 import typing
+import matplotlib.pyplot as plt
 
 
 def calc_scale(crn_pts_src, crn_pts_dst):
@@ -49,7 +50,10 @@ def get_led_roi(crn_pts_src, crn_pts_dst, reference_rois: list):
 
 
 if __name__ == "__main__":
-        A = np.array([[1,2,3],[4,5,6],[7,8,9]])
-        R = np.arry([[0,-1],[1,0]])
+    img = cv2.imread("baseball.png", cv2.IMREAD_COLOR)
+
+
+
+
 
 
