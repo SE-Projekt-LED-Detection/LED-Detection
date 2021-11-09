@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<inkscape-extension xmlns="http://www.inkscape.org/namespace/inkscape/extension">
+  <name>LED Marker</name>
+  <id>org.inkscape.led_marker.effect</id>
+  
+  <param name="checkbox" type="boolean" gui-text="Just for testing">false</param>
+  <effect>
+    <object-type>all</object-type>
+    <effects-menu>
+      <submenu _name="Effect"/>
+    </effects-menu>
+  </effect>
+  <script>
+    <command location="inx" interpreter="python">led_marker.py</command>
+  </script>
+</inkscape-extension>
