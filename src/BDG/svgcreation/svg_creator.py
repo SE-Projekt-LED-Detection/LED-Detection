@@ -85,6 +85,13 @@ class SVGCreator():
         return led[0]
 
     def resize_led(self, led_element:etree.SubElement, delta_w, delta_h):
+        '''
+        resizing led
+        :param led_element:
+        :param delta_w:
+        :param delta_h:
+        :return:
+        '''
         width = float(led_element.get('width'))
         height = float(led_element.get('height'))
         width += delta_w
