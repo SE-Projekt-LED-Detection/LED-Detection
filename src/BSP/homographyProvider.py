@@ -1,4 +1,4 @@
-import cv2
+from cv2 import cv2
 import numpy as np
 import typing
 import matplotlib.pyplot as plt
@@ -28,22 +28,49 @@ def scale_point(point, scaling):
     scaled_point = (point[0]*scaling[0], point[1]*scaling[1])
     return scaled_point
 
-def get_led_roi(crn_pts_src, crn_pts_dst, reference_rois: list):
+
+def get_led_roi(homography_matrix, crn_pts, reference_hw, led_center):
     """
-    returns the calculated led roi
-    :param crn_pts_src:
-    :param crn_pts_dst:
-    :param reference_rois:
-    :return:
+        Returns the LEDs in the target image based on the homography matrix
+    :param homography_matrix: The homography matrix which translates points from the reference to the target
+    :param crn_pts: The calculated corner points of the target board
+    :param reference_hw: A tuple with the height and width of the reference board
+    :param led_center: A numpy list with the x,y coordinates of the centers of the LEDs
+    :return: The LEDs in the target image
     """
-    h, status = cv2.findHomography(crn_pts_src, crn_pts_dst)
 
-    (x_scale, y_scale) = calc_scale(crn_pts_src, crn_pts_dst)
+    # Calculates the scaling between the reference and the target board
+    scale_x = abs(crn_pts[0][0] - crn_pts[2][0]) / reference_hw[0]
+    scale_y = abs(crn_pts[0][1] - crn_pts[1][1]) / reference_hw[1]
 
-    rois_dst = map(lambda x: np.matmul(h,x), reference_rois)
-    rois_dst = map(lambda x: scale_point(x,(x_scale,y_scale)), rois_dst)
-    return rois_dst
+    # Transforms the center points
+    led_center = cv2.perspectiveTransform(np.array([led_center]), homography_matrix)[0]
+    radius = round(5 * max(scale_x, scale_y))
+    leds = led_by_circle_coordinates(led_center.astype(int), radius)
 
+    # Fills the squares except the circles of the LEDs with gray color
+    for led in leds:
+        x_coords = np.arange(0, led.shape[0])
+        y_coords = np.arange(0, led.shape[1])
+
+        cx = x_coords.size / 2
+        cy = y_coords.size / 2
+        for x in x_coords:
+            for y in y_coords:
+                in_circle = (x - cx)**2 + (y-cy)**2 < radius**2
+                led[x, y] = led[x, y, :] if in_circle else np.array([127, 127, 127])
+
+    return leds
+
+
+def led_by_circle_coordinates(circle_centers, r):
+    leds = []
+    for center in circle_centers:
+        top_left = (center[0] - r, center[1] - r)
+        bottom_right = (center[0] + r, center[1] + r)
+        led = img[top_left[1]:bottom_right[1], top_left[0]:bottom_right[0]]
+        leds.append(led)
+    return leds
 
 
 
