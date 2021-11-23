@@ -90,7 +90,7 @@ def get_led_roi(board_orientation, reference_hw, led_center):
     :param board_orientation: The orientation of the board in a BoardOrientation object
     :param reference_hw: A tuple with the height and width of the reference board
     :param led_center: A numpy list with the x,y coordinates of the centers of the LEDs
-    :return: The LEDs in the target image
+    :return: The LEDs in the target image as a list
     """
 
     # Calculates the scaling between the reference and the target board
