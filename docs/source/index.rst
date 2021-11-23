@@ -11,6 +11,8 @@ Welcome to LED / Board Status Detection's documentation!
    :caption: Contents:
 
 
+
+
 The goal of this project is to have an application for tracking status LEDs on controller boards over webcam.
 
 Requirements
