@@ -45,6 +45,9 @@ is inside the BoardOrientation object.
 Example
 -------------
 
+Following example calculates the orientation of the board, translates relative cooridnates into
+absolute in the target image and finally extracts the roi for the LEDs.
+
 .. code-block:: python
 
     #Loading the reference image
@@ -56,4 +59,7 @@ Example
     led_centers = np.float32([[2, 38], [2, 57]])
     #Extract ROI from target
     leds = get_led_roi(board_orientation, (ref.shape[0], ref.shape[1]), led_centers)
+    #Show LEDs
+    cv2.imshow("Led1", leds[0])
+    cv2.imshow("Led2", leds[1])
     cv2.waitKey(0)
