@@ -22,6 +22,7 @@ class ImagePane(tk.Frame):
         self.canvas = tk.Canvas(container, height=400, width=400)
         self.canvas.pack()
         self.points = []
+        self.leds = []
         self.anchor_points = []
         self.active_circle = 0
         self.change_state(CreationState.BOARD)
@@ -29,6 +30,8 @@ class ImagePane(tk.Frame):
         self.but.pack()
 
     def choose_image(self, img_path):
+        self.anchor_points.clear()
+        self.points.clear()
         self.img_path = img_path
         img = Image.open(self.img_path)
         self.images = [ImageTk.PhotoImage(img)]
@@ -54,10 +57,10 @@ class ImagePane(tk.Frame):
 
     def undo_point(self):
         if len(self.points) > 0:
-        self.points.pop()
-        point = self.anchor_points.pop()
-        self.canvas.delete(point)
-        self.update_polygon()
+            self.points.pop()
+            point = self.anchor_points.pop()
+            self.canvas.delete(point)
+            self.update_polygon()
 
     def check_hovered(self, cx, cy):
         circles = filter(lambda x: distance.euclidean((cx, cy), x) <= 10, self.points)
@@ -84,10 +87,10 @@ class ImagePane(tk.Frame):
         print(f"hover cirle: {event.x} {event.y}")
         print(f"active cirle: {self.active_circle}")
         if self.current_state == CreationState.BOARD:
-        anchor_point_ref = self.anchor_points[self.active_circle]
-        self.points[self.active_circle] = (event.x, event.y)
-        self.canvas.coords(anchor_point_ref, event.x - 10, event.y - 10, event.x + 10, event.y + 10)
-        self.update_polygon()
+            anchor_point_ref = self.anchor_points[self.active_circle]
+            self.points[self.active_circle] = (event.x, event.y)
+            self.canvas.coords(anchor_point_ref, event.x - 10, event.y - 10, event.x + 10, event.y + 10)
+            self.update_polygon()
         if self.current_state == CreationState.LED:
             pass
 
@@ -150,4 +153,5 @@ class ImagePane(tk.Frame):
             self.change_state(CreationState.BOARD)
 
     def add_led(self, event):
+        self.leds.append((event.x, event.y))
         self.create_circle(event.x, event.y, 20)
