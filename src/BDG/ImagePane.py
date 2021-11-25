@@ -77,27 +77,27 @@ class ImagePane(tk.Frame):
         """
         circles = self.check_hovered(event.x, event.y)
         if not circles:
-            if len(self.points) > 0:
+            if len(self.anchor_points) > 0:
                 self.canvas.delete("poly")
             print(f"frame coordinates: {event.x}, {event.y}")
-            self.points.append((event.x, event.y))
+            self.anchor_points.append((event.x, event.y))
             anchor_point = self.create_circle(event.x, event.y, 10)
-            self.anchor_points.append(anchor_point)
+            self.points.append(anchor_point)
             self.update_polygon()
-            self.active_circle = len(self.points) - 1
+            self.active_circle = len(self.anchor_points) - 1
         else:
-            self.active_circle = self.points.index(circles[0])
+            self.active_circle = self.anchor_points.index(circles[0])
 
 
 
     def undo_point(self):
-        self.points.pop()
-        point = self.anchor_points.pop()
+        self.anchor_points.pop()
+        point = self.points.pop()
         self.canvas.delete(point)
         self.update_polygon()
 
     def check_hovered(self, cx, cy):
-        circles = filter(lambda x: distance.euclidean((cx, cy), x) <= 10, self.points)
+        circles = filter(lambda x: distance.euclidean((cx, cy), x) <= 10, self.anchor_points)
         return list(circles)
 
     def create_circle(self, x, y, r):
@@ -108,20 +108,24 @@ class ImagePane(tk.Frame):
         return self.canvas.create_oval(x0, y0, x1, y1)
 
     def draw_circles(self):
-        for point in self.points:
+        for point in self.anchor_points:
             anchor_point = self.create_circle(point[0], point[1], 10)
-            self.anchor_points.append(anchor_point)
+            self.points.append(anchor_point)
 
     def delete_circles(self):
-        for ref in self.anchor_points:
+        """
+        deletes current displayed circles
+        :return:
+        """
+        for ref in self.points:
             self.canvas.delete(ref)
-        self.anchor_points = []
+        self.points = []
 
     def moving_anchor(self, event):
         print(f"hover cirle: {event.x} {event.y}")
         print(f"active cirle: {self.active_circle}")
-        anchor_point_ref = self.anchor_points[self.active_circle]
-        self.points[self.active_circle] = (event.x, event.y)
+        anchor_point_ref = self.points[self.active_circle]
+        self.anchor_points[self.active_circle] = (event.x, event.y)
         self.canvas.coords(anchor_point_ref, event.x - 10, event.y - 10, event.x + 10, event.y + 10)
         self.update_polygon()
 
@@ -132,8 +136,8 @@ class ImagePane(tk.Frame):
         """
         if self.polygon is not None:
             self.canvas.delete(self.polygon)
-        if len(self.points) > 1:
-            points = [y for x in self.points for y in x]
+        if len(self.anchor_points) > 1:
+            points = [y for x in self.anchor_points for y in x]
             self.polygon = self.create_polygon(*points,
                                                has_index="board",
                                                outline='#f11',
@@ -201,13 +205,13 @@ class ImagePane(tk.Frame):
     def remove_point(self, event):
         circles = self.check_hovered(event.x, event.y)
         if circles[0] is not None:
-            index = self.points.index(circles[0])
+            index = self.anchor_points.index(circles[0])
 
-            point = self.anchor_points[index]
+            point = self.points[index]
 
             self.canvas.delete(point)
-            self.points.remove(circles[0])
-            self.anchor_points.remove(point)
+            self.anchor_points.remove(circles[0])
+            self.points.remove(point)
             self.update_polygon()
 
 
@@ -225,6 +229,6 @@ class ImagePane(tk.Frame):
         if not circles:
             self.create_circle(event.x, event.y, 20)
         else:
-            self.active_circle = self.points.index(circles[0])
+            self.active_circle = self.anchor_points.index(circles[0])
 
 
