@@ -88,6 +88,10 @@ class ImagePane(tk.Frame):
         self.update_polygon()
 
     def update_polygon(self):
+        """
+
+        :return:
+        """
         if self.polygon is not None:
             self.canvas.delete(self.polygon)
         if len(self.points) > 1:
@@ -103,6 +107,16 @@ class ImagePane(tk.Frame):
             self.polygon = None
 
     def create_polygon(self, *args, **kwargs):
+        """
+        creates an polygon using either PIL or tk.Canvas-
+
+        Because tk.Canvas doesn't support RGBA, the PIL lib is used to create an tkImage,
+        which is added to the canvas
+        :param args: is an even array of coordinates such as [x0, y0, x1, y1, ... , xn, yn]
+        :param kwargs: are some named arguments which can be read in the ImageDraw Documentation. The fill keyword is required!
+
+        :return: an canvas element
+        """
         has_index = kwargs.pop("has_index") if "has_index" in kwargs else None
         if "alpha" in kwargs:
             if "fill" in kwargs:
@@ -127,15 +141,38 @@ class ImagePane(tk.Frame):
         return self.canvas.create_polygon(*args, **kwargs)
 
     def change_state(self, state: CreationState):
+        """
+        change state
+        :param state:
+        :return:
+        """
         self.current_state = state
         if self.current_state == CreationState.BOARD:
             self.canvas.bind("<Button-1>", self.add_point)
+            self.canvas.bind("<Button-2>", self.remove_point)
             self.canvas.bind("<B1-Motion>", self.moving_anchor)
             self.draw_circles()
         if self.current_state == CreationState.LED:
             self.delete_circles()
             self.canvas.bind("<Button-1>", self.add_led)#
             self.canvas.unbind("<B1-Motion>")
+
+
+
+    def remove_point(self, event):
+        circles = self.check_hovered(event.x, event.y)
+        if circles[0] is not None:
+            index = self.points.index(circles[0])
+
+            point = self.anchor_points[index]
+
+            self.canvas.delete(point)
+            self.points.remove(circles[0])
+            self.anchor_points.remove(point)
+            self.update_polygon()
+
+
+
 
 
     def toggle_state(self):
