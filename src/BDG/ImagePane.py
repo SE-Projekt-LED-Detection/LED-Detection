@@ -107,7 +107,7 @@ class ImagePane(tk.Frame):
         if self.current_state == CreationState.BOARD:
             circles = filter(lambda x: distance.euclidean((cx, cy), x) <= 10, self.anchor_points)
         if self.current_state == CreationState.LED:
-            circles = filter(lambda x: distance.euclidean((cx, cy), (x[0], x[1])) <= 10, self.leds)
+            circles = filter(lambda x: distance.euclidean((cx, cy), (x[0], x[1])) <= x[2], self.leds)
         return list(circles)
 
     def create_circle(self, x, y, r):
@@ -216,7 +216,7 @@ class ImagePane(tk.Frame):
             self.draw_circles()
         if self.current_state == CreationState.LED:
             self.delete_circles()
-            self.canvas.bind("<Button-1>", self.add_led)#
+            self.canvas.bind("<Button-1>", self.add_led)
 
 
 
@@ -248,6 +248,7 @@ class ImagePane(tk.Frame):
             led_ref = self.create_circle(event.x, event.y, 20)
             self.leds.append((event.x, event.y, 20))
             self.leds_references.append(led_ref)
+            self.active_circle = len(self.leds) - 1
         else:
             self.active_circle = self.leds.index(circles[0])
 
