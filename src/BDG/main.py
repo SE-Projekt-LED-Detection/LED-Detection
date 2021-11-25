@@ -8,7 +8,7 @@ class App(tk.Tk):
         super().__init__()
 
         self.title('Board Description Generator')
-        self.geometry('300x120')
+        self.geometry('1024x720')
 
         self.resizable(True, True)
 

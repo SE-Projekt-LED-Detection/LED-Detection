@@ -47,6 +47,7 @@ class ImagePane(tk.Frame):
         self.canvas = tk.Canvas(container, height=400, width=400)
         self.canvas.pack()
         self.points = []
+        self.leds = []
         self.anchor_points = []
         self.active_circle = 0
         self.change_state(CreationState.BOARD)
@@ -60,6 +61,8 @@ class ImagePane(tk.Frame):
         :param img_path: is a relative img path
         :return: void
         """
+        self.anchor_points.clear()
+        self.points.clear()
         self.img_path = img_path
         img = Image.open(self.img_path)
         self.images = [ImageTk.PhotoImage(img)]
@@ -91,10 +94,13 @@ class ImagePane(tk.Frame):
 
 
     def undo_point(self):
-        self.anchor_points.pop()
-        point = self.points.pop()
-        self.canvas.delete(point)
-        self.update_polygon()
+        if len(self.anchor_points) > 0:
+            self.anchor_points.pop()
+            point = self.points.pop()
+            self.canvas.delete(point)
+            self.update_polygon()
+
+
 
     def check_hovered(self, cx, cy):
         circles = filter(lambda x: distance.euclidean((cx, cy), x) <= 10, self.anchor_points)
@@ -124,10 +130,15 @@ class ImagePane(tk.Frame):
     def moving_anchor(self, event):
         print(f"hover cirle: {event.x} {event.y}")
         print(f"active cirle: {self.active_circle}")
-        anchor_point_ref = self.points[self.active_circle]
-        self.anchor_points[self.active_circle] = (event.x, event.y)
-        self.canvas.coords(anchor_point_ref, event.x - 10, event.y - 10, event.x + 10, event.y + 10)
-        self.update_polygon()
+
+        if self.current_state == CreationState.BOARD:
+            anchor_point_ref = self.points[self.active_circle]
+            self.anchor_points[self.active_circle] = (event.x, event.y)
+            self.canvas.coords(anchor_point_ref, event.x - 10, event.y - 10, event.x + 10, event.y + 10)
+            self.update_polygon()
+        if self.current_state == CreationState.LED:
+            pass
+
 
     def update_polygon(self):
         """
@@ -193,7 +204,7 @@ class ImagePane(tk.Frame):
             self.canvas.bind("<Button-1>", self.add_point)
             self.canvas.bind("<Button-2>", self.remove_point)
             self.canvas.bind("<B1-Motion>", self.moving_anchor)
-            self.canvas.bind("<Control-Z>", self.undo_point)
+            self.master.bind("<Control-z>", lambda x: self.undo_point())
             self.draw_circles()
         if self.current_state == CreationState.LED:
             self.delete_circles()
@@ -225,6 +236,8 @@ class ImagePane(tk.Frame):
             self.change_state(CreationState.BOARD)
 
     def add_led(self, event):
+        self.leds.append((event.x, event.y))
+        self.create_circle(event.x, event.y, 20)
         circles = self.check_hovered(event.x, event.y)
         if not circles:
             self.create_circle(event.x, event.y, 20)
