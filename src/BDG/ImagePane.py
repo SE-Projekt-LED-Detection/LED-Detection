@@ -209,7 +209,7 @@ class ImagePane(tk.Frame):
         self.current_state = state
         if self.current_state == CreationState.BOARD:
             self.canvas.bind("<Button-1>", self.add_point)
-            self.canvas.bind("<Button-2>", self.remove_point)
+            self.canvas.bind("<Button-3>", self.remove_point)
             self.canvas.bind("<B1-Motion>", self.moving_anchor)
             self.canvas.unbind("<MouseWheel>")
             self.master.bind("<Control-z>", lambda x: self.undo_point())
@@ -240,14 +240,22 @@ class ImagePane(tk.Frame):
     def remove_point(self, event):
         circles = self.check_hovered(event.x, event.y)
         if circles[0] is not None:
-            index = self.anchor_points.index(circles[0])
+            if self.current_state == CreationState.BOARD:
+                index = self.anchor_points.index(circles[0])
 
-            point = self.points[index]
+                point = self.points[index]
 
-            self.canvas.delete(point)
-            self.anchor_points.remove(circles[0])
-            self.points.remove(point)
-            self.update_polygon()
+                self.canvas.delete(point)
+                self.anchor_points.remove(circles[0])
+                self.points.remove(point)
+                self.update_polygon()
+            
+            if self.current_state == CreationState.LED:
+                index = self.leds.index(circles[0])
+                ref = self.leds_references[index]
+                self.canvas.delete(ref)
+                self.leds.remove(circles[0])
+                self.leds_references.remove(ref)
 
 
 
