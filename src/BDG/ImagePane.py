@@ -53,6 +53,7 @@ class ImagePane(tk.Frame):
             self.active_circle = self.points.index(circles[0])
 
     def undo_point(self):
+        if len(self.points) > 0:
         self.points.pop()
         point = self.anchor_points.pop()
         self.canvas.delete(point)
@@ -82,10 +83,13 @@ class ImagePane(tk.Frame):
     def moving_anchor(self, event):
         print(f"hover cirle: {event.x} {event.y}")
         print(f"active cirle: {self.active_circle}")
+        if self.current_state == CreationState.BOARD:
         anchor_point_ref = self.anchor_points[self.active_circle]
         self.points[self.active_circle] = (event.x, event.y)
         self.canvas.coords(anchor_point_ref, event.x - 10, event.y - 10, event.x + 10, event.y + 10)
         self.update_polygon()
+        if self.current_state == CreationState.LED:
+            pass
 
     def update_polygon(self):
         if self.polygon is not None:
@@ -131,6 +135,7 @@ class ImagePane(tk.Frame):
         if self.current_state == CreationState.BOARD:
             self.canvas.bind("<Button-1>", self.add_point)
             self.canvas.bind("<B1-Motion>", self.moving_anchor)
+            self.master.bind("<Control-z>", lambda x: self.undo_point())
             self.draw_circles()
         if self.current_state == CreationState.LED:
             self.delete_circles()
