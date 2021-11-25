@@ -211,14 +211,31 @@ class ImagePane(tk.Frame):
             self.canvas.bind("<Button-1>", self.add_point)
             self.canvas.bind("<Button-2>", self.remove_point)
             self.canvas.bind("<B1-Motion>", self.moving_anchor)
+            self.canvas.unbind("<MouseWheel>")
             self.master.bind("<Control-z>", lambda x: self.undo_point())
             self.master.bind("<t>", lambda x: self.toggle_state())
             self.draw_circles()
         if self.current_state == CreationState.LED:
             self.delete_circles()
             self.canvas.bind("<Button-1>", self.add_led)
+            self.canvas.bind("<MouseWheel>", self.on_mousewheel)
 
 
+
+    def on_mousewheel(self, event):
+        delta = -1 if event.num == 5 or event.delta == -120 else 1
+
+        circles = self.check_hovered(event.x, event.y)
+        if circles:
+            
+            active_led = circles[0]
+            index = self.leds.index(active_led)
+            led_ref = self.leds_references[index]
+
+            radius = active_led[2] + delta
+            self.leds[index] = (active_led[0], active_led[1], radius)
+            self.canvas.coords(led_ref, active_led[0] - radius, active_led[1] - radius, active_led[0] + radius, active_led[1] + radius)
+        
 
     def remove_point(self, event):
         circles = self.check_hovered(event.x, event.y)
