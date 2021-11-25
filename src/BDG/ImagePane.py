@@ -12,7 +12,32 @@ class CreationState(Enum):
 
 
 class ImagePane(tk.Frame):
+    """This class consist the drawing functionalities
+
+    TODO: Please move functionality in seperate model class!!!!
+
+    :param self.img_path: is a relative path to the image which is loaded
+    :type img_path: str
+    :param self.master: is the master frame in which this frame is inserted
+    :type master: tk.Frame
+    :param self.polygon: is a reference for the current polygon
+    :type polygon: Integer
+    :param self.polygon_images: is a dict holding the drawn polygons.
+        IMPORTANT: PLEASE DON'T DELETE THIS; OTHERWISE THE IMAGE IS OPTIMISED OUT
+    :type polygon_images: Dictionary with ELements of type tk.Image
+    :param self.canvas: is a tkinter canvas object
+    :param self.points: are the currently displayed circles
+    :param self.active_circle: is a reference as Integer to the currently selected circle
+    :param self.anchor_points: are the anchor points for the polygon
+
+    """
+
     def __init__(self, container):
+
+        """
+
+        :param container:
+        """
         tk.Frame.__init__(self, container)
         self.master = container
         self.images = None
@@ -29,6 +54,12 @@ class ImagePane(tk.Frame):
         self.but.pack()
 
     def choose_image(self, img_path):
+        """
+        opens an image and draws it on the canvas.
+        The canvas is resized to the size of the image
+        :param img_path: is a relative img path
+        :return: void
+        """
         self.img_path = img_path
         img = Image.open(self.img_path)
         self.images = [ImageTk.PhotoImage(img)]
@@ -39,6 +70,11 @@ class ImagePane(tk.Frame):
         self.canvas.pack()
 
     def add_point(self, event):
+        """
+
+        :param event:
+        :return:
+        """
         circles = self.check_hovered(event.x, event.y)
         if not circles:
             if len(self.points) > 0:
@@ -51,6 +87,8 @@ class ImagePane(tk.Frame):
             self.active_circle = len(self.points) - 1
         else:
             self.active_circle = self.points.index(circles[0])
+
+
 
     def undo_point(self):
         self.points.pop()
@@ -151,6 +189,7 @@ class ImagePane(tk.Frame):
             self.canvas.bind("<Button-1>", self.add_point)
             self.canvas.bind("<Button-2>", self.remove_point)
             self.canvas.bind("<B1-Motion>", self.moving_anchor)
+            self.canvas.bind("<Control-Z>", self.undo_point)
             self.draw_circles()
         if self.current_state == CreationState.LED:
             self.delete_circles()
@@ -182,4 +221,10 @@ class ImagePane(tk.Frame):
             self.change_state(CreationState.BOARD)
 
     def add_led(self, event):
-        self.create_circle(event.x, event.y, 20)
+        circles = self.check_hovered(event.x, event.y)
+        if not circles:
+            self.create_circle(event.x, event.y, 20)
+        else:
+            self.active_circle = self.points.index(circles[0])
+
+
