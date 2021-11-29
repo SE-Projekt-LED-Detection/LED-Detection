@@ -55,6 +55,9 @@ class ImagePane(tk.Frame):
         self.but = tk.Button(container, text="Toggle ", command=self.toggle_state)
         self.but.pack()
 
+        self.master.bind("<Control-z>", lambda x: self.undo_point())
+        self.master.bind("<t>", lambda x: self.toggle_state())
+
     def choose_image(self, img_path):
         """
         opens an image and draws it on the canvas.
@@ -95,11 +98,17 @@ class ImagePane(tk.Frame):
 
 
     def undo_point(self):
-        if len(self.anchor_points) > 0:
-            self.anchor_points.pop()
-            point = self.points.pop()
-            self.canvas.delete(point)
-            self.update_polygon()
+        if self.current_state == CreationState.BOARD:
+            if len(self.anchor_points) > 0:
+                self.anchor_points.pop()
+                point = self.points.pop()
+                self.canvas.delete(point)
+                self.update_polygon()
+        if self.current_state == CreationState.LED:
+            if len(self.leds) > 0:
+                self.leds.pop()
+                ref = self.leds_references.pop()
+                self.canvas.delete(ref)
 
 
 
@@ -214,8 +223,6 @@ class ImagePane(tk.Frame):
             self.canvas.unbind("<MouseWheel>")  # On Windows
             self.canvas.unbind("<Button-4>")  # On Linux
             self.canvas.unbind("<Button-5>")  # On Linux
-            self.master.bind("<Control-z>", lambda x: self.undo_point())
-            self.master.bind("<t>", lambda x: self.toggle_state())
             self.draw_circles()
         if self.current_state == CreationState.LED:
             self.delete_circles()
