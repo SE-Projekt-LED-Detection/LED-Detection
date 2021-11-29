@@ -211,19 +211,27 @@ class ImagePane(tk.Frame):
             self.canvas.bind("<Button-1>", self.add_point)
             self.canvas.bind("<Button-3>", self.remove_point)
             self.canvas.bind("<B1-Motion>", self.moving_anchor)
-            self.canvas.unbind("<MouseWheel>")
+            self.canvas.unbind("<MouseWheel>")  # On Windows
+            self.canvas.unbind("<Button-4>")  # On Linux
+            self.canvas.unbind("<Button-5>")  # On Linux
             self.master.bind("<Control-z>", lambda x: self.undo_point())
             self.master.bind("<t>", lambda x: self.toggle_state())
             self.draw_circles()
         if self.current_state == CreationState.LED:
             self.delete_circles()
             self.canvas.bind("<Button-1>", self.add_led)
-            self.canvas.bind("<MouseWheel>", self.on_mousewheel)
+            self.canvas.bind("<MouseWheel>", self.on_mousewheel)  # On Windows
+            self.canvas.bind("<Button-4>", self.on_mousewheel)  # On Linux
+            self.canvas.bind("<Button-5>", self.on_mousewheel)  # On Linux
 
 
 
     def on_mousewheel(self, event):
-        delta = -1 if event.num == 5 or event.delta == -120 else 1
+        count = 0
+        if event.num == 5 or event.delta == -120:
+            count = -1
+        if event.num == 4 or event.delta == 120:
+            count = 1
 
         circles = self.check_hovered(event.x, event.y)
         if circles:
@@ -232,7 +240,7 @@ class ImagePane(tk.Frame):
             index = self.leds.index(active_led)
             led_ref = self.leds_references[index]
 
-            radius = active_led[2] + delta
+            radius = active_led[2] + count
             self.leds[index] = (active_led[0], active_led[1], radius)
             self.canvas.coords(led_ref, active_led[0] - radius, active_led[1] - radius, active_led[0] + radius, active_led[1] + radius)
         
