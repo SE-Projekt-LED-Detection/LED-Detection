@@ -58,6 +58,7 @@ class ImagePane(tk.Frame):
         self.but.pack()
 
         self.master.bind("<Control-z>", lambda x: self.undo_point())
+        self.master.bind("<Control-y>", lambda x: self.redo_point())
         self.master.bind("<t>", lambda x: self.toggle_state())
 
     def choose_image(self, img_path):
