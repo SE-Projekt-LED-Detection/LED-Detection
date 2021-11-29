@@ -49,6 +49,8 @@ class ImagePane(tk.Frame):
         self.points = []
         self.leds = []
         self.leds_references = []
+        self.undone_points = []
+        self.undone_leds = []
         self.anchor_points = []
         self.active_circle = 0
         self.change_state(CreationState.BOARD)
@@ -76,37 +78,52 @@ class ImagePane(tk.Frame):
         self.canvas.create_image(0, 0, anchor=tk.NW, image=self.images[0])
         self.canvas.pack()
 
-    def add_point(self, event):
-        """
-
-        :param event:
-        :return:
-        """
-        circles = self.check_hovered(event.x, event.y)
+    def add_point_by_coordinates(self, x, y):
+        circles = self.check_hovered(x, y)
         if not circles:
             if len(self.anchor_points) > 0:
                 self.canvas.delete("poly")
-            print(f"frame coordinates: {event.x}, {event.y}")
-            self.anchor_points.append((event.x, event.y))
-            anchor_point = self.create_circle(event.x, event.y, 10)
+            print(f"frame coordinates: {x}, {y}")
+            self.anchor_points.append((x, y))
+            anchor_point = self.create_circle(x, y, 10)
             self.points.append(anchor_point)
             self.update_polygon()
             self.active_circle = len(self.anchor_points) - 1
         else:
             self.active_circle = self.anchor_points.index(circles[0])
 
+    def add_led_by_coordinates(self, x, y):
+        circles = self.check_hovered(x, y)
+        if not circles:
+            led_ref = self.create_circle(x, y, 20)
+            self.leds.append((x, y, 20))
+            self.leds_references.append(led_ref)
+            self.active_circle = len(self.leds) - 1
+        else:
+            self.active_circle = self.leds.index(circles[0])
 
+    def redo_point(self):
+        if self.current_state == CreationState.BOARD:
+            if len(self.undone_points) > 0:
+                point = self.undone_points.pop()
+                self.add_point_by_coordinates(point[0], point[1])
+        if self.current_state == CreationState.LED:
+            if len(self.undone_leds) > 0:
+                led = self.undone_leds.pop()
+                self.add_led_by_coordinates(led[0], led[1])
 
     def undo_point(self):
         if self.current_state == CreationState.BOARD:
             if len(self.anchor_points) > 0:
-                self.anchor_points.pop()
+                coordinates_point = self.anchor_points.pop()
                 point = self.points.pop()
+                self.undone_points.append(coordinates_point)
                 self.canvas.delete(point)
                 self.update_polygon()
         if self.current_state == CreationState.LED:
             if len(self.leds) > 0:
-                self.leds.pop()
+                led = self.leds.pop()
+                self.undone_leds.append(led)
                 ref = self.leds_references.pop()
                 self.canvas.delete(ref)
 
@@ -217,7 +234,7 @@ class ImagePane(tk.Frame):
         """
         self.current_state = state
         if self.current_state == CreationState.BOARD:
-            self.canvas.bind("<Button-1>", self.add_point)
+            self.canvas.bind("<Button-1>", lambda e: self.add_point_by_coordinates(e.x, e.y))
             self.canvas.bind("<Button-3>", self.remove_point)
             self.canvas.bind("<B1-Motion>", self.moving_anchor)
             self.canvas.unbind("<MouseWheel>")  # On Windows
@@ -226,7 +243,7 @@ class ImagePane(tk.Frame):
             self.draw_circles()
         if self.current_state == CreationState.LED:
             self.delete_circles()
-            self.canvas.bind("<Button-1>", self.add_led)
+            self.canvas.bind("<Button-1>", lambda e: self.add_led_by_coordinates(e.x, e.y))
             self.canvas.bind("<MouseWheel>", self.on_mousewheel)  # On Windows
             self.canvas.bind("<Button-4>", self.on_mousewheel)  # On Linux
             self.canvas.bind("<Button-5>", self.on_mousewheel)  # On Linux
@@ -282,14 +299,5 @@ class ImagePane(tk.Frame):
         else:
             self.change_state(CreationState.BOARD)
 
-    def add_led(self, event):
-        circles = self.check_hovered(event.x, event.y)
-        if not circles:
-            led_ref = self.create_circle(event.x, event.y, 20)
-            self.leds.append((event.x, event.y, 20))
-            self.leds_references.append(led_ref)
-            self.active_circle = len(self.leds) - 1
-        else:
-            self.active_circle = self.leds.index(circles[0])
 
 

@@ -23,7 +23,7 @@ class ControlPane(tk.Frame):
         self.imagePane = ImagePane(container)
 
         editMenu.add_command(label="Undo", command=self.imagePane.undo_point)
-        editMenu.add_command(label="Redo")
+        editMenu.add_command(label="Redo", command=self.imagePane.redo_point)
 
         fileMenu.add_command(label="open", command=self.chooseImage)
         fileMenu.add_command(label="save", command=self.save_image)
