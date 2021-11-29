@@ -7,3 +7,4 @@ opencv-python~=4.5.4.58
 future
 pillow
 lxml
+scipy
