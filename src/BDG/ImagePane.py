@@ -103,10 +103,23 @@ class ImagePane(tk.Frame):
 
 
     def check_hovered(self, cx, cy):
+        """
+        helper function for
+        :param cx:
+        :param cy:
+        :return:
+        """
         circles = filter(lambda x: distance.euclidean((cx, cy), x) <= 10, self.anchor_points)
         return list(circles)
 
     def create_circle(self, x, y, r):
+        """
+        helper function for creating circle
+        :param x: is the centered x
+        :param y: is the centered y
+        :param r: is the radius
+        :return: a canvas object ref represented as Integer
+        """
         x0 = x - r
         y0 = y - r
         x1 = x + r
@@ -142,8 +155,9 @@ class ImagePane(tk.Frame):
 
     def update_polygon(self):
         """
+        Reads the current anchor_points and updates shape of polygon
 
-        :return:
+        :return: void
         """
         if self.polygon is not None:
             self.canvas.delete(self.polygon)
@@ -195,25 +209,25 @@ class ImagePane(tk.Frame):
 
     def change_state(self, state: CreationState):
         """
-        change state
+        change state between Board and LED State
         :param state:
         :return:
         """
         self.current_state = state
         if self.current_state == CreationState.BOARD:
-            self.canvas.bind("<Button-1>", self.add_point)
-            self.canvas.bind("<Button-2>", self.remove_point)
-            self.canvas.bind("<B1-Motion>", self.moving_anchor)
-            self.master.bind("<Control-z>", lambda x: self.undo_point())
-            self.draw_circles()
+            self.__activate_board_state()
         if self.current_state == CreationState.LED:
-            self.delete_circles()
-            self.canvas.bind("<Button-1>", self.add_led)#
-            self.canvas.unbind("<B1-Motion>")
+            self.__activate_led_state()
 
 
 
-    def remove_point(self, event):
+
+    def remove_anchor_point(self, event):
+        """
+        removes an anchor_point
+        :param event: is a Mouse event
+        :return:
+        """
         circles = self.check_hovered(event.x, event.y)
         if circles[0] is not None:
             index = self.anchor_points.index(circles[0])
@@ -226,10 +240,34 @@ class ImagePane(tk.Frame):
             self.update_polygon()
 
 
+    def __activate_board_state(self):
+        """
+        change all bindings to board state settings
+        :return: void
+        """
+        self.canvas.bind("<Button-1>", self.add_point)
+        self.canvas.bind("<Button-2>", self.remove_anchor_point)
+        self.canvas.bind("<B1-Motion>", self.moving_anchor)
+        self.master.bind("<Control-z>", lambda x: self.undo_point())
+        self.draw_circles()
+
+    def __activate_led_state(self):
+        """
+        change all bindings to led state settings
+        :return: void
+        """
+        self.delete_circles()
+        self.canvas.bind("<Button-1>", self.add_led)  #
+        self.canvas.unbind("<B1-Motion>")
 
 
 
     def toggle_state(self):
+        """
+        This is just a helper function for toggling between the states.
+        TODO:: DELETE THIS STUPID FUNCTION
+        :return:
+        """
         if self.current_state == CreationState.BOARD:
             self.change_state(CreationState.LED)
         else:
@@ -243,5 +281,10 @@ class ImagePane(tk.Frame):
             self.create_circle(event.x, event.y, 20)
         else:
             self.active_circle = self.anchor_points.index(circles[0])
+
+
+
+
+
 
 
