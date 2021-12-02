@@ -1,9 +1,12 @@
     """
     Utility functions for creating Board Description Model such as Sorting Points
     """
+from typing import Dict
 import numpy as np
 import base64
 import pathlib
+
+from src.BDG.model.BoardDescriptionModel import Board
 
 
 def find_index_closest_point(arr, point):
@@ -62,7 +65,7 @@ def angle_between(v1, v2):
     return np.arccos(np.dot(v1_u, v2_u))
 
 
-def convert_image_to_data_uri(path: str):
+def convert_image_to_data_uri(path: str) -> str:
     '''
     reads an image from path and converts it to a data uri scheme as string
 
@@ -80,3 +83,4 @@ def convert_image_to_data_uri(path: str):
         base64_message = base64_encoded_data.decode('utf-8')
         datauri = prefix + base64_message
         return datauri
+

@@ -1,13 +1,14 @@
-
+from numbers import Number
 from scipy import spatial
 import typing
 import numpy as np
 import util
 import cv2 as cv
+from PIL import Image
 
 
 class Led:
-    def __init__(self, postion: np.array, radius, colors: typing.List[str]):
+    def __init__(self,identifier:str, postion: np.array, radius, colors: typing.List[str]):
         """Creates a LED Dataclass
 
         Args:
@@ -15,6 +16,7 @@ class Led:
                 of the Board showing to the center of the led
             radius ([type]): is the radius
         """
+        self.id = identifier
         self.position = postion
         self.radius = radius
         self.colors = colors
@@ -23,7 +25,7 @@ class Led:
 class Board:
     """Defines the position of the Board"""
 
-    def __init__(self, name: str, author: str, img: str, corners, led_objects=[], ):
+    def __init__(self, name = "", author= "", img_path="", corners = None, led_objects=[], pil_image = None):
         """inits Board description
 
         Args:
@@ -33,22 +35,30 @@ class Board:
             corners (np.array): Corner coordinates for the board. Defaults to [].
             led_objects (list, optional): List of all LEDs . Defaults to [].
         """
-        self.name = name
+        self.id = name
         self.author = author
         self.corners = corners
         self.led = led_objects
-        self.img = img
+        self.img_path = img_path
+        if(img_path is not ""):
+            self.pil_image = Image.open(img_path)
+        else:
+            self.pil_image = pil_image
 
-    def set_board_corners(self, points: np.array):
+
+
+
+    def set_board_corners(self, points: typing.List[Number]):
         """creates corner points and sorted them against clockwise direction
 
         Args:
             points (np.array): is an array of points which are a convex polygon
         """
+        points = np.array(points)
         sorted_points = util.sort_points(points)
         self.corners = sorted_points
-    
-    def add_led(self, led:Led, relative_vector= False):
+
+    def add_led(self, led: Led, relative_vector=False):
         """Adds an led object and calculates the relative vector if the given vector is from (0,0)
         Args:
             led ([type]): is an led object
@@ -57,11 +67,19 @@ class Board:
                 Defaults to False.
         """
         if(not relative_vector):
-            
+            led.position = self.get_relative_vector(led.position)
 
+        self.led.append(led)
 
-    
-    def get_relative_vector(self, vector:np.array):
+    def set_image(self, pil_image: Image):
+        """sets pil image
+
+        Args:
+            pil_image (Image): is an PIL image
+        """
+        self.pil_image = pil_image
+
+    def get_relative_vector(self, vector: np.array):
         """helper class for calculating relative vector
 
         Args:
@@ -73,34 +91,11 @@ class Board:
         assert(self.corners is not None)
         assert(self.corners.size > 0)
 
-        ul_corner = self.corners[0] # get upper left corner, assert corners are sorted
+        # get upper left corner, assert corners are sorted
+        ul_corner = self.corners[0]
         relative_vector = ul_corner - vector
         return relative_vector
 
 
 
 
-
-if __name__ == '__main__':
-
-    # Create a black image
-    img = np.zeros((1000, 1000, 3), np.uint8)
-    for i in range(10):
-        pts = np.random.random((4, 2))
-        pts = pts*400
-        pts = pts.astype(np.int32)
-
-        images = pts.reshape((-1, 1, 2))
-        cv.polylines(img, [images], True, (255, 0, 0))
-        srt_pts = util.sort_points(pts)
-        images = srt_pts.reshape((-1, 1, 2))
-        cv.polylines(img, [images], True, (0, 255, 255))
-        cv.imshow("image", img)
-        print(util.sort_points(pts))
-
-        # waits for user to press any key
-        # (this is necessary to avoid Python kernel form crashing)
-        cv.waitKey(0)
-
-    # closing all open windows
-    cv.destroyAllWindows()
