@@ -7,6 +7,10 @@ from scipy.spatial import distance
 
 
 class CreationState(Enum):
+    """
+    The current placement mode. If it is BOARD, an anchor point is placed on left mouse click,
+    if it is LED a LED is placed.
+    """
     BOARD = "board"
     LED = "led"
 
@@ -14,7 +18,7 @@ class CreationState(Enum):
 class ImagePane(tk.Frame):
     """This class consist the drawing functionalities
 
-    TODO: Please move functionality in seperate model class!!!!
+    TODO: Please move functionality in separate model class!!!!
 
     :param self.img_path: is a relative path to the image which is loaded
     :type img_path: str
@@ -24,7 +28,7 @@ class ImagePane(tk.Frame):
     :type polygon: Integer
     :param self.polygon_images: is a dict holding the drawn polygons.
         IMPORTANT: PLEASE DON'T DELETE THIS; OTHERWISE THE IMAGE IS OPTIMISED OUT
-    :type polygon_images: Dictionary with ELements of type tk.Image
+    :type polygon_images: Dictionary with Elements of type tk.Image
     :param self.canvas: is a tkinter canvas object
     :param self.points: are the currently displayed circles
     :param self.active_circle: is a reference as Integer to the currently selected circle
@@ -80,6 +84,11 @@ class ImagePane(tk.Frame):
         self.canvas.pack()
 
     def add_point_by_coordinates(self, x, y):
+        """
+        Creates a anchor point at the given coordinates.
+        :param x: The x coordinate of the anchor point.
+        :param y: The y coordinates of the anchor point.
+        """
         circles = self.check_hovered(x, y)
         if not circles:
             if len(self.anchor_points) > 0:
@@ -94,6 +103,11 @@ class ImagePane(tk.Frame):
             self.active_circle = self.anchor_points.index(circles[0])
 
     def add_led_by_coordinates(self, x, y):
+        """
+        Creates a LED at the given coordinates.
+        :param x: The x coordinates of the LED.
+        :param y: The y coordinate of the LED.
+        """
         circles = self.check_hovered(x, y)
         if not circles:
             led_ref = self.create_circle(x, y, 20)
@@ -104,6 +118,9 @@ class ImagePane(tk.Frame):
             self.active_circle = self.leds.index(circles[0])
 
     def redo_point(self):
+        """
+        Redo the last LED/point if available.
+        """
         if self.current_state == CreationState.BOARD:
             if len(self.undone_points) > 0:
                 point = self.undone_points.pop()
@@ -114,6 +131,10 @@ class ImagePane(tk.Frame):
                 self.add_led_by_coordinates(led[0], led[1])
 
     def undo_point(self):
+        """
+        Undo the last set LED or Anchor point.
+        The undone led/point is saved in a list for the redo operation.
+        """
         if self.current_state == CreationState.BOARD:
             if len(self.anchor_points) > 0:
                 coordinates_point = self.anchor_points.pop()
@@ -132,9 +153,9 @@ class ImagePane(tk.Frame):
 
     def check_hovered(self, cx, cy):
         """
-        helper function for
-        :param cx:
-        :param cy:
+        Helper function for checking the currently hovered anchor point or LED.
+        :param cx: The x coordinate to check
+        :param cy: The y coordinate to check
         :return:
         """
         circles = filter(lambda x: distance.euclidean((cx, cy), x) <= 10, self.anchor_points)
@@ -173,8 +194,12 @@ class ImagePane(tk.Frame):
         self.points = []
 
     def moving_anchor(self, event):
-        print(f"hover cirle: {event.x} {event.y}")
-        print(f"active cirle: {self.active_circle}")
+        """
+        Moves the currently selected anchor point or LED
+        :param event:
+        """
+        print(f"hover circle: {event.x} {event.y}")
+        print(f"active circle: {self.active_circle}")
 
         if self.current_state == CreationState.BOARD:
             anchor_point_ref = self.points[self.active_circle]
@@ -267,6 +292,10 @@ class ImagePane(tk.Frame):
 
 
     def on_mousewheel(self, event):
+        """
+        Changes the size of the currently hovered LED.
+        :param event:
+        """
         count = 0
         if event.num == 5 or event.delta == -120:
             count = -1
