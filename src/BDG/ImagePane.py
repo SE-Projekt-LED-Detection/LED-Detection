@@ -75,15 +75,13 @@ class ImagePane(tk.Frame):
         self.points.clear()
         self.img_path = img_path
         self.img = Image.open(self.img_path)
-
-        basewidth = self.master.winfo_width()
-        wpercent = (basewidth / float(self.img.size[0]))
-        hsize = int((float(self.img.size[1]) * float(wpercent)))
-        self.img = self.img.resize((basewidth, hsize), Image.ANTIALIAS)
         self.images = [ImageTk.PhotoImage(self.img)]
         self.canvas.create_image(0, 0, anchor=tk.NW, image=self.images[0])
         self.canvas.pack(fill="both", expand="True")
         self.canvas.bind("<Configure>", self.on_resize)
+
+        # Initial resize of the image by calling event
+        self.canvas.event_generate("<Configure>", width=self.canvas.winfo_width(), height=self.canvas.winfo_height())
 
     def on_resize(self, event):
         """
