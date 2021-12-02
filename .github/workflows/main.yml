@@ -16,4 +16,4 @@ jobs:
     - name: deploy action
       env:
         SERVER_PW: ${{ secrets.SERVER_PW }}
-      run: sshpass -p "$SERVER_PW" ssh -o "StrictHostKeyChecking=no" root@89.58.3.45 master #${{ inputs.branch }},
+      run: sshpass -p "$SERVER_PW" ssh -o "StrictHostKeyChecking=no" root@89.58.3.45 "echo here" #${{ inputs.branch }},
