@@ -1,6 +1,6 @@
 sphinx
 sphinx_rtd_theme
-sphinxcontrib-plantuml 
+sphinxcontrib-plantuml
 numpy
 pandas
 matplotlib
@@ -11,3 +11,4 @@ lxml
 scipy
 dataclasses
 sklearn
+
