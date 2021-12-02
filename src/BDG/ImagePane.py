@@ -251,7 +251,7 @@ class ImagePane(tk.Frame):
         self.current_state = state
         if self.current_state == CreationState.BOARD:
             self.canvas.bind("<Button-1>", lambda e: self.add_point_by_coordinates(e.x, e.y))
-            self.canvas.bind("<Button-3>", self.remove_point)
+            self.canvas.bind("<Button-3>", self.remove_anchor_point)
             self.canvas.bind("<B1-Motion>", self.moving_anchor)
             self.canvas.unbind("<MouseWheel>")  # On Windows
             self.canvas.unbind("<Button-4>")  # On Linux
