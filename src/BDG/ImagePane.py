@@ -45,11 +45,12 @@ class ImagePane(tk.Frame):
         tk.Frame.__init__(self, container)
         self.master = container
         self.images = None
+        self.img = None
         self.img_path = None
         self.polygon = None
         self.polygon_images = {}
-        self.canvas = tk.Canvas(container, height=400, width=400)
-        self.canvas.pack()
+        self.canvas = tk.Canvas(container, height=720, width=1024)
+        self.canvas.pack(fill="both", expand="True")
         self.points = []
         self.leds = []
         self.leds_references = []
@@ -58,8 +59,8 @@ class ImagePane(tk.Frame):
         self.anchor_points = []
         self.active_circle = 0
         self.change_state(CreationState.BOARD)
-        self.but = tk.Button(container, text="Toggle ", command=self.toggle_state)
-        self.but.pack()
+        #self.but = tk.Button(container, text="Toggle ", command=self.toggle_state)
+        #self.but.pack()
 
         self.master.bind("<Control-z>", lambda x: self.undo_point())
         self.master.bind("<Control-y>", lambda x: self.redo_point())
@@ -75,13 +76,35 @@ class ImagePane(tk.Frame):
         self.anchor_points.clear()
         self.points.clear()
         self.img_path = img_path
-        img = Image.open(self.img_path)
-        self.images = [ImageTk.PhotoImage(img)]
-        w = self.images[0].width()
-        h = self.images[0].height()
-        self.canvas.config(width=w, height=h)
+        self.img = Image.open(self.img_path)
+
+        basewidth = self.master.winfo_width()
+        wpercent = (basewidth / float(self.img.size[0]))
+        hsize = int((float(self.img.size[1]) * float(wpercent)))
+        self.img = self.img.resize((basewidth, hsize), Image.ANTIALIAS)
+        self.images = [ImageTk.PhotoImage(self.img)]
         self.canvas.create_image(0, 0, anchor=tk.NW, image=self.images[0])
-        self.canvas.pack()
+        self.canvas.pack(fill="both", expand="True")
+        self.canvas.bind("<Configure>", self.on_resize)
+
+    def on_resize(self, event):
+        """
+        Resizes the image in the canvas to fit the canvas while still having the same proportions.
+        :param event:
+        """
+        basewidth = event.width
+        baseheight = event.height
+        wpercent = (basewidth / float(self.img.size[0]))
+        hsize = int((float(self.img.size[1]) * float(wpercent)))
+
+        if hsize > baseheight:
+            hsize = baseheight
+            hpercent = baseheight / float(self.img.size[1])
+            basewidth = int((float(self.img.size[0]) * float(hpercent)))
+
+        scaled_image = self.img.resize((basewidth, hsize), Image.ANTIALIAS)
+        self.images = [ImageTk.PhotoImage(scaled_image)]
+        self.canvas.create_image(0, 0, anchor=tk.NW, image=self.images[0])
 
     def add_point_by_coordinates(self, x, y):
         """
