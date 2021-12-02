@@ -59,8 +59,6 @@ class ImagePane(tk.Frame):
         self.anchor_points = []
         self.active_circle = 0
         self.change_state(CreationState.BOARD)
-        #self.but = tk.Button(container, text="Toggle ", command=self.toggle_state)
-        #self.but.pack()
 
         self.master.bind("<Control-z>", lambda x: self.undo_point())
         self.master.bind("<Control-y>", lambda x: self.redo_point())

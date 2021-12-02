@@ -27,6 +27,9 @@ class ControlPane(tk.Frame):
 
         fileMenu.add_command(label="open", command=self.chooseImage)
         fileMenu.add_command(label="save", command=self.save_image)
+
+        menu.add_command(label="Toggle mode", command=self.imagePane.toggle_state)
+
     def chooseImage(self):
         path = askopenfilename()
         self.imagePane.choose_image(img_path=path)
