@@ -8,10 +8,10 @@ jobs:
     container:
       image: ictu/sshpass
     steps:
-    - name: Extract branch name
-      shell: bash
-      run: echo "##[set-output name=branch;]$(echo ${GITHUB_REF#refs/heads/})"
-      id: extract_branch
+    #- name: Extract branch name
+    #  shell: bash
+    #  run: echo "##[set-output name=branch;]$(echo ${GITHUB_REF#refs/heads/})"
+    #  id: extract_branch
 
     - name: deploy action
-      run: sshpass -p ${{ secrets.SERVER_PW }} ssh -o "StrictHostKeyChecking=no" root@89.58.3.45 ${{ inputs.branch }}
+      run: sshpass -p ${{ secrets.SERVER_PW }} ssh -o "StrictHostKeyChecking=no" root@89.58.3.45 maser #${{ inputs.branch }}
