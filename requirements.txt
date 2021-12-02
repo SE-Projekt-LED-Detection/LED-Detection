@@ -8,3 +8,5 @@ future
 pillow
 lxml
 scipy
+dataclasses
+sklearn
