@@ -111,11 +111,15 @@ class ImagePane(tk.Frame):
     def add_point_by_coordinates(self, x, y):
         """
         Creates a anchor point at the given coordinates.
+        Only 4 anchor points can exist at the same time.
         :param x: The x coordinate of the anchor point.
         :param y: The y coordinates of the anchor point.
         """
         circles = self.check_hovered(x, y)
         if not circles:
+            if len(self.anchor_points) >= 4:
+                return
+
             if len(self.anchor_points) > 0:
                 self.canvas.delete("poly")
             print(f"frame coordinates: {x}, {y}")
@@ -147,7 +151,7 @@ class ImagePane(tk.Frame):
         Redo the last LED/point if available.
         """
         if self.current_state == CreationState.BOARD:
-            if len(self.undone_points) > 0:
+            if len(self.undone_points) > 0 and len(self.anchor_points) < 4:
                 point = self.undone_points.pop()
                 self.add_point_by_coordinates(point[0], point[1])
         if self.current_state == CreationState.LED:
