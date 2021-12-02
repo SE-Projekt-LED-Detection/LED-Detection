@@ -59,6 +59,8 @@ class ImagePane(tk.Frame):
         self.anchor_points = []
         self.active_circle = 0
         self.change_state(CreationState.BOARD)
+        self.scaling_w = 1
+        self.scaling_h = 1
 
         self.master.bind("<Control-z>", lambda x: self.undo_point())
         self.master.bind("<Control-y>", lambda x: self.redo_point())
@@ -91,12 +93,16 @@ class ImagePane(tk.Frame):
         basewidth = event.width
         baseheight = event.height
         wpercent = (basewidth / float(self.img.size[0]))
+        hpercent = baseheight / float(self.img.size[1])
         hsize = int((float(self.img.size[1]) * float(wpercent)))
 
         if hsize > baseheight:
             hsize = baseheight
-            hpercent = baseheight / float(self.img.size[1])
+
             basewidth = int((float(self.img.size[0]) * float(hpercent)))
+
+        self.scaling_h = hpercent
+        self.scaling_w = wpercent
 
         scaled_image = self.img.resize((basewidth, hsize), Image.ANTIALIAS)
         self.images = [ImageTk.PhotoImage(scaled_image)]
