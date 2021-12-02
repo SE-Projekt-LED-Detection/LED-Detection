@@ -32,7 +32,7 @@ def from_json(json_str: str) -> Board:
 
     led_dicts = json_dict.get("led_objects", default=[])
 
-    board.set_board_corners(json_dict.get("corner_points"))
+    board.set_board_corners(json_dict.get("corners"))
     # True if vectors are from UL Corner -> see BoardDescripionModel
     relative_vectors = json_dict.get("relative_positions", default="True")
 
@@ -43,5 +43,29 @@ def from_json(json_str: str) -> Board:
         board.add_led(led_object, relative_vectors)
 
     board.author = json_dict.get("author", default="anonymous")
-    board.id = json_dict.get("identifier")
+    board.id = json_dict.get("id")
 
+
+def to_json(board: Board) -> str:
+    """Converts a Board Model to a json string
+
+    Args:
+        board (Board): is a valid Board instance
+
+    Returns:
+        str: is a json representation
+    """
+    dict = json.dump(board)
+
+
+
+def to_json(led: Led) -> str:
+    """Converts a led to a json string
+
+    Args:
+        led (Led): [description]
+
+    Returns:
+        str: [description]
+    """
+    pass
