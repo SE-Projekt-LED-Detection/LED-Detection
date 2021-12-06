@@ -114,21 +114,30 @@ class ImagePane(tk.Frame):
         self.update_points_scaling(basewidth, hsize)
 
     def update_points_scaling(self, new_width, new_height):
+        """
+        Moves the LEDs and anchor points of the image to be relatively at the same position on teh resized image
+        with new_width and new_height
+        :param new_width: The new width of the resized image
+        :param new_height: The new height of the resized image
+        """
         self.undone_points = list(map(lambda x: [int(x[0] * self.scaling_w), int(x[1] * self.scaling_h)], self.undone_points))
         self.undone_leds = list(map(lambda x: [int(x[0] * self.scaling_w), int(x[1] * self.scaling_h), x[2]], self.undone_leds))
 
         scaling_x = new_width / self.last_image_size[0]
         scaling_y = new_height / self.last_image_size[1]
-        mean_scaling = round((scaling_x + scaling_y) / 2)
+        last_image_diagonal = pow(pow(self.last_image_size[0], 2) + pow(self.last_image_size[1], 2), 0.5)
+        new_image_diagonal = pow(pow(new_width, 2) + pow(new_height, 2), 0.5)
+        diagonal_scaling = new_image_diagonal / last_image_diagonal
 
         for i in range(len(self.leds)):
             led = self.leds.pop(0)
             self.canvas.delete(self.leds_references.pop(0))
-            self.add_led_by_coordinates(round(led[0] * scaling_x), round(led[1] * scaling_y), round(led[2] * mean_scaling))
+            self.add_led_by_coordinates(round(led[0] * scaling_x), round(led[1] * scaling_y), round(led[2] * diagonal_scaling))
 
         for i in range(len(self.anchor_points)):
             anchor = self.anchor_points.pop(0)
-            self.canvas.delete(self.points.pop(0))
+            if self.current_state == CreationState.BOARD:
+                self.canvas.delete(self.points.pop(0))
             self.add_point_by_coordinates(round(anchor[0] * scaling_x), round(anchor[1] * scaling_y))
 
         self.last_image_size = [new_width, new_height]
