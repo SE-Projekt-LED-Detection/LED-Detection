@@ -14,6 +14,4 @@ jobs:
     #  id: extract_branch
 
     - name: deploy action
-      env:
-        SERVER_PW: ${{ secrets.SERVER_PW }}
-      run: sshpass -p "1234" ssh -o "StrictHostKeyChecking=no" gittest@89.58.3.45 "echo here" #${{ inputs.branch }},
+      run: sshpass -p ${{ secrets.SERVER_PW }} ssh -o "StrictHostKeyChecking=no" root@89.58.3.45 "echo here" #${{ inputs.branch }},
