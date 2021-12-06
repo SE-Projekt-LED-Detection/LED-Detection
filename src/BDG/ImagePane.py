@@ -61,6 +61,7 @@ class ImagePane(tk.Frame):
         self.change_state(CreationState.BOARD)
         self.scaling_w = 1
         self.scaling_h = 1
+        self.last_image_size = [0, 0]
 
         self.master.bind("<Control-z>", lambda x: self.undo_point())
         self.master.bind("<Control-y>", lambda x: self.redo_point())
@@ -104,9 +105,33 @@ class ImagePane(tk.Frame):
         self.scaling_h = hpercent
         self.scaling_w = wpercent
 
+        if self.last_image_size[0] == 0:
+            self.last_image_size = [basewidth, hsize]
+
         scaled_image = self.img.resize((basewidth, hsize), Image.ANTIALIAS)
         self.images = [ImageTk.PhotoImage(scaled_image)]
         self.canvas.create_image(0, 0, anchor=tk.NW, image=self.images[0])
+        self.update_points_scaling(basewidth, hsize)
+
+    def update_points_scaling(self, new_width, new_height):
+        self.undone_points = list(map(lambda x: [int(x[0] * self.scaling_w), int(x[1] * self.scaling_h)], self.undone_points))
+        self.undone_leds = list(map(lambda x: [int(x[0] * self.scaling_w), int(x[1] * self.scaling_h), x[2]], self.undone_leds))
+
+        scaling_x = new_width / self.last_image_size[0]
+        scaling_y = new_height / self.last_image_size[1]
+        mean_scaling = round((scaling_x + scaling_y) / 2)
+
+        for i in range(len(self.leds)):
+            led = self.leds.pop(0)
+            self.canvas.delete(self.leds_references.pop(0))
+            self.add_led_by_coordinates(round(led[0] * scaling_x), round(led[1] * scaling_y), round(led[2] * mean_scaling))
+
+        for i in range(len(self.anchor_points)):
+            anchor = self.anchor_points.pop(0)
+            self.canvas.delete(self.points.pop(0))
+            self.add_point_by_coordinates(round(anchor[0] * scaling_x), round(anchor[1] * scaling_y))
+
+        self.last_image_size = [new_width, new_height]
 
     def add_point_by_coordinates(self, x, y):
         """
@@ -131,16 +156,17 @@ class ImagePane(tk.Frame):
         else:
             self.active_circle = self.anchor_points.index(circles[0])
 
-    def add_led_by_coordinates(self, x, y):
+    def add_led_by_coordinates(self, x, y, radius=20):
         """
         Creates a LED at the given coordinates.
+        :param radius: The radius of the led. Default value 20
         :param x: The x coordinates of the LED.
         :param y: The y coordinate of the LED.
         """
         circles = self.check_hovered(x, y)
         if not circles:
-            led_ref = self.create_circle(x, y, 20)
-            self.leds.append((x, y, 20))
+            led_ref = self.create_circle(x, y, radius)
+            self.leds.append((x, y, radius))
             self.leds_references.append(led_ref)
             self.active_circle = len(self.leds) - 1
         else:
