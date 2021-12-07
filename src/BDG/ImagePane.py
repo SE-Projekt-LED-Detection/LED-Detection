@@ -11,8 +11,8 @@ class CreationState(Enum):
     The current placement mode. If it is BOARD, an anchor point is placed on left mouse click,
     if it is LED a LED is placed.
     """
-    BOARD = "board"
-    LED = "led"
+    BOARD = 0
+    LED = 1
 
 
 class ImagePane(tk.Frame):
@@ -58,14 +58,16 @@ class ImagePane(tk.Frame):
         self.undone_leds = []
         self.anchor_points = []
         self.active_circle = 0
-        self.change_state(CreationState.BOARD)
         self.scaling_w = 1
         self.scaling_h = 1
         self.last_image_size = [0, 0]
+        self.current_state = tk.IntVar()
 
         self.master.bind("<Control-z>", lambda x: self.undo_point())
         self.master.bind("<Control-y>", lambda x: self.redo_point())
-        self.master.bind("<t>", lambda x: self.toggle_state())
+        #self.master.bind("<t>", lambda x: self.current_state.set((self.current_state.get() + 1) % 2))
+
+        self.activate_board_state()
 
     def choose_image(self, img_path):
         """
@@ -135,7 +137,7 @@ class ImagePane(tk.Frame):
 
         for i in range(len(self.anchor_points)):
             anchor = self.anchor_points.pop(0)
-            if self.current_state == CreationState.BOARD:
+            if self.is_state(CreationState.BOARD):
                 self.canvas.delete(self.points.pop(0))
             self.add_point_by_coordinates(round(anchor[0] * scaling_x), round(anchor[1] * scaling_y))
 
@@ -184,11 +186,11 @@ class ImagePane(tk.Frame):
         """
         Redo the last LED/point if available.
         """
-        if self.current_state == CreationState.BOARD:
+        if self.is_state(CreationState.BOARD):
             if len(self.undone_points) > 0 and len(self.anchor_points) < 4:
                 point = self.undone_points.pop()
                 self.add_point_by_coordinates(point[0], point[1])
-        if self.current_state == CreationState.LED:
+        if self.is_state(CreationState.LED):
             if len(self.undone_leds) > 0:
                 led = self.undone_leds.pop()
                 self.add_led_by_coordinates(led[0], led[1])
@@ -198,21 +200,19 @@ class ImagePane(tk.Frame):
         Undo the last set LED or Anchor point.
         The undone led/point is saved in a list for the redo operation.
         """
-        if self.current_state == CreationState.BOARD:
+        if self.is_state(CreationState.BOARD):
             if len(self.anchor_points) > 0:
                 coordinates_point = self.anchor_points.pop()
                 point = self.points.pop()
                 self.undone_points.append(coordinates_point)
                 self.canvas.delete(point)
                 self.update_polygon()
-        if self.current_state == CreationState.LED:
+        if self.is_state(CreationState.LED):
             if len(self.leds) > 0:
                 led = self.leds.pop()
                 self.undone_leds.append(led)
                 ref = self.leds_references.pop()
                 self.canvas.delete(ref)
-
-
 
     def check_hovered(self, cx, cy):
         """
@@ -222,9 +222,9 @@ class ImagePane(tk.Frame):
         :return:
         """
         circles = filter(lambda x: distance.euclidean((cx, cy), x) <= 10, self.anchor_points)
-        if self.current_state == CreationState.BOARD:
+        if self.is_state(CreationState.BOARD):
             circles = filter(lambda x: distance.euclidean((cx, cy), x) <= 10, self.anchor_points)
-        if self.current_state == CreationState.LED:
+        if self.is_state(CreationState.LED):
             circles = filter(lambda x: distance.euclidean((cx, cy), (x[0], x[1])) <= x[2], self.leds)
         return list(circles)
 
@@ -264,17 +264,16 @@ class ImagePane(tk.Frame):
         print(f"hover circle: {event.x} {event.y}")
         print(f"active circle: {self.active_circle}")
 
-        if self.current_state == CreationState.BOARD:
+        if self.is_state(CreationState.BOARD):
             anchor_point_ref = self.points[self.active_circle]
             self.anchor_points[self.active_circle] = (event.x, event.y)
             self.canvas.coords(anchor_point_ref, event.x - 10, event.y - 10, event.x + 10, event.y + 10)
             self.update_polygon()
-        if self.current_state == CreationState.LED:
+        if self.is_state(CreationState.LED):
             led_ref = self.leds_references[self.active_circle]
             radius = self.leds[self.active_circle][2]
             self.leds[self.active_circle] = (event.x, event.y, radius)
             self.canvas.coords(led_ref, event.x - radius, event.y - radius, event.x + radius, event.y + radius)
-
 
     def update_polygon(self):
         """
@@ -330,30 +329,6 @@ class ImagePane(tk.Frame):
             raise ValueError("fill color must be specified!")
         return self.canvas.create_polygon(*args, **kwargs)
 
-    def change_state(self, state: CreationState):
-        """
-        change state between Board and LED State
-        :param state:
-        :return:
-        """
-        self.current_state = state
-        if self.current_state == CreationState.BOARD:
-            self.canvas.bind("<Button-1>", lambda e: self.add_point_by_coordinates(e.x, e.y))
-            self.canvas.bind("<Button-3>", self.remove_anchor_point)
-            self.canvas.bind("<B1-Motion>", self.moving_anchor)
-            self.canvas.unbind("<MouseWheel>")  # On Windows
-            self.canvas.unbind("<Button-4>")  # On Linux
-            self.canvas.unbind("<Button-5>")  # On Linux
-            self.draw_circles()
-        if self.current_state == CreationState.LED:
-            self.delete_circles()
-            self.canvas.bind("<Button-1>", lambda e: self.add_led_by_coordinates(e.x, e.y))
-            self.canvas.bind("<MouseWheel>", self.on_mousewheel)  # On Windows
-            self.canvas.bind("<Button-4>", self.on_mousewheel)  # On Linux
-            self.canvas.bind("<Button-5>", self.on_mousewheel)  # On Linux
-
-
-
     def on_mousewheel(self, event):
         """
         Changes the size of the currently hovered LED.
@@ -375,8 +350,6 @@ class ImagePane(tk.Frame):
             radius = active_led[2] + count
             self.leds[index] = (active_led[0], active_led[1], radius)
             self.canvas.coords(led_ref, active_led[0] - radius, active_led[1] - radius, active_led[0] + radius, active_led[1] + radius)
-        
-
 
     def remove_anchor_point(self, event):
         """
@@ -386,7 +359,7 @@ class ImagePane(tk.Frame):
         """
         circles = self.check_hovered(event.x, event.y)
         if circles[0] is not None:
-            if self.current_state == CreationState.BOARD:
+            if self.is_state(CreationState.BOARD):
                 index = self.anchor_points.index(circles[0])
 
                 point = self.points[index]
@@ -396,46 +369,39 @@ class ImagePane(tk.Frame):
                 self.points.remove(point)
                 self.update_polygon()
             
-            if self.current_state == CreationState.LED:
+            if self.is_state(CreationState.LED):
                 index = self.leds.index(circles[0])
                 ref = self.leds_references[index]
                 self.canvas.delete(ref)
                 self.leds.remove(circles[0])
                 self.leds_references.remove(ref)
 
-
-    def __activate_board_state(self):
+    def activate_board_state(self):
         """
         change all bindings to board state settings
         :return: void
         """
-        self.canvas.bind("<Button-1>", self.add_point)
-        self.canvas.bind("<Button-2>", self.remove_anchor_point)
+        self.canvas.bind("<Button-1>", lambda e: self.add_point_by_coordinates(e.x, e.y))
+        self.canvas.bind("<Button-3>", self.remove_anchor_point)
         self.canvas.bind("<B1-Motion>", self.moving_anchor)
-        self.master.bind("<Control-z>", lambda x: self.undo_point())
+        self.canvas.unbind("<MouseWheel>")  # On Windows
+        self.canvas.unbind("<Button-4>")  # On Linux
+        self.canvas.unbind("<Button-5>")  # On Linux
         self.draw_circles()
 
-    def __activate_led_state(self):
+    def activate_led_state(self):
         """
         change all bindings to led state settings
         :return: void
         """
         self.delete_circles()
-        self.canvas.bind("<Button-1>", self.add_led)  #
-        self.canvas.unbind("<B1-Motion>")
+        self.canvas.bind("<Button-1>", lambda e: self.add_led_by_coordinates(e.x, e.y))
+        self.canvas.bind("<MouseWheel>", self.on_mousewheel)  # On Windows
+        self.canvas.bind("<Button-4>", self.on_mousewheel)  # On Linux
+        self.canvas.bind("<Button-5>", self.on_mousewheel)  # On Linux
 
-
-
-    def toggle_state(self):
-        """
-        This is just a helper function for toggling between the states.
-        TODO:: DELETE THIS STUPID FUNCTION
-        :return:
-        """
-        if self.current_state == CreationState.BOARD:
-            self.change_state(CreationState.LED)
-        else:
-            self.change_state(CreationState.BOARD)
+    def is_state(self, state):
+        return self.current_state.get() == state.value
 
 
 

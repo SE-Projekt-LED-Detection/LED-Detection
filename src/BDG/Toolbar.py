@@ -8,9 +8,10 @@ class Toolbar(tk.Frame):
         self.master = master
         self.container = container
 
-        v = tk.IntVar()
-        r1 = ttk.Radiobutton(self, text="Place corner point", value=1, variable=v)
-        r2 = ttk.Radiobutton(self, text="Place LED", value=2, variable=v)
+        r1 = ttk.Radiobutton(self, text="Place corner point", value=0, variable=self.container.imagePane.current_state,
+                             command=self.container.imagePane.activate_board_state)
+        r2 = ttk.Radiobutton(self, text="Place LED", value=1, variable=self.container.imagePane.current_state,
+                             command=self.container.imagePane.activate_led_state)
 
         btn_undo = ttk.Button(self, command=self.container.imagePane.undo_point, text="Undo")
         btn_redo = ttk.Button(self, command=self.container.imagePane.redo_point, text="Redo")

@@ -26,9 +26,9 @@ class ControlPane(tk.Frame):
 
         bottom = tk.Label(self.master, text="Fancy toolbar", background="blue")
 
-        toolbar = Toolbar(self.master, self)
+        self.toolbar = Toolbar(self.master, self)
 
-        toolbar.grid(column=0, row=0, sticky=tk.W)
+        self.toolbar.grid(column=0, row=0, sticky=tk.W)
         bottom.grid(column=4, row=1, sticky=tk.NW)
         self.imagePane.grid(column=0, row=1, sticky=tk.NSEW)
 
@@ -39,7 +39,7 @@ class ControlPane(tk.Frame):
         fileMenu.add_command(label="open", command=self.chooseImage)
         fileMenu.add_command(label="save", command=self.save_image)
 
-        menu.add_command(label="Toggle mode", command=self.imagePane.toggle_state)
+        #menu.add_command(label="Toggle mode", command=self.imagePane.toggle_state)
         menu.add_command(label="Test", command=lambda: self.imagePane.choose_image(
             "/home/cj7/Desktop/LED-Detection/src/prototyping/resources/ref.jpg"))
 
