@@ -50,7 +50,7 @@ class ImagePane(tk.Frame):
         self.polygon = None
         self.polygon_images = {}
         self.canvas = tk.Canvas(container, height=720, width=1024)
-        self.canvas.pack(fill="both", expand="True")
+        self.canvas.grid(row=1, column=0, sticky=tk.NSEW, columnspan=4)
         self.points = []
         self.leds = []
         self.leds_references = []
@@ -80,7 +80,6 @@ class ImagePane(tk.Frame):
         self.img = Image.open(self.img_path)
         self.images = [ImageTk.PhotoImage(self.img)]
         self.canvas.create_image(0, 0, anchor=tk.NW, image=self.images[0])
-        self.canvas.pack(fill="both", expand="True")
         self.canvas.bind("<Configure>", self.on_resize)
 
         # Initial resize of the image by calling event

@@ -3,10 +3,9 @@ from enum import Enum
 from tkinter import ttk
 
 from tkinter.filedialog import askopenfilename
+
 from ImagePane import ImagePane
-
-
-
+from src.BDG.Toolbar import Toolbar
 
 
 class ControlPane(tk.Frame):
@@ -20,33 +19,18 @@ class ControlPane(tk.Frame):
         editMenu = tk.Menu(menu)
         menu.add_cascade(label="Edit", menu=editMenu)
 
-        toolbar = tk.Frame(self.master, relief=tk.RAISED)
-        toolbar.pack(side=tk.TOP, fill=tk.X)
-
-        names = tk.Frame(self.master, relief=tk.RAISED)
-        names.pack(side=tk.RIGHT, fill=tk.X)
-        bottom = tk.Label(names, text="Fancy toolbar")
-        bottom.pack(side=tk.RIGHT)
-
-
-        #self.window = tk.PanedWindow(orient=tk.HORIZONTAL)
-        #self.window.pack(fill="both", expand="True")
-        #self.window.add(self)
-
-
-        #self.window.add(bottom)
-
-        v = tk.IntVar()
-        r1 = tk.Radiobutton(toolbar, text="Place corner point", value=1, variable=v)
-        r2 = tk.Radiobutton(toolbar, text="Place LED", value=2, variable=v)
-        r1.pack(side=tk.LEFT, fill=None, expand=False)
-        r2.pack(side=tk.LEFT, fill=None, expand=False)
-        #self.window.add(r1)
-        #self.window.add(r2)
-
         self.imagePane = ImagePane(self.master)
-        self.imagePane.pack(side=tk.LEFT)
 
+        self.master.grid_columnconfigure(1, weight=1)
+        self.master.grid_rowconfigure(1, weight=1)
+
+        bottom = tk.Label(self.master, text="Fancy toolbar", background="blue")
+
+        toolbar = Toolbar(self.master, self)
+
+        toolbar.grid(column=0, row=0, sticky=tk.W)
+        bottom.grid(column=4, row=1, sticky=tk.NW)
+        self.imagePane.grid(column=0, row=1, sticky=tk.NSEW)
 
 
         editMenu.add_command(label="Undo", command=self.imagePane.undo_point)
