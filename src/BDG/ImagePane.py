@@ -264,6 +264,11 @@ class ImagePane(tk.Frame):
         print(f"hover circle: {event.x} {event.y}")
         print(f"active circle: {self.active_circle}")
 
+        # Moving outside the image?
+        if event.x > self.last_image_size[0] or event.y > self.last_image_size[1]\
+                or event.x < 0 or event.y < 0:
+            return
+
         if self.is_state(CreationState.BOARD):
             anchor_point_ref = self.points[self.active_circle]
             self.anchor_points[self.active_circle] = (event.x, event.y)
