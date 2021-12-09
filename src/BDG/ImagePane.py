@@ -55,6 +55,7 @@ class ImagePane(tk.Frame):
         self.points = []
         self.leds = []
         self.leds_references = []
+        self.leds_text_indices_references = []
         self.undone_points = []
         self.undone_leds = []
         self.anchor_points = []
@@ -182,6 +183,7 @@ class ImagePane(tk.Frame):
             self.leds_references.append(led_ref)
             self.active_circle = len(self.leds) - 1
             self.container.led_descriptions.add_led_description(index)
+            self.update_led_indices()
         else:
             self.active_circle = self.leds.index(circles[0])
 
@@ -217,6 +219,7 @@ class ImagePane(tk.Frame):
                 ref = self.leds_references.pop()
                 self.canvas.delete(ref)
                 self.container.led_descriptions.remove_led_description(len(self.leds))
+                self.update_led_indices()
 
     def check_hovered(self, cx, cy):
         """
@@ -251,6 +254,23 @@ class ImagePane(tk.Frame):
             anchor_point = self.create_circle(point[0], point[1], 10)
             self.points.append(anchor_point)
 
+    def update_led_indices(self):
+
+        for index in self.leds_text_indices_references:
+            self.canvas.delete(index)
+
+        self.leds_text_indices_references.clear()
+
+        i = 0
+        for led in self.leds:
+            x = led[0] + led[2]
+            y = led[1] + led[2]
+
+            text = self.canvas.create_text(x, y, text=str(i))
+            self.leds_text_indices_references.append(text)
+
+            i += 1
+
     def delete_circles(self):
         """
         deletes current displayed circles
@@ -283,6 +303,7 @@ class ImagePane(tk.Frame):
             radius = self.leds[self.active_circle][2]
             self.leds[self.active_circle] = (event.x, event.y, radius)
             self.canvas.coords(led_ref, event.x - radius, event.y - radius, event.x + radius, event.y + radius)
+            self.update_led_indices()
 
     def update_polygon(self):
         """
@@ -359,6 +380,7 @@ class ImagePane(tk.Frame):
             radius = active_led[2] + count
             self.leds[index] = (active_led[0], active_led[1], radius)
             self.canvas.coords(led_ref, active_led[0] - radius, active_led[1] - radius, active_led[0] + radius, active_led[1] + radius)
+            self.update_led_indices()
 
     def remove_anchor_point(self, event):
         """
@@ -385,6 +407,7 @@ class ImagePane(tk.Frame):
                 self.leds.remove(circles[0])
                 self.leds_references.remove(ref)
                 self.container.led_descriptions.remove_led_description(index)
+                self.update_led_indices()
 
     def activate_board_state(self):
         """
