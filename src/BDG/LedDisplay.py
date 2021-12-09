@@ -8,9 +8,14 @@ class LedDisplay(Frame):
     def __init__(self, parent, index, **kwargs):
         ttk.Frame.__init__(self, parent, **kwargs)
 
+        self.grid(column=4, row=2 + index, sticky=tk.W, pady=10)
+
         self.single_description = ttk.Frame(self)
         self.single_description.grid(column=4, row=2 + index, sticky=tk.W, pady=10)
-        ttk.Label(self.single_description, text="LED " + str(index)).grid(column=0, row=0, sticky=tk.W)
+        self.number = tk.StringVar()
+        self.number.set("LED " + str(index))
+        self.number_label = ttk.Label(self.single_description, textvariable=self.number)
+        self.number_label.grid(column=0, row=0, sticky=tk.W)
         ttk.Label(self.single_description, text="Name/Function").grid(column=0, row=1, sticky=tk.W)
         self.name = tk.StringVar()
         ttk.Entry(self.single_description, textvariable=self.name).grid(column=1, row=1)
@@ -27,6 +32,10 @@ class LedDisplay(Frame):
         yellow_check.grid(column=2, row=0, sticky=tk.W)
         green_check.grid(column=3, row=0, sticky=tk.W)
         checkbox_frame.grid(column=1, row=2)
+
+    def update_number(self, new_number):
+        self.number.set("LED " + str(new_number))
+        self.grid(column=4, row=2 + new_number, sticky=tk.W, pady=10)
 
     def get_color_list(self):
         colors = []

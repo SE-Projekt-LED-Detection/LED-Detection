@@ -36,13 +36,21 @@ class ScrollbarFrame(tk.Frame):
         # Configures the scrollregion of the Canvas dynamically
         self.scrolled_frame.bind("<Configure>", self.on_configure)
 
+        self.descriptions = []
+
     def on_configure(self, event):
         """Set the scroll region to encompass the scrolled frame"""
         self.canvas.configure(scrollregion=self.canvas.bbox("all"))
 
     def add_led_description(self, index):
         single_description = LedDisplay(self.scrolled_frame, index)
-        single_description.grid(column=4, row=2 + index, sticky=tk.W, pady=10)
+        self.descriptions.append(single_description)
+
+    def remove_led_description(self, index):
+        self.descriptions.pop(index).destroy()
+
+        for i in range(len(self.descriptions)):
+            self.descriptions[i].update_number(i)
 
 
 

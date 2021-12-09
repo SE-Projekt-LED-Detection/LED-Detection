@@ -36,20 +36,21 @@ class ImagePane(tk.Frame):
 
     """
 
-    def __init__(self, container):
+    def __init__(self, master, container):
 
         """
 
         :param container:
         """
-        tk.Frame.__init__(self, container)
-        self.master = container
+        tk.Frame.__init__(self, master)
+        self.master = master
+        self.container = container
         self.images = None
         self.img = None
         self.img_path = None
         self.polygon = None
         self.polygon_images = {}
-        self.canvas = tk.Canvas(container, height=720, width=1024)
+        self.canvas = tk.Canvas(master, height=720, width=1024)
         self.canvas.grid(row=1, column=0, sticky=tk.NSEW, columnspan=4)
         self.points = []
         self.leds = []
@@ -176,9 +177,11 @@ class ImagePane(tk.Frame):
         circles = self.check_hovered(x, y)
         if not circles:
             led_ref = self.create_circle(x, y, radius)
+            index = len(self.leds)
             self.leds.append((x, y, radius))
             self.leds_references.append(led_ref)
             self.active_circle = len(self.leds) - 1
+            self.container.led_descriptions.add_led_description(index)
         else:
             self.active_circle = self.leds.index(circles[0])
 
@@ -213,6 +216,7 @@ class ImagePane(tk.Frame):
                 self.undone_leds.append(led)
                 ref = self.leds_references.pop()
                 self.canvas.delete(ref)
+                self.container.led_descriptions.remove_led_description(len(self.leds))
 
     def check_hovered(self, cx, cy):
         """
@@ -380,6 +384,7 @@ class ImagePane(tk.Frame):
                 self.canvas.delete(ref)
                 self.leds.remove(circles[0])
                 self.leds_references.remove(ref)
+                self.container.led_descriptions.remove_led_description(index)
 
     def activate_board_state(self):
         """
