@@ -56,6 +56,8 @@ def to_json(board: Board) -> str:
         str: is a json representation
     """
     dict = json.dump(board)
+    return dict
+
 
 
 

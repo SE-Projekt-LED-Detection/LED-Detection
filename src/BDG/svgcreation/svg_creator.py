@@ -29,7 +29,7 @@ class SVGCreator():
     def __init__(self, path):
 
         file_type = pathlib.Path(path).suffix[1:]
-        if file_type is 'svg':
+        if file_type == 'svg':
             tree = etree.parse(path)
             self.root = tree.getroot()
         else:
