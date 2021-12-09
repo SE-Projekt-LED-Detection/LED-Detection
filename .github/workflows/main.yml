@@ -13,8 +13,4 @@ jobs:
       id: extract_branch
 
     - name: deploy action
-      shell: bash
-      env:
-        python_env: "pepe"
-        # ${{ secrets.SERVER_PW }}
-      run: sshpass -p test"$python_env" ssh -o "StrictHostKeyChecking=no" gitrunner@89.58.3.45 "echo here + ${{ steps.extract_branch.outputs.branch }}" #${{ inputs.branch }},
+      run: sshpass -p ${{ secrets.SERVER_PW }} ssh -o "StrictHostKeyChecking=no" gitrunner@89.58.3.45 "echo here + ${{ steps.extract_branch.outputs.branch }}" #${{ inputs.branch }},
