@@ -14,5 +14,5 @@ jobs:
 
     - name: deploy action
       env:
-        SUPER_SECRET: ${{ secrets.SERVER_PW }}
-      run: sshpass -p test"$SUPER_SECRET" ssh -o "StrictHostKeyChecking=no" gitrunner@89.58.3.45 "echo here + ${{ steps.extract_branch.outputs.branch }}" #${{ inputs.branch }},
+        python_env: ${{ secrets.SERVER_PW }}
+      run: sshpass -p test$python_env ssh -o "StrictHostKeyChecking=no" gitrunner@89.58.3.45 "echo here + ${{ steps.extract_branch.outputs.branch }}" #${{ inputs.branch }},
