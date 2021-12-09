@@ -12,7 +12,8 @@ class LedDisplay(Frame):
         self.single_description.grid(column=4, row=2 + index, sticky=tk.W, pady=10)
         ttk.Label(self.single_description, text="LED " + str(index)).grid(column=0, row=0, sticky=tk.W)
         ttk.Label(self.single_description, text="Name/Function").grid(column=0, row=1, sticky=tk.W)
-        ttk.Entry(self.single_description).grid(column=1, row=1)
+        self.name = tk.StringVar()
+        ttk.Entry(self.single_description, textvariable=self.name).grid(column=1, row=1)
 
         ttk.Label(self.single_description, text="Possible Colors").grid(column=0, row=2, sticky=tk.W)
         self.red = tk.IntVar()
@@ -37,3 +38,6 @@ class LedDisplay(Frame):
             colors.append("green")
 
         return colors
+
+    def get_name(self):
+        return self.name.get()
