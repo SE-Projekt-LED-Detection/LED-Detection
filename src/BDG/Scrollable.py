@@ -3,6 +3,9 @@ from tkinter import ttk
 
 
 # https://stackoverflow.com/questions/3085696/adding-a-scrollbar-to-a-group-of-widgets-in-tkinter/3092341
+from src.BDG.LedDisplay import LedDisplay
+
+
 class ScrollbarFrame(tk.Frame):
     """
     Extends class tk.Frame to support a scrollable Frame
@@ -18,7 +21,7 @@ class ScrollbarFrame(tk.Frame):
         vsb.pack(side="right", fill="y")
 
         # The Canvas which supports the Scrollbar Interface, layout to the left
-        self.canvas = tk.Canvas(self, borderwidth=0, background="#ffffff")
+        self.canvas = tk.Canvas(self, borderwidth=0)
         self.canvas.pack(side="left", fill="both", expand=True)
 
         # Bind the Scrollbar to the self.canvas Scrollbar Interface
@@ -36,3 +39,10 @@ class ScrollbarFrame(tk.Frame):
     def on_configure(self, event):
         """Set the scroll region to encompass the scrolled frame"""
         self.canvas.configure(scrollregion=self.canvas.bbox("all"))
+
+    def add_led_description(self, index):
+        single_description = LedDisplay(self.scrolled_frame, index)
+        single_description.grid(column=4, row=2 + index, sticky=tk.W, pady=10)
+
+
+
