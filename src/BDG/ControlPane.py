@@ -1,13 +1,13 @@
 import tkinter as tk
-from enum import Enum
-from tkinter import ttk
+
 
 from tkinter.filedialog import askopenfilename
 
 from ImagePane import ImagePane
 from src.BDG.Scrollable import ScrollbarFrame
 from src.BDG.Toolbar import Toolbar
-
+from src.BDG.model.board_model import Board
+from src.BDG.model.json_util import from_json
 
 class ControlPane(tk.Frame):
     def __init__(self, container):
@@ -47,10 +47,29 @@ class ControlPane(tk.Frame):
 
     def chooseImage(self):
         path = askopenfilename()
-        self.imagePane.choose_image(img_path=path)
+        if path.lower().endswith(".jpg", ".png", "jpeg"):
+            self.imagePane.choose_image(img=path)
+        elif path.lower().endswith(".json"):
+            board = from_json(path)
+            self.imagePane.load_board(board)
+        else:
+            print("Wrong filetype!!!") # TODO: make this a little bit better...
 
     def save_image(self):
-        print("Image saved")
+        board = self.imagePane.get_board()
+
 
     def exitProgram(self):
         exit()
+
+
+    def export_board(self) -> Board:
+        """TODO!!!!
+
+        Returns:
+            Board: [description]
+        """
+        return Board()
+
+
+

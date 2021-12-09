@@ -1,10 +1,9 @@
 import tkinter as tk
 from enum import Enum
-
+import numpy as np
 from PIL import Image, ImageDraw, ImageTk
 
 from scipy.spatial import distance
-
 
 class CreationState(Enum):
     """
@@ -54,6 +53,7 @@ class ImagePane(tk.Frame):
         self.canvas.grid(row=1, column=0, sticky=tk.NSEW, columnspan=4)
         self.points = []
         self.leds = []
+
         self.leds_references = []
         self.leds_text_indices_references = []
         self.undone_points = []
@@ -68,21 +68,28 @@ class ImagePane(tk.Frame):
         self.master.bind("<Control-z>", lambda x: self.undo_point())
         self.master.bind("<Control-y>", lambda x: self.redo_point())
         #self.master.bind("<t>", lambda x: self.current_state.set((self.current_state.get() + 1) % 2))
+     
 
         self.activate_board_state()
 
-    def choose_image(self, img_path):
+    def choose_image(self, img):
         """
         opens an image and draws it on the canvas.
         The canvas is resized to the size of the image
-        :param img_path: is a relative img path
+        :param img: is either a relative img path or a numpy array
         :return: void
         """
         self.anchor_points.clear()
         self.points.clear()
-        self.img_path = img_path
-        self.img = Image.open(self.img_path)
-        self.images = [ImageTk.PhotoImage(self.img)]
+        if isinstance(img, np.ndarray):
+            self.img = Image.fromarray(img)
+            self.images = [ImageTk.PhotoImage(self.img)]
+        elif isinstance(img, str):
+            self.img_path = img
+            self.img = Image.open(self.img_path)
+            self.images = [ImageTk.PhotoImage(self.img)]
+        else:
+            raise TypeError
         self.canvas.create_image(0, 0, anchor=tk.NW, image=self.images[0])
         self.canvas.bind("<Configure>", self.on_resize)
 
@@ -435,6 +442,10 @@ class ImagePane(tk.Frame):
 
     def is_state(self, state):
         return self.current_state.get() == state.value
+
+   
+
+
 
 
 

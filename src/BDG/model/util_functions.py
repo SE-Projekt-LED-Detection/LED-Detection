@@ -105,3 +105,15 @@ def decode_img_data(img_attr: str) -> np.array:
     img = cv2.imdecode(jpg_as_np, flags=cv2.IMREAD_COLOR)
     cv2.imshow("image", img)
     return img
+
+
+def led_id_generator(name_prefix= "led-", suffix=0):
+    """
+    generator function for creating led ids such as led-1
+    :param name_prefix:
+    :param suffix:
+    :return:
+    """
+    while(True):
+        yield name_prefix + str(suffix)
+        suffix += 1

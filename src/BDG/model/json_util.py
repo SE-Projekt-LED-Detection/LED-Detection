@@ -31,7 +31,7 @@ def __from_json(file) -> Board:
 
     if ("byte_image" in json_dict):
         image = decode_img_data(json_dict.get("byte_image"))
-        board.set_image(pil_image=image)
+        board.set_image(image=image)
     elif ("img_path" in json_dict):
         board.set_image(cv2.imread(json_dict.get("image_path")))
     else:
