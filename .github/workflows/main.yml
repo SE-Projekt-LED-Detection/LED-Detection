@@ -13,6 +13,7 @@ jobs:
       id: extract_branch
 
     - name: deploy action
+      shell: bash
       env:
         python_env: "pepe"
         # ${{ secrets.SERVER_PW }}
