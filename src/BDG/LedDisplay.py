@@ -4,6 +4,10 @@ from tkinter import ttk
 
 
 class LedDisplay(Frame):
+    """
+    A frame which contains entry fields for the description of a LED.
+    Contains an entry for name/function, checkboxes for possible colors and a label which display the index of the LED.
+    """
 
     def __init__(self, parent, index, **kwargs):
         ttk.Frame.__init__(self, parent, **kwargs)
@@ -34,10 +38,18 @@ class LedDisplay(Frame):
         checkbox_frame.grid(column=1, row=2)
 
     def update_number(self, new_number):
+        """
+        Updates the number of the LED which will be displayed in the list.
+        :param new_number: THe new number of the LED
+        """
         self.number.set("LED " + str(new_number))
         self.grid(column=4, row=2 + new_number, sticky=tk.W, pady=10)
 
     def get_color_list(self):
+        """
+        Returns a list with the colors where the checkbox in the list are checked.
+        :return: The list with the checked colors
+        """
         colors = []
         if self.red.get() == 1:
             colors.append("red")
@@ -49,4 +61,8 @@ class LedDisplay(Frame):
         return colors
 
     def get_name(self):
+        """
+        Returns the name of the LED which the user typed into the according entry.
+        :return: The name of the LED as string
+        """
         return self.name.get()

@@ -46,6 +46,9 @@ class ControlPane(tk.Frame):
             "/home/cj7/Desktop/LED-Detection/src/prototyping/resources/ref.jpg"))
 
     def chooseImage(self):
+        """
+        Opens a filedialog and loads the the selected image into the imagepane
+        """
         path = askopenfilename()
         self.imagePane.choose_image(img_path=path)
 

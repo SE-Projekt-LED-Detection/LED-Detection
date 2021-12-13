@@ -255,7 +255,9 @@ class ImagePane(tk.Frame):
             self.points.append(anchor_point)
 
     def update_led_indices(self):
-
+        """
+        Updates the indices of the LEDs by removing the current ones and write the new ones.
+        """
         for index in self.leds_text_indices_references:
             self.canvas.delete(index)
 

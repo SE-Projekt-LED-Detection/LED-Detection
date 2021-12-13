@@ -43,10 +43,18 @@ class ScrollbarFrame(tk.Frame):
         self.canvas.configure(scrollregion=self.canvas.bbox("all"))
 
     def add_led_description(self, index):
+        """
+        Generates and adds a description for a LED to the scrollable list at the given index.
+        :param index: The index where to insert the description. Will also be displayed as the index of the LED.
+        """
         single_description = LedDisplay(self.scrolled_frame, index)
         self.descriptions.append(single_description)
 
     def remove_led_description(self, index):
+        """
+        Removes the LED at the given index and updates all other numbers so that the list begins at 0 again.
+        :param index:
+        """
         self.descriptions.pop(index).destroy()
 
         for i in range(len(self.descriptions)):
