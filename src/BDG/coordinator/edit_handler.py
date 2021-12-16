@@ -1,10 +1,10 @@
 
-from src.BDG.model.board_model import Board
+from src.BDG.coordinator.event_handler import EventHandler
 import src.BDG.utils.json_util as js_util
 import numpy as np
 class EditHandler():
-    def __init__(self,board: Board) -> None:
-        self.board = board
+    def __init__(self,parent: EventHandler) -> None:
+        self.board = parent.board
         self.scaling = 1.0
 
     def add_corner(self, event):
