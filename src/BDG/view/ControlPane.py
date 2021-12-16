@@ -1,29 +1,24 @@
 import tkinter as tk
 
 
-from tkinter.filedialog import askopenfilename
-
 
 from src.BDG.utils.json_util import from_json
 from src.BDG.view.ImagePane import ImagePane
 from src.BDG.view.Scrollable import ScrollbarFrame
 from src.BDG.view.Toolbar import Toolbar
 from src.BDG.model.board_model import Board
-from src.BDG.coordinator.coodinatior import Coordinator
+from src.BDG.coordinator.event_handler import EventHandler
+
+
 
 class ControlPane(tk.Frame):
     def __init__(self, container):
         tk.Frame.__init__(self, container)
-        self.handler = Coordinator()
+        self.handler = EventHandler()
         self.master = container
-        menu = tk.Menu(self)
-        self.master.config(menu=menu)
-        fileMenu = tk.Menu(menu)
-        menu.add_cascade(label="File", menu=fileMenu)
-        editMenu = tk.Menu(menu)
-        menu.add_cascade(label="Edit", menu=editMenu)
 
-        self.imagePane = ImagePane(self.master, self)
+        #self.imagePane = ImagePane(self.master, self, self.handler.edit_handler)
+        self.__init_menu()
 
         self.master.grid_columnconfigure(1, weight=1)
         self.master.grid_rowconfigure(1, weight=1)
@@ -33,38 +28,14 @@ class ControlPane(tk.Frame):
 
         self.toolbar = Toolbar(self.master, self)
 
-
-
         self.toolbar.grid(column=0, row=0, sticky=tk.W)
-        self.imagePane.grid(column=0, row=1, sticky=tk.NSEW)
-
-
-        editMenu.add_command(label="Undo", command=self.imagePane.undo_point)
-        editMenu.add_command(label="Redo", command=self.imagePane.redo_point)
-
-        fileMenu.add_command(label="open", command=self.chooseImage)
-        fileMenu.add_command(label="save", command=self.save_image)
-
-        menu.add_command(label="Test", command=lambda: self.imagePane.choose_image(
-            "/home/cj7/Desktop/LED-Detection/src/prototyping/resources/ref.jpg"))
-
-    def chooseImage(self):
-        path = askopenfilename()
-        if path.lower().endswith(".jpg", ".png", "jpeg"):
-            self.imagePane.choose_image(img=path)
-        elif path.lower().endswith(".json"):
-            board = from_json(path)
-            self.imagePane.load_board(board)
-        else:
-            print("Wrong filetype!!!") # TODO: make this a little bit better...
+        #self.imagePane.grid(column=0, row=1, sticky=tk.NSEW)
 
     def save_image(self):
         board = self.imagePane.get_board()
 
-
     def exitProgram(self):
         exit()
-
 
     def export_board(self) -> Board:
         """TODO!!!!
@@ -74,9 +45,23 @@ class ControlPane(tk.Frame):
         """
         return Board()
 
-    def init_file_menu(self):
-        pass
+    def __init_menu(self):
+        menu = tk.Menu(self)
+        self.master.config(menu=menu)
+        self.__init_filemenu(menu)
+        self.__init_editmenu(menu)
+        #menu.add_command(label="Test", command=lambda: self.imagePane.choose_image("/home/cj7/Desktop/LED-Detection/src/prototyping/resources/ref.jpg"))
+        return menu
 
+    def __init_filemenu(self, menu):
+        fileMenu = tk.Menu(menu)
+        handler = self.handler.file_handler
+        menu.add_cascade(label="File", menu=fileMenu)
+        fileMenu.add_command(label="open", command=handler.load)
+        fileMenu.add_command(label="save", command=handler.save)
 
-
-
+    def __init_editmenu(self, menu):
+        editMenu = tk.Menu(menu)
+        menu.add_cascade(label="Edit", menu=editMenu)
+        #editMenu.add_command(label="Undo", command=self.imagePane.undo_point)
+        #editMenu.add_command(label="Redo", command=self.imagePane.redo_point)

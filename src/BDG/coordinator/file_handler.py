@@ -1,20 +1,22 @@
 from src.BDG.model.board_model import Board, Led
-from src.BDG.coordinator.coodinatior import Coordinator
+
 import src.BDG.utils.json_util as jsutil
 from pathlib import Path
+from tkinter import filedialog as fd
 class FileHandler():
-    def __init__(self, parent: Coordinator):
+    def __init__(self, parent):
         self.parent = parent
 
     
-    def save(self, file_name="board.json"):
+    def save(self):
         """saves the current board either as svg or json
 
         Args:
             file_name (str, optional): [description]. Defaults to "".
         """
+        file_path = fd.askopenfilename()
         board = self.parent.board
-        path = Path(file_name)
+        path = Path(file_path)
         assert (path.suffix in [".svg", ".json"])
         if path.suffix == ".json":
             content = jsutil.to_json(board)
@@ -32,13 +34,14 @@ class FileHandler():
             
 
 
-    def load(self, file_path: str):
+    def load(self):
         """loads either a predifined json file as board
         or inits a new board with a selected image
 
         Args:
             file_path (str): [description]
         """
+        file_path = fd.askopenfilename()
         file_type = Path(file_path).suffix 
         board = Board()
         if file_type == ".json":
@@ -49,6 +52,6 @@ class FileHandler():
         elif file_type in [".jpg",".png", ".gif"]:
             board.set_image(file_path)
             
-        self.parent.update(board)
+        self.parent.update_board(board)
 
 

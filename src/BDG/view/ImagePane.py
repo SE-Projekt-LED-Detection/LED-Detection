@@ -6,6 +6,7 @@ from PIL import Image, ImageDraw, ImageTk
 from scipy.spatial import distance
 
 from src.BDG.model.board_model import Board
+from src.BDG.coordinator.edit_handler import EditHandler
 
 
 class CreationState(Enum):
@@ -38,14 +39,15 @@ class ImagePane(tk.Frame):
 
     """
 
-    def __init__(self, master, container, board: Board):
+    def __init__(self, master, container, handler: EditHandler):
 
         """
 
         :param container:
         """
         tk.Frame.__init__(self, master)
-        self.board = board
+        self.handler = handler
+        self.board = handler.board
         self.master = master
         self.container = container
         self.image = None
