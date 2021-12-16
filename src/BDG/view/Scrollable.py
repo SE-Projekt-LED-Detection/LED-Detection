@@ -3,7 +3,7 @@ from tkinter import ttk
 
 
 # https://stackoverflow.com/questions/3085696/adding-a-scrollbar-to-a-group-of-widgets-in-tkinter/3092341
-from src.BDG.LedDisplay import LedDisplay
+from src.BDG.view.LedDisplay import LedDisplay
 
 
 class ScrollbarFrame(tk.Frame):
