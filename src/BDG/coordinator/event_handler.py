@@ -18,4 +18,13 @@ class EventHandler():
     def update_board(self,board: Board):
         self.board = board
         print(board)
+
+
+    def update_points(self):
+        for f in self.on_update.get("on_update_point"):
+            f()
+
+    def update_image(self):
+        for f in self.on_update.get("on_update_image"):
+            f()
     
