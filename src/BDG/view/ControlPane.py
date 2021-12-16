@@ -17,7 +17,7 @@ class ControlPane(tk.Frame):
         self.handler = EventHandler()
         self.master = container
 
-        #self.imagePane = ImagePane(self.master, self, self.handler.edit_handler)
+        self.imagePane = ImagePane(self.master, self, self.handler.edit_handler)
         self.__init_menu()
 
         self.master.grid_columnconfigure(1, weight=1)
@@ -29,7 +29,7 @@ class ControlPane(tk.Frame):
         self.toolbar = Toolbar(self.master, self)
 
         self.toolbar.grid(column=0, row=0, sticky=tk.W)
-        #self.imagePane.grid(column=0, row=1, sticky=tk.NSEW)
+        self.imagePane.grid(column=0, row=1, sticky=tk.NSEW)
 
     def save_image(self):
         board = self.imagePane.get_board()
@@ -63,5 +63,5 @@ class ControlPane(tk.Frame):
     def __init_editmenu(self, menu):
         editMenu = tk.Menu(menu)
         menu.add_cascade(label="Edit", menu=editMenu)
-        #editMenu.add_command(label="Undo", command=self.imagePane.undo_point)
-        #editMenu.add_command(label="Redo", command=self.imagePane.redo_point)
+        # editMenu.add_command(label="Undo", command=self.imagePane.undo_point)
+        # editMenu.add_command(label="Redo", command=self.imagePane.redo_point)

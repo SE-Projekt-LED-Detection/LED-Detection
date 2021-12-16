@@ -81,6 +81,7 @@ package controller {
     class edit_handler {
         - Board board
 
+        + init_board()
         + add_led(event)
         + add_corner(event)
         + delete_corner(event)
