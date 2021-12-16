@@ -9,10 +9,12 @@ from src.BDG.view.ImagePane import ImagePane
 from src.BDG.view.Scrollable import ScrollbarFrame
 from src.BDG.view.Toolbar import Toolbar
 from src.BDG.model.board_model import Board
+from src.BDG.coordinator.coodinatior import Coordinator
 
 class ControlPane(tk.Frame):
     def __init__(self, container):
         tk.Frame.__init__(self, container)
+        self.handler = Coordinator()
         self.master = container
         menu = tk.Menu(self)
         self.master.config(menu=menu)
@@ -71,6 +73,10 @@ class ControlPane(tk.Frame):
             Board: [description]
         """
         return Board()
+
+    def init_file_menu(self):
+        pass
+
 
 
 

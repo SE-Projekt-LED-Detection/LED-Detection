@@ -44,7 +44,7 @@ class Led:
 class Board:
     """Dataclass for Board Specifications"""
 
-    def __init__(self, name="", author="", img_path="", corners=None, led_objects=None, image=None):
+    def __init__(self, name="", author="", img_path="", corners = None, led_objects=None, image=None):
         """inits Board description
 
         Args:
@@ -61,7 +61,7 @@ class Board:
         if corners is not None:
             corners = np.array(corners)
             corners = sort_points(corners)
-        self.corners = corners
+        self. corners = corners
         self.led = led_objects
         if img_path != "":
             self.image = cv2.imread(img_path)

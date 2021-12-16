@@ -1,6 +1,6 @@
-from model.board_model import Board, Led
-from coordinator import Coordinator
-import utils.json_util as jsutil
+from src.BDG.model.board_model import Board, Led
+from src.BDG.coordinator.coodinatior import Coordinator
+import src.BDG.utils.json_util as jsutil
 from pathlib import Path
 class FileHandler():
     def __init__(self, parent: Coordinator):
