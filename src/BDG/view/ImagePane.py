@@ -64,6 +64,8 @@ class ImagePane(tk.Frame):
         self.polygon_images = {}
         self.leds_text_indices_references = []
 
+        handler.parent.on_update.get("on_update_point").append(lambda: self.update_points())
+        handler.parent.on_update.get("on_update_image").append(lambda: self.update_image())
 
         #self.images = None
         #self.img = None
@@ -281,13 +283,13 @@ class ImagePane(tk.Frame):
         change all bindings to board state settings
         :return: void
         """
-        self.canvas.bind("<Button-1>", lambda e: self.add_point_by_coordinates(e.x, e.y))
-        self.canvas.bind("<Button-3>", self.remove_anchor_point)
-        self.canvas.bind("<B1-Motion>", self.moving_anchor)
+        self.canvas.bind("<Button-1>", self.handler.add_corner)
+        self.canvas.bind("<Button-3>", self.remove_anchor_point)  # TODO
+        self.canvas.bind("<B1-Motion>", self.moving_anchor)  # TODO
         self.canvas.unbind("<MouseWheel>")  # On Windows
         self.canvas.unbind("<Button-4>")  # On Linux
         self.canvas.unbind("<Button-5>")  # On Linux
-        self.draw_circles()
+        self.draw_circles()  # TODO?
 
     def activate_led_state(self):
         """
@@ -295,7 +297,7 @@ class ImagePane(tk.Frame):
         :return: void
         """
         self.delete_circles()
-        self.canvas.bind("<Button-1>", lambda e: self.add_led_by_coordinates(e.x, e.y))
+        self.canvas.bind("<Button-1>", self.handler.add_led)
         self.canvas.bind("<MouseWheel>", self.on_mousewheel)  # On Windows
         self.canvas.bind("<Button-4>", self.on_mousewheel)  # On Linux
         self.canvas.bind("<Button-5>", self.on_mousewheel)  # On Linux
