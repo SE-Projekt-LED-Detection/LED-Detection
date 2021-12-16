@@ -54,8 +54,7 @@ class ImagePane(tk.Frame):
         self.current_state = tk.IntVar()
         self.canvas = tk.Canvas(master, height=720, width=1024)
         self.canvas.grid(row=1, column=0, sticky=tk.NSEW, columnspan=4)
-        self.scaling_w = 1
-        self.scaling_h = 1
+        self.scaling = 1
         self.last_image_size = [0, 0]
 
         self.active_circle = 0
@@ -122,22 +121,24 @@ class ImagePane(tk.Frame):
         """
         basewidth = event.width
         baseheight = event.height
-        wpercent = (basewidth / float(self.image.size[0]))
-        hpercent = baseheight / float(self.image.size[1])
-        hsize = int((float(self.image.size[1]) * float(wpercent)))
+        scaling = (basewidth / float(self.img.size[0]))
+        # hpercent = baseheight / float(self.img.size[1])
+        new_height = int((float(self.img.size[1]) * float(scaling)))
+        new_width = event.width
 
-        if hsize > baseheight:
-            hsize = baseheight
+        # Too large for scaling fully in width -> scale height max
+        if new_height > baseheight:
+            new_height = baseheight
+            scaling = baseheight / float(self.img.size[1])
+            new_width = int((float(self.img.size[0]) * float(scaling)))
 
-            basewidth = int((float(self.image.size[0]) * float(hpercent)))
-
-        self.scaling_h = hpercent
-        self.scaling_w = wpercent
+        self.scaling = scaling
 
         if self.last_image_size[0] == 0:
-            self.last_image_size = [basewidth, hsize]
+            self.last_image_size = [new_width, new_height]
 
-        self.image = self.image.resize((basewidth, hsize), Image.ANTIALIAS)
+        scaled_image = self.img.resize((new_width, new_height), Image.ANTIALIAS)
+        self.image = ImageTk.PhotoImage(scaled_image)
         self.canvas.create_image(0, 0, anchor=tk.NW, image=self.image)
 
     def on_click(self, event):
