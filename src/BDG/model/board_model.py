@@ -95,7 +95,7 @@ class Board:
         """sets pil image
 
         Args:
-            image (Image): is an PIL image
+            image (Image): is an PIL image or a str
         """
         if isinstance(image, str):
             image = cv2.imread(image)
