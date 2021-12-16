@@ -1,0 +1,56 @@
+import tkinter as tk
+from tkinter import ttk
+
+
+# https://stackoverflow.com/questions/3085696/adding-a-scrollbar-to-a-group-of-widgets-in-tkinter/3092341
+from src.BDG.LedDisplay import LedDisplay
+
+
+class ScrollbarFrame(tk.Frame):
+    """
+    Extends class tk.Frame to support a scrollable Frame
+    This class is independent from the widgets to be scrolled and
+    can be used to replace a standard tk.Frame
+    """
+
+    def __init__(self, parent, **kwargs):
+        tk.Frame.__init__(self, parent, **kwargs)
+
+        # The Scrollbar, layout to the right
+        vsb = tk.Scrollbar(self, orient="vertical")
+        vsb.pack(side="right", fill="y")
+
+        # The Canvas which supports the Scrollbar Interface, layout to the left
+        self.canvas = tk.Canvas(self, borderwidth=0)
+        self.canvas.pack(side="left", fill="both", expand=True)
+
+        # Bind the Scrollbar to the self.canvas Scrollbar Interface
+        self.canvas.configure(yscrollcommand=vsb.set)
+        vsb.configure(command=self.canvas.yview)
+
+        # The Frame to be scrolled, layout into the canvas
+        # All widgets to be scrolled have to use this Frame as parent
+        self.scrolled_frame = tk.Frame(self.canvas, background=self.canvas.cget('bg'))
+        self.windows_item = self.canvas.create_window((4, 4), window=self.scrolled_frame, anchor="nw")
+
+        # Configures the scrollregion of the Canvas dynamically
+        self.scrolled_frame.bind("<Configure>", self.on_configure)
+
+        self.descriptions = []
+
+    def on_configure(self, event):
+        """Set the scroll region to encompass the scrolled frame"""
+        self.canvas.configure(scrollregion=self.canvas.bbox("all"))
+
+    def add_led_description(self, index):
+        single_description = LedDisplay(self.scrolled_frame, index)
+        self.descriptions.append(single_description)
+
+    def remove_led_description(self, index):
+        self.descriptions.pop(index).destroy()
+
+        for i in range(len(self.descriptions)):
+            self.descriptions[i].update_number(i)
+
+
+

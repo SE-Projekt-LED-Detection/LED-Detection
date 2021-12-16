@@ -1,7 +1,7 @@
 import collections
 from numbers import Number
 import typing
-from .util_functions import *
+from BDG.util.util_functions import *
 
 
 class Led:
