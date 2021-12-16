@@ -5,6 +5,9 @@ from PIL import Image, ImageDraw, ImageTk
 
 from scipy.spatial import distance
 
+from src.BDG.model.board_model import Board
+
+
 class CreationState(Enum):
     """
     The current placement mode. If it is BOARD, an anchor point is placed on left mouse click,
@@ -35,35 +38,49 @@ class ImagePane(tk.Frame):
 
     """
 
-    def __init__(self, master, container):
+    def __init__(self, master, container, board: Board):
 
         """
 
         :param container:
         """
         tk.Frame.__init__(self, master)
+        self.board = board
         self.master = master
         self.container = container
-        self.images = None
-        self.img = None
-        self.img_path = None
-        self.polygon = None
-        self.polygon_images = {}
+        self.image = None
+        self.corner_references = []
+        self.led_references = []
+        self.current_state = tk.IntVar()
         self.canvas = tk.Canvas(master, height=720, width=1024)
         self.canvas.grid(row=1, column=0, sticky=tk.NSEW, columnspan=4)
-        self.points = []
-        self.leds = []
-
-        self.leds_references = []
-        self.leds_text_indices_references = []
-        self.undone_points = []
-        self.undone_leds = []
-        self.anchor_points = []
-        self.active_circle = 0
         self.scaling_w = 1
         self.scaling_h = 1
         self.last_image_size = [0, 0]
-        self.current_state = tk.IntVar()
+
+        self.active_circle = 0
+        self.polygon = None
+        self.polygon_images = {}
+        self.leds_text_indices_references = []
+
+
+        #self.images = None
+        #self.img = None
+        #self.img_path = None
+        #
+        #
+
+        #self.points = []
+        #self.leds = []
+
+        #self.leds_references = []
+        #
+        #self.undone_points = []
+        #self.undone_leds = []
+        #self.anchor_points = []
+
+
+
 
         self.master.bind("<Control-z>", lambda x: self.undo_point())
         self.master.bind("<Control-y>", lambda x: self.redo_point())
@@ -71,6 +88,227 @@ class ImagePane(tk.Frame):
      
 
         self.activate_board_state()
+
+    def update_image(self):
+        self.image = Image.fromarray(self.board.image)
+        self.canvas.create_image(0, 0, anchor=tk.NW, image=self.image)
+        self.canvas.bind("<Configure>", self.on_resize)
+
+        # Initial resize of the image by calling event
+        self.canvas.event_generate("<Configure>", width=self.canvas.winfo_width(), height=self.canvas.winfo_height())
+
+    def update_points(self):
+        # Cleanup canvas
+        for ref in self.corner_references:
+            self.canvas.delete(ref)
+
+        for ref in self.led_references:
+            self.canvas.delete(ref)
+
+        # Draw new corners and LEDs
+        for corner in self.board.corners:
+            self.draw_corner(corner[0], corner[1])
+
+        for led in self.board.led:
+            self.draw_led(led.position[0], led.position[1], led.radius)
+
+        self.update_polygon()
+        self.update_led_indices()
+
+    def on_resize(self, event):
+        """
+        Resizes the image in the canvas to fit the canvas while still having the same proportions.
+        :param event:
+        """
+        basewidth = event.width
+        baseheight = event.height
+        wpercent = (basewidth / float(self.image.size[0]))
+        hpercent = baseheight / float(self.image.size[1])
+        hsize = int((float(self.image.size[1]) * float(wpercent)))
+
+        if hsize > baseheight:
+            hsize = baseheight
+
+            basewidth = int((float(self.image.size[0]) * float(hpercent)))
+
+        self.scaling_h = hpercent
+        self.scaling_w = wpercent
+
+        if self.last_image_size[0] == 0:
+            self.last_image_size = [basewidth, hsize]
+
+        self.image = self.image.resize((basewidth, hsize), Image.ANTIALIAS)
+        self.canvas.create_image(0, 0, anchor=tk.NW, image=self.image)
+
+    def on_click(self, event):
+        circles = self.check_hovered(event.x, event.y)
+        if not circles:
+            if self.is_state(CreationState.BOARD):
+                pass  # TODO: call controller to add corner
+            if self.is_state(CreationState.LED):
+                pass  # TODO: call controller to add LED
+        else:
+            if self.is_state(CreationState.BOARD):
+                self.active_circle = self.board.corners.index(circles[0])
+            else:
+                self.active_circle = self.board.led.index(circles[0])
+
+    def draw_corner(self, x, y):
+        reference = self.create_circle(x, y, 10)
+        self.active_circle = len(self.board.corners) - 1
+        self.corner_references.append(reference)
+
+    def draw_led(self, x, y, radius):
+        led_ref = self.create_circle(x, y, radius)
+        self.led_references.append(led_ref)
+        self.active_circle = len(self.board.led) - 1
+
+    def create_circle(self, x, y, r):
+        """
+        helper function for creating circle
+        :param x: is the centered x
+        :param y: is the centered y
+        :param r: is the radius
+        :return: a canvas object ref represented as Integer
+        """
+        x0 = x - r
+        y0 = y - r
+        x1 = x + r
+        y1 = y + r
+        return self.canvas.create_oval(x0, y0, x1, y1)
+
+    def check_hovered(self, cx, cy):
+        """
+        Helper function for checking the currently hovered anchor point or LED.
+        :param cx: The x coordinate to check
+        :param cy: The y coordinate to check
+        :return:
+        """
+        circles = []
+        if self.is_state(CreationState.BOARD):
+            circles = filter(lambda x: distance.euclidean((cx, cy), x) <= 10, self.board.corners)
+        if self.is_state(CreationState.LED):
+            circles = filter(lambda x: distance.euclidean((cx, cy), (x[0], x[1])) <= x[2], self.board.led)
+        return list(circles)
+
+    def update_polygon(self):
+        """
+        Reads the current anchor_points and updates shape of polygon
+
+        :return: void
+        """
+        if self.polygon is not None:
+            self.canvas.delete(self.polygon)
+        if len(self.board.corners) > 1:
+            points = [y for x in self.board.corners for y in x]
+            self.polygon = self.create_polygon(*points,
+                                               has_index="board",
+                                               outline='#f11',
+                                               fill="red",
+                                               width=2,
+                                               tag="poly",
+                                               alpha=0.5)
+        else:
+            self.polygon = None
+
+    def update_led_indices(self):
+
+        for index in self.leds_text_indices_references:
+            self.canvas.delete(index)
+
+        self.leds_text_indices_references.clear()
+
+        i = 0
+        for led in self.board.led:
+            x = led[0] + led[2]
+            y = led[1] + led[2]
+
+            text = self.canvas.create_text(x, y, text=str(i))
+            self.leds_text_indices_references.append(text)
+
+            i += 1
+
+    def move_circle(self, event):
+        # Moving outside the image?
+        if event.x > self.last_image_size[0] or event.y > self.last_image_size[1]\
+                or event.x < 0 or event.y < 0:
+            return
+        #  TODO: call logic to move corner/LED
+
+    def create_polygon(self, *args, **kwargs):
+        """
+        creates an polygon using either PIL or tk.Canvas-
+
+        Because tk.Canvas doesn't support RGBA, the PIL lib is used to create an tkImage,
+        which is added to the canvas
+        :param args: is an even array of coordinates such as [x0, y0, x1, y1, ... , xn, yn]
+        :param kwargs: are some named arguments which can be read in the ImageDraw Documentation. The fill keyword is required!
+
+        :return: an canvas element
+        """
+        has_index = kwargs.pop("has_index") if "has_index" in kwargs else None
+        if "alpha" in kwargs:
+            if "fill" in kwargs:
+                # Get and process the input data
+                fill = self.master.winfo_rgb(kwargs.pop("fill")) \
+                       + (int(kwargs.pop("alpha") * 255),)
+                outline = kwargs.pop("outline") if "outline" in kwargs else None
+
+                # We need to find a rectangle the polygon is inscribed in
+                # (max(args[::2]), max(args[1::2])) are x and y of the bottom right point of this rectangle
+                # and they also are the width and height of it respectively (the image will be inserted into
+                # (0, 0) coords for simplicity)
+
+                image = Image.new("RGBA", (max(args[::2]), max(args[1::2])))
+                ImageDraw.Draw(image).polygon(args, fill=fill, outline=outline)
+                # prevent the Image from being garbage-collected
+
+                self.polygon_images[has_index] = ImageTk.PhotoImage(image)
+                return self.canvas.create_image(0, 0, image=self.polygon_images[has_index],
+                                                anchor="nw")  # insert the Image to the 0, 0 coords
+            raise ValueError("fill color must be specified!")
+        return self.canvas.create_polygon(*args, **kwargs)
+
+    def on_mousewheel(self, event):
+        #  TODO: call logic
+        pass
+
+    def activate_board_state(self):
+        """
+        change all bindings to board state settings
+        :return: void
+        """
+        self.canvas.bind("<Button-1>", lambda e: self.add_point_by_coordinates(e.x, e.y))
+        self.canvas.bind("<Button-3>", self.remove_anchor_point)
+        self.canvas.bind("<B1-Motion>", self.moving_anchor)
+        self.canvas.unbind("<MouseWheel>")  # On Windows
+        self.canvas.unbind("<Button-4>")  # On Linux
+        self.canvas.unbind("<Button-5>")  # On Linux
+        self.draw_circles()
+
+    def activate_led_state(self):
+        """
+        change all bindings to led state settings
+        :return: void
+        """
+        self.delete_circles()
+        self.canvas.bind("<Button-1>", lambda e: self.add_led_by_coordinates(e.x, e.y))
+        self.canvas.bind("<MouseWheel>", self.on_mousewheel)  # On Windows
+        self.canvas.bind("<Button-4>", self.on_mousewheel)  # On Linux
+        self.canvas.bind("<Button-5>", self.on_mousewheel)  # On Linux
+
+    def is_state(self, state):
+        return self.current_state.get() == state.value
+
+
+
+
+
+
+
+
+
+    # The below code is legacy code, the logic will be in another class
 
     def choose_image(self, img):
         """
@@ -95,33 +333,6 @@ class ImagePane(tk.Frame):
 
         # Initial resize of the image by calling event
         self.canvas.event_generate("<Configure>", width=self.canvas.winfo_width(), height=self.canvas.winfo_height())
-
-    def on_resize(self, event):
-        """
-        Resizes the image in the canvas to fit the canvas while still having the same proportions.
-        :param event:
-        """
-        basewidth = event.width
-        baseheight = event.height
-        wpercent = (basewidth / float(self.img.size[0]))
-        hpercent = baseheight / float(self.img.size[1])
-        hsize = int((float(self.img.size[1]) * float(wpercent)))
-
-        if hsize > baseheight:
-            hsize = baseheight
-
-            basewidth = int((float(self.img.size[0]) * float(hpercent)))
-
-        self.scaling_h = hpercent
-        self.scaling_w = wpercent
-
-        if self.last_image_size[0] == 0:
-            self.last_image_size = [basewidth, hsize]
-
-        scaled_image = self.img.resize((basewidth, hsize), Image.ANTIALIAS)
-        self.images = [ImageTk.PhotoImage(scaled_image)]
-        self.canvas.create_image(0, 0, anchor=tk.NW, image=self.images[0])
-        self.update_points_scaling(basewidth, hsize)
 
     def update_points_scaling(self, new_width, new_height):
         """
@@ -228,55 +439,10 @@ class ImagePane(tk.Frame):
                 self.container.led_descriptions.remove_led_description(len(self.leds))
                 self.update_led_indices()
 
-    def check_hovered(self, cx, cy):
-        """
-        Helper function for checking the currently hovered anchor point or LED.
-        :param cx: The x coordinate to check
-        :param cy: The y coordinate to check
-        :return:
-        """
-        circles = filter(lambda x: distance.euclidean((cx, cy), x) <= 10, self.anchor_points)
-        if self.is_state(CreationState.BOARD):
-            circles = filter(lambda x: distance.euclidean((cx, cy), x) <= 10, self.anchor_points)
-        if self.is_state(CreationState.LED):
-            circles = filter(lambda x: distance.euclidean((cx, cy), (x[0], x[1])) <= x[2], self.leds)
-        return list(circles)
-
-    def create_circle(self, x, y, r):
-        """
-        helper function for creating circle
-        :param x: is the centered x
-        :param y: is the centered y
-        :param r: is the radius
-        :return: a canvas object ref represented as Integer
-        """
-        x0 = x - r
-        y0 = y - r
-        x1 = x + r
-        y1 = y + r
-        return self.canvas.create_oval(x0, y0, x1, y1)
-
     def draw_circles(self):
         for point in self.anchor_points:
             anchor_point = self.create_circle(point[0], point[1], 10)
             self.points.append(anchor_point)
-
-    def update_led_indices(self):
-
-        for index in self.leds_text_indices_references:
-            self.canvas.delete(index)
-
-        self.leds_text_indices_references.clear()
-
-        i = 0
-        for led in self.leds:
-            x = led[0] + led[2]
-            y = led[1] + led[2]
-
-            text = self.canvas.create_text(x, y, text=str(i))
-            self.leds_text_indices_references.append(text)
-
-            i += 1
 
     def delete_circles(self):
         """
@@ -312,65 +478,9 @@ class ImagePane(tk.Frame):
             self.canvas.coords(led_ref, event.x - radius, event.y - radius, event.x + radius, event.y + radius)
             self.update_led_indices()
 
-    def update_polygon(self):
-        """
-        Reads the current anchor_points and updates shape of polygon
-
-        :return: void
-        """
-        if self.polygon is not None:
-            self.canvas.delete(self.polygon)
-        if len(self.anchor_points) > 1:
-            points = [y for x in self.anchor_points for y in x]
-            self.polygon = self.create_polygon(*points,
-                                               has_index="board",
-                                               outline='#f11',
-                                               fill="red",
-                                               width=2,
-                                               tag="poly",
-                                               alpha=0.5)
-        else:
-            self.polygon = None
-
-    def create_polygon(self, *args, **kwargs):
-        """
-        creates an polygon using either PIL or tk.Canvas-
-
-        Because tk.Canvas doesn't support RGBA, the PIL lib is used to create an tkImage,
-        which is added to the canvas
-        :param args: is an even array of coordinates such as [x0, y0, x1, y1, ... , xn, yn]
-        :param kwargs: are some named arguments which can be read in the ImageDraw Documentation. The fill keyword is required!
-
-        :return: an canvas element
-        """
-        has_index = kwargs.pop("has_index") if "has_index" in kwargs else None
-        if "alpha" in kwargs:
-            if "fill" in kwargs:
-                # Get and process the input data
-                fill = self.master.winfo_rgb(kwargs.pop("fill")) \
-                       + (int(kwargs.pop("alpha") * 255),)
-                outline = kwargs.pop("outline") if "outline" in kwargs else None
-
-                # We need to find a rectangle the polygon is inscribed in
-                # (max(args[::2]), max(args[1::2])) are x and y of the bottom right point of this rectangle
-                # and they also are the width and height of it respectively (the image will be inserted into
-                # (0, 0) coords for simplicity)
-
-                image = Image.new("RGBA", (max(args[::2]), max(args[1::2])))
-                ImageDraw.Draw(image).polygon(args, fill=fill, outline=outline)
-                # prevent the Image from being garbage-collected
-
-                self.polygon_images[has_index] = ImageTk.PhotoImage(image)
-                return self.canvas.create_image(0, 0, image=self.polygon_images[has_index],
-                                                anchor="nw")  # insert the Image to the 0, 0 coords
-            raise ValueError("fill color must be specified!")
-        return self.canvas.create_polygon(*args, **kwargs)
-
+    """
     def on_mousewheel(self, event):
-        """
-        Changes the size of the currently hovered LED.
-        :param event:
-        """
+        
         count = 0
         if event.num == 5 or event.delta == -120:
             count = -1
@@ -388,6 +498,7 @@ class ImagePane(tk.Frame):
             self.leds[index] = (active_led[0], active_led[1], radius)
             self.canvas.coords(led_ref, active_led[0] - radius, active_led[1] - radius, active_led[0] + radius, active_led[1] + radius)
             self.update_led_indices()
+    """
 
     def remove_anchor_point(self, event):
         """
@@ -415,33 +526,6 @@ class ImagePane(tk.Frame):
                 self.leds_references.remove(ref)
                 self.container.led_descriptions.remove_led_description(index)
                 self.update_led_indices()
-
-    def activate_board_state(self):
-        """
-        change all bindings to board state settings
-        :return: void
-        """
-        self.canvas.bind("<Button-1>", lambda e: self.add_point_by_coordinates(e.x, e.y))
-        self.canvas.bind("<Button-3>", self.remove_anchor_point)
-        self.canvas.bind("<B1-Motion>", self.moving_anchor)
-        self.canvas.unbind("<MouseWheel>")  # On Windows
-        self.canvas.unbind("<Button-4>")  # On Linux
-        self.canvas.unbind("<Button-5>")  # On Linux
-        self.draw_circles()
-
-    def activate_led_state(self):
-        """
-        change all bindings to led state settings
-        :return: void
-        """
-        self.delete_circles()
-        self.canvas.bind("<Button-1>", lambda e: self.add_led_by_coordinates(e.x, e.y))
-        self.canvas.bind("<MouseWheel>", self.on_mousewheel)  # On Windows
-        self.canvas.bind("<Button-4>", self.on_mousewheel)  # On Linux
-        self.canvas.bind("<Button-5>", self.on_mousewheel)  # On Linux
-
-    def is_state(self, state):
-        return self.current_state.get() == state.value
 
    
 
