@@ -1,11 +1,16 @@
 @startuml
 'https://plantuml.com/sequence-diagram
+actor user
 
-autonumber
+user -> "labgrid-client": "labgrid-client -p test subscribe_led_state"
+"labgrid-client" --> user
 
-Alice -> Bob: Authentication Request
-Bob --> Alice: Authentication Response
+"labgrid-client" -> "labgrid-coordinator"
+"labgrid-coordinator" -> "labgrid-exporter"
 
-Alice -> Bob: Another authentication Request
-Alice <-- Bob: another authentication Response
+
+
+"labgrid-exporter" -> "BoS-System": bos -v 1 -r "raspberry" -t led_changes "
+BoS-System --> "labgrid-exporter"
+
 @enduml

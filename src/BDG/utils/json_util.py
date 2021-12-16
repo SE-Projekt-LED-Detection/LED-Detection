@@ -4,9 +4,10 @@
 import json
 import numpy as np
 from src.BDG.model.board_model import Board, Led
-from src.BDG.util.util_functions import decode_img_data
 import cv2
 import matplotlib.pyplot as plt
+
+from src.BDG.utils.util_functions import decode_img_data
 
 
 def from_json(file_path: str):

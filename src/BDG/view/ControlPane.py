@@ -3,11 +3,12 @@ import tkinter as tk
 
 from tkinter.filedialog import askopenfilename
 
-from ImagePane import ImagePane
+
+from src.BDG.utils.json_util import from_json
+from src.BDG.view.ImagePane import ImagePane
 from src.BDG.view.Scrollable import ScrollbarFrame
 from src.BDG.view.Toolbar import Toolbar
-
-import coordinator.coodinatior
+from src.BDG.model.board_model import Board
 
 class ControlPane(tk.Frame):
     def __init__(self, container):
