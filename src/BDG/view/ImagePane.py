@@ -63,8 +63,9 @@ class ImagePane(tk.Frame):
         self.active_circle = 0
         self.polygon = None
         self.polygon_images = {}
+        self.leds_text_indices_references = []
 
-        # handler.parent.on_update.get("on_update_point").append(lambda: self.update_points())
+        handler.parent.on_update.get("on_update_point").append(lambda: self.update_points())
         handler.parent.on_update.get("on_update_image").append(lambda: self.update_image())
 
         #self.images = None
@@ -300,7 +301,7 @@ class ImagePane(tk.Frame):
         change all bindings to led state settings
         :return: void
         """
-        self.delete_circles()
+        # self.delete_circles() TODO: polygon corners
         self.canvas.bind("<Button-1>", self.handler.add_led)
         self.canvas.bind("<MouseWheel>", self.on_mousewheel)  # On Windows
         self.canvas.bind("<Button-4>", self.on_mousewheel)  # On Linux
@@ -312,6 +313,9 @@ class ImagePane(tk.Frame):
 
     def update_board(self):
         self.board = self.handler.board()
+
+
+
     #
     #
     #

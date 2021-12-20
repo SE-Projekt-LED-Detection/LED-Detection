@@ -4,7 +4,7 @@ import numpy as np
 from src.BDG.model.board_model import Led
 
 
-class EditHandler():
+class EditHandler:
     def __init__(self, parent) -> None:
         self.parent = parent
         self.scaling = 1.0
@@ -31,8 +31,10 @@ class EditHandler():
             return
 
         corners.append(np.array([x, y]))
-        self.board().set_board_corners(corners)
         self.parent.update_points()
+
+    def delete_corner(self, event):
+        pass  # TODO
 
     def add_led(self, event):
         x = round(event.x / self.scaling)
