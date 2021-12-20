@@ -21,14 +21,9 @@ class EditHandler:
         x = round(event.x / self.scaling)
         y = round(event.y / self.scaling)
 
-        image_shape = self.board().image.shape
-        if x > image_shape[0] or y > image_shape[1] or x < 0 or y < 0:
-            print("invalid coordinate")
-            return
+        assert(self.board().image.shape[1] >= x >= 0 and self.board().image.shape[0] >= y >= 0)
+        assert(len(corners) < 4)
 
-        if len(corners) >= 4:
-            print("there are already 4 corners")
-            return
 
         corners.append(np.array([x, y]))
         self.parent.update_points()
@@ -40,10 +35,7 @@ class EditHandler:
         x = round(event.x / self.scaling)
         y = round(event.y / self.scaling)
 
-        image_shape = self.board().image.shape
-        if x > image_shape[0] or y > image_shape[1] or x < 0 or y < 0:
-            print("invalid coordinate")
-            return
+        assert (self.board().image.shape[1] >= x >= 0 and self.board().image.shape[0] >= y >= 0)
 
         led = Led("", np.array([x, y]), 20, [])
         self.board().add_led(led, True)

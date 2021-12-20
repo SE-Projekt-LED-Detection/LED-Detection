@@ -57,7 +57,6 @@ class ImagePane(tk.Frame):
         self.current_state = tk.IntVar()
         self.canvas = tk.Canvas(master, height=720, width=1024)
         self.canvas.grid(row=1, column=0, sticky=tk.NSEW, columnspan=4)
-        self.scaling = 1
         self.last_image_size = [0, 0]
 
         self.active_circle = 0
@@ -129,6 +128,7 @@ class ImagePane(tk.Frame):
         """
         basewidth = event.width
         baseheight = event.height
+        self.img = Image.fromarray(self.board.image)
         scaling = (basewidth / float(self.img.size[0]))
         # hpercent = baseheight / float(self.img.size[1])
         new_height = int((float(self.img.size[1]) * float(scaling)))
@@ -140,7 +140,7 @@ class ImagePane(tk.Frame):
             scaling = baseheight / float(self.img.size[1])
             new_width = int((float(self.img.size[0]) * float(scaling)))
 
-        self.scaling = scaling
+        self.handler.scaling = scaling
 
         if self.last_image_size[0] == 0:
             self.last_image_size = [new_width, new_height]
@@ -148,6 +148,7 @@ class ImagePane(tk.Frame):
         scaled_image = self.img.resize((new_width, new_height), Image.ANTIALIAS)
         self.image = ImageTk.PhotoImage(scaled_image)
         self.canvas.create_image(0, 0, anchor=tk.NW, image=self.image)
+        self.update_points()
 
     def on_click(self, event):
         circles = self.check_hovered(event.x, event.y)
@@ -163,12 +164,12 @@ class ImagePane(tk.Frame):
                 self.active_circle = self.board.led.index(circles[0])
 
     def draw_corner(self, x, y):
-        reference = self.create_circle(x, y, 10)
+        reference = self.create_circle(round(x * self.handler.scaling), round(y * self.handler.scaling), 10)
         self.active_circle = len(self.board.corners) - 1
         self.corner_references.append(reference)
 
     def draw_led(self, x, y, radius):
-        led_ref = self.create_circle(x, y, radius)
+        led_ref = self.create_circle(round(x * self.handler.scaling), round(y * self.handler.scaling), radius)
         self.led_references.append(led_ref)
         self.active_circle = len(self.board.led) - 1
 
@@ -210,7 +211,7 @@ class ImagePane(tk.Frame):
         if self.polygon is not None:
             self.canvas.delete(self.polygon)
         if len(self.board.corners) > 1:
-            points = [y for x in self.board.corners for y in x]
+            points = [y for x in map(lambda p: [round(p[0] * self.handler.scaling), round(p[1] * self.handler.scaling)], self.board.corners) for y in x]
             self.polygon = self.create_polygon(*points,
                                                has_index="board",
                                                outline='#f11',
@@ -230,8 +231,8 @@ class ImagePane(tk.Frame):
 
         i = 0
         for led in self.board.led:
-            x = led.position[0] + led.radius
-            y = led.position[1] + led.radius
+            x = led.position[0] * self.handler.scaling + led.radius
+            y = led.position[1] * self.handler.scaling  + led.radius
 
             text = self.canvas.create_text(x, y, text=str(i))
             self.leds_text_indices_references.append(text)
