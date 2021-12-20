@@ -4,9 +4,9 @@ from src.BDG.coordinator.edit_handler import EditHandler
 import itertools
 
 
-class EventHandler():
+class EventHandler:
     def __init__(self):
-        self.board = Board();
+        self.board = Board()
         self.on_update = {
             "on_update_point": [],
             "on_update_image": []

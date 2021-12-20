@@ -21,8 +21,9 @@ class EditHandler:
         x = round(event.x / self.scaling)
         y = round(event.y / self.scaling)
 
-        assert(self.board().image.shape[1] >= x >= 0 and self.board().image.shape[0] >= y >= 0)
-        assert(len(corners) < 4)
+        assert(self.board().image.shape[1] >= x >= 0 and self.board().image.shape[0] >= y >= 0),\
+            "Coordinates outside image"
+        assert(len(corners) < 4), "Only 4 corners are possible"
 
 
         corners.append(np.array([x, y]))
@@ -35,7 +36,8 @@ class EditHandler:
         x = round(event.x / self.scaling)
         y = round(event.y / self.scaling)
 
-        assert (self.board().image.shape[1] >= x >= 0 and self.board().image.shape[0] >= y >= 0)
+        assert (self.board().image.shape[1] >= x >= 0 and self.board().image.shape[0] >= y >= 0),\
+            "Coordinates outside image"
 
         led = Led("", np.array([x, y]), 20, [])
         self.board().add_led(led, True)
