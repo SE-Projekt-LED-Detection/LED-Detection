@@ -113,7 +113,7 @@ class Board:
             [type]: [description]
         """
         assert (self.corners is not None)
-        assert (self.corners.size > 0)
+        assert (len(self.corners) > 0)
 
         # get upper left corner, assert corners are sorted
         ul_corner = self.corners[0]

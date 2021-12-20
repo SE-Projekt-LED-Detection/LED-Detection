@@ -230,8 +230,8 @@ class ImagePane(tk.Frame):
 
         i = 0
         for led in self.board.led:
-            x = led[0] + led[2]
-            y = led[1] + led[2]
+            x = led.position[0] + led.radius
+            y = led.position[1] + led.radius
 
             text = self.canvas.create_text(x, y, text=str(i))
             self.leds_text_indices_references.append(text)

@@ -46,6 +46,6 @@ class EditHandler:
             return
 
         led = Led("", np.array([x, y]), 20, [])
-        self.board().add_led(led)
+        self.board().add_led(led, True)
 
         self.parent.update_points()
