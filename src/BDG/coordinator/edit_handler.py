@@ -16,6 +16,11 @@ class EditHandler:
         self.current_state = tkinter.IntVar()
         self.active_circle = None
 
+        self.current_state.trace_add('write', self.clean_active_circle)
+
+    def clean_active_circle(self, var, index, mode):
+        self.active_circle = None
+
     def board(self) -> Board:
         return self.parent.board
 
