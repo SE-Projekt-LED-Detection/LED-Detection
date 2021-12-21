@@ -1,17 +1,21 @@
 import tkinter as tk
 from tkinter import ttk
 
+from src.BDG.coordinator.edit_handler import EditHandler
+from src.BDG.view.ImagePane import ImagePane
+
 
 class Toolbar(tk.Frame):
-    def __init__(self, master, container):
+    def __init__(self, master, image_pane: ImagePane, handler: EditHandler):
         tk.Frame.__init__(self, master)
+        self.image_pane = image_pane
         self.master = master
-        self.container = container
+        self.handler = handler
 
-        r1 = ttk.Radiobutton(self, text="Place corner point", value=0, variable=self.container.imagePane.current_state,
-                             command=self.container.imagePane.activate_board_state)
-        r2 = ttk.Radiobutton(self, text="Place LED", value=1, variable=self.container.imagePane.current_state,
-                             command=self.container.imagePane.activate_led_state)
+        r1 = ttk.Radiobutton(self, text="Place corner point", value=0, variable=self.handler.current_state,
+                             command=self.image_pane.activate_board_state)
+        r2 = ttk.Radiobutton(self, text="Place LED", value=1, variable=self.handler.current_state,
+                             command=self.image_pane.activate_led_state)
 
         #btn_undo = ttk.Button(self, command=self.container.imagePane.undo_point, text="Undo")
         #btn_redo = ttk.Button(self, command=self.container.imagePane.redo_point, text="Redo")

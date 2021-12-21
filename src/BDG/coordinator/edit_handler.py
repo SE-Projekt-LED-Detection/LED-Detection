@@ -1,25 +1,39 @@
+import tkinter
+
+from scipy.spatial import distance
+
 import src.BDG.utils.json_util as js_util
 import numpy as np
 
-from src.BDG.model.board_model import Led
+from src.BDG.model.CreationState import CreationState
+from src.BDG.model.board_model import Led, Board
 
 
 class EditHandler:
     def __init__(self, parent) -> None:
         self.parent = parent
         self.scaling = 1.0
+        self.current_state = tkinter.IntVar()
+        self.active_circle = None
 
-    def board(self):
+    def board(self) -> Board:
         return self.parent.board
 
     def add_corner(self, event):
+        x = round(event.x / self.scaling)
+        y = round(event.y / self.scaling)
+
+        circles = self.check_hovered(x, y)
+        if circles:
+            self.active_circle = circles[0]
+            return
+
         if self.board().corners is None:
             return
 
         corners = self.board().corners
 
-        x = round(event.x / self.scaling)
-        y = round(event.y / self.scaling)
+
 
         assert(self.board().image.shape[1] >= x >= 0 and self.board().image.shape[0] >= y >= 0),\
             "Coordinates outside image"
@@ -36,6 +50,13 @@ class EditHandler:
         x = round(event.x / self.scaling)
         y = round(event.y / self.scaling)
 
+        circles = self.check_hovered(x, y)
+        if circles:
+            self.active_circle = circles[0]
+            return
+
+
+
         assert (self.board().image.shape[1] >= x >= 0 and self.board().image.shape[0] >= y >= 0),\
             "Coordinates outside image"
 
@@ -43,3 +64,42 @@ class EditHandler:
         self.board().add_led(led, True)
 
         self.parent.update_points()
+
+    def moving_point(self, event):
+        """
+        Moves the currently selected anchor point or LED
+        :param event:
+        """
+
+        x = round(event.x / self.scaling)
+        y = round(event.y / self.scaling)
+
+        # Moving outside the image?
+        if x > self.board().image.shape[1] or y > self.board().image.shape[0] or x < 0 or y < 0:
+            return
+
+        if self.is_state(CreationState.BOARD):
+            index = self.board().corners.index(self.active_circle)
+            self.board().corners.pop(index)
+            self.board().corners.insert(index, np.array([x, y]))
+        if self.is_state(CreationState.LED):
+            self.active_circle.position = np.array([x, y])
+
+        self.parent.update_points()
+
+    def check_hovered(self, cx, cy):
+        """
+        Helper function for checking the currently hovered anchor point or LED.
+        :param cx: The x coordinate to check
+        :param cy: The y coordinate to check
+        :return:
+        """
+        circles = []
+        if self.is_state(CreationState.BOARD):
+            circles = filter(lambda x: distance.euclidean((cx, cy), x) <= round(10 / self.scaling), self.board().corners)
+        if self.is_state(CreationState.LED):
+            circles = filter(lambda x: distance.euclidean((cx, cy), (x.position[0], x.position[1])) <= round(x.radius / self.scaling), self.board().led)
+        return list(circles)
+
+    def is_state(self, state):
+        return self.current_state.get() == state.value

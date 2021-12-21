@@ -5,17 +5,9 @@ from PIL import Image, ImageDraw, ImageTk
 
 from scipy.spatial import distance
 
+from src.BDG.model.CreationState import CreationState
 from src.BDG.model.board_model import Board
 from src.BDG.coordinator.edit_handler import EditHandler
-
-
-class CreationState(Enum):
-    """
-    The current placement mode. If it is BOARD, an anchor point is placed on left mouse click,
-    if it is LED a LED is placed.
-    """
-    BOARD = 0
-    LED = 1
 
 
 class ImagePane(tk.Frame):
@@ -66,6 +58,8 @@ class ImagePane(tk.Frame):
 
         handler.parent.on_update.get("on_update_point").append(lambda: self.update_points())
         handler.parent.on_update.get("on_update_image").append(lambda: self.update_image())
+
+        self.canvas.bind("<B1-Motion>", self.handler.moving_point)
 
         #self.images = None
         #self.img = None
@@ -150,19 +144,6 @@ class ImagePane(tk.Frame):
         self.canvas.create_image(0, 0, anchor=tk.NW, image=self.image)
         self.update_points()
 
-    def on_click(self, event):
-        circles = self.check_hovered(event.x, event.y)
-        if not circles:
-            if self.is_state(CreationState.BOARD):
-                pass  # TODO: call controller to add corner
-            if self.is_state(CreationState.LED):
-                pass  # TODO: call controller to add LED
-        else:
-            if self.is_state(CreationState.BOARD):
-                self.active_circle = self.board.corners.index(circles[0])
-            else:
-                self.active_circle = self.board.led.index(circles[0])
-
     def draw_corner(self, x, y):
         reference = self.create_circle(round(x * self.handler.scaling), round(y * self.handler.scaling), 10)
         self.active_circle = len(self.board.corners) - 1
@@ -186,20 +167,6 @@ class ImagePane(tk.Frame):
         x1 = x + r
         y1 = y + r
         return self.canvas.create_oval(x0, y0, x1, y1)
-
-    def check_hovered(self, cx, cy):
-        """
-        Helper function for checking the currently hovered anchor point or LED.
-        :param cx: The x coordinate to check
-        :param cy: The y coordinate to check
-        :return:
-        """
-        circles = []
-        if self.is_state(CreationState.BOARD):
-            circles = filter(lambda x: distance.euclidean((cx, cy), x) <= 10, self.board.corners)
-        if self.is_state(CreationState.LED):
-            circles = filter(lambda x: distance.euclidean((cx, cy), (x[0], x[1])) <= x[2], self.board.led)
-        return list(circles)
 
     def update_polygon(self):
         """
@@ -232,7 +199,7 @@ class ImagePane(tk.Frame):
         i = 0
         for led in self.board.led:
             x = led.position[0] * self.handler.scaling + led.radius
-            y = led.position[1] * self.handler.scaling  + led.radius
+            y = led.position[1] * self.handler.scaling + led.radius
 
             text = self.canvas.create_text(x, y, text=str(i))
             self.leds_text_indices_references.append(text)
@@ -291,7 +258,6 @@ class ImagePane(tk.Frame):
         """
         self.canvas.bind("<Button-1>", self.handler.add_corner)
         # self.canvas.bind("<Button-3>", self.remove_anchor_point)  # TODO
-        # self.canvas.bind("<B1-Motion>", self.moving_anchor)  # TODO
         self.canvas.unbind("<MouseWheel>")  # On Windows
         self.canvas.unbind("<Button-4>")  # On Linux
         self.canvas.unbind("<Button-5>")  # On Linux
@@ -307,10 +273,6 @@ class ImagePane(tk.Frame):
         self.canvas.bind("<MouseWheel>", self.on_mousewheel)  # On Windows
         self.canvas.bind("<Button-4>", self.on_mousewheel)  # On Linux
         self.canvas.bind("<Button-5>", self.on_mousewheel)  # On Linux
-
-    def is_state(self, state):
-        return self.current_state.get() == state.value
-
 
     def update_board(self):
         self.board = self.handler.board()
