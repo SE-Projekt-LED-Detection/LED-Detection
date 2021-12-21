@@ -1,13 +1,17 @@
+import tkinter
+
 from src.BDG.coordinator.event_handler import EventHandler
 from src.BDG.model.CreationState import CreationState
 from src.BDG.model.board_model import Board
 from types import SimpleNamespace
 
+tk = tkinter.Tk()
 reference = Board(name="raspberry", author="christoph", img_path="resources/test_image.jpg",
                   corners=None)
 event_handler = EventHandler()
 event_handler.update_board(reference)
 edit_handler = event_handler.edit_handler
+
 
 
 def test_add_corner():
