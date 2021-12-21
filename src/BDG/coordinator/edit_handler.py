@@ -13,7 +13,7 @@ class EditHandler:
     def __init__(self, parent) -> None:
         self.parent = parent
         self.scaling = 1.0
-        self.current_state = tkinter.IntVar()
+        self.current_state = tkinter.IntVar(tkinter.Tk())
         self.active_circle = None
 
     def board(self) -> Board:
