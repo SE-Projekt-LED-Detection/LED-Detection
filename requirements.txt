@@ -11,4 +11,5 @@ lxml
 scipy
 dataclasses
 scikit-learn
+numpyencoder
 

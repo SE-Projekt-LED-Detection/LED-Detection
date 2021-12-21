@@ -5,6 +5,7 @@ from scipy.spatial import distance
 import src.BDG.utils.json_util as js_util
 import numpy as np
 
+
 from src.BDG.model.CreationState import CreationState
 from src.BDG.model.board_model import Led, Board
 
@@ -38,11 +39,12 @@ class EditHandler:
 
         corners = self.board().corners
 
+        x = round(event.x / self.scaling)
+        y = round(event.y / self.scaling)
 
-
-        assert(self.board().image.shape[1] >= x >= 0 and self.board().image.shape[0] >= y >= 0),\
+        assert (self.board().image.shape[1] >= x >= 0 and self.board().image.shape[0] >= y >= 0), \
             "Coordinates outside image"
-        assert(len(corners) < 4), "Only 4 corners are possible"
+        assert (len(corners) < 4), "Only 4 corners are possible"
 
 
         corners.append([x, y])
