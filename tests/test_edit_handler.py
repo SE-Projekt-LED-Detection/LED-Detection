@@ -11,7 +11,7 @@ reference = Board(name="raspberry", author="christoph", img_path="resources/test
 event_handler = EventHandler()
 event_handler.update_board(reference)
 edit_handler = event_handler.edit_handler
-
+start_position = SimpleNamespace(x=80, y=80)
 
 
 def test_add_corner():
@@ -53,7 +53,6 @@ def test_check_hovered():
 def test_moving_point():
     edit_handler.scaling = 1
     edit_handler.current_state.set(CreationState.LED.value)
-    start_position = SimpleNamespace(x=80, y=80)
     edit_handler.add_led(start_position)
 
     # Simulate click on LED
@@ -85,5 +84,23 @@ def test_moving_point():
     reference.led.clear()
     edit_handler.active_circle = None
 
+
+def test_on_mousewheel():
+    edit_handler.scaling = 1
+    edit_handler.current_state.set(CreationState.LED.value)
+    edit_handler.add_led(start_position)
+
+    org_radius = reference.led[0].radius
+
+    scrolling_up_event = SimpleNamespace(x=80, y=80, num=4, delta=120)
+    scrolling_down_event = SimpleNamespace(x=80, y=80, num=5, delta=-120)
+
+    edit_handler.on_mousewheel(scrolling_up_event)
+
+    assert reference.led[0].radius == org_radius + 1
+
+    edit_handler.on_mousewheel(scrolling_down_event)
+
+    assert reference.led[0].radius == org_radius
 
 

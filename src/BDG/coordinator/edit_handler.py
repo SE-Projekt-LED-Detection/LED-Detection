@@ -91,6 +91,25 @@ class EditHandler:
 
         self.parent.update_points()
 
+    def on_mousewheel(self, event):
+        scroll_amount = 0
+
+        x = round(event.x / self.scaling)
+        y = round(event.y / self.scaling)
+
+        if event.num == 5 or event.delta == -120:
+            scroll_amount = -1
+        if event.num == 4 or event.delta == 120:
+            scroll_amount = 1
+
+        circles = self.check_hovered(x, y)
+
+        if circles:
+            active_led = circles[0]
+            active_led.radius += scroll_amount
+
+        self.parent.update_points()
+
     def check_hovered(self, cx, cy):
         """
         Helper function for checking the currently hovered anchor point or LED.

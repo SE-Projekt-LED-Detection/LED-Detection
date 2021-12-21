@@ -51,7 +51,6 @@ class ImagePane(tk.Frame):
         self.canvas.grid(row=1, column=0, sticky=tk.NSEW, columnspan=4)
         self.last_image_size = [0, 0]
 
-        self.active_circle = 0
         self.polygon = None
         self.polygon_images = {}
         self.leds_text_indices_references = []
@@ -146,13 +145,11 @@ class ImagePane(tk.Frame):
 
     def draw_corner(self, x, y):
         reference = self.create_circle(round(x * self.handler.scaling), round(y * self.handler.scaling), 10)
-        self.active_circle = len(self.board.corners) - 1
         self.corner_references.append(reference)
 
     def draw_led(self, x, y, radius):
         led_ref = self.create_circle(round(x * self.handler.scaling), round(y * self.handler.scaling), radius)
         self.led_references.append(led_ref)
-        self.active_circle = len(self.board.led) - 1
 
     def create_circle(self, x, y, r):
         """
@@ -206,13 +203,6 @@ class ImagePane(tk.Frame):
 
             i += 1
 
-    def move_circle(self, event):
-        # Moving outside the image?
-        if event.x > self.last_image_size[0] or event.y > self.last_image_size[1]\
-                or event.x < 0 or event.y < 0:
-            return
-        #  TODO: call logic to move corner/LED
-
     def create_polygon(self, *args, **kwargs):
         """
         creates an polygon using either PIL or tk.Canvas-
@@ -246,10 +236,6 @@ class ImagePane(tk.Frame):
                                                 anchor="nw")  # insert the Image to the 0, 0 coords
             raise ValueError("fill color must be specified!")
         return self.canvas.create_polygon(*args, **kwargs)
-
-    def on_mousewheel(self, event):
-        #  TODO: call logic
-        pass
 
     def activate_board_state(self):
         """
