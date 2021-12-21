@@ -40,7 +40,7 @@ class EditHandler:
         assert(len(corners) < 4), "Only 4 corners are possible"
 
 
-        corners.append(np.array([x, y]))
+        corners.append([x, y])
         self.parent.update_points()
 
     def delete_corner(self, event):
@@ -78,10 +78,14 @@ class EditHandler:
         if x > self.board().image.shape[1] or y > self.board().image.shape[0] or x < 0 or y < 0:
             return
 
+        if self.active_circle is None:
+            return
+
         if self.is_state(CreationState.BOARD):
             index = self.board().corners.index(self.active_circle)
             self.board().corners.pop(index)
-            self.board().corners.insert(index, np.array([x, y]))
+            self.board().corners.insert(index, [x, y])
+            self.active_circle = [x, y]
         if self.is_state(CreationState.LED):
             self.active_circle.position = np.array([x, y])
 
