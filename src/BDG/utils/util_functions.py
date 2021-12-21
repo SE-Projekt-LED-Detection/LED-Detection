@@ -57,11 +57,11 @@ def angle_between(v1, v2):
     """
     v1_u = unit_vector(v1)
     v2_u = unit_vector(v2)
+    if np.all(np.equal(v1, v2)):
+        return np.pi * 0.0
     angle = np.arccos(np.dot(v1_u, v2_u))
     if not np.isnan(angle):
         return angle
-    elif np.all(np.equal(v1, v2)):
-        return np.pi * 0.0
     else:
         return np.pi
 

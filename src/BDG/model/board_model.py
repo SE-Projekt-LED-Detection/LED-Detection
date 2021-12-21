@@ -1,5 +1,5 @@
 import collections
-from numbers import Number
+
 import typing
 import cv2
 import numpy as np
@@ -70,7 +70,7 @@ class Board:
         else:
             self.image = image
 
-    def set_board_corners(self, points: typing.List[Number]):
+    def set_board_corners(self, points: typing.List):
         """creates corner points and sorted them against clockwise direction
 
         Args:
