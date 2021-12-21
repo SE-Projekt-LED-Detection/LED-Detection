@@ -43,8 +43,24 @@ class EditHandler:
         corners.append([x, y])
         self.parent.update_points()
 
-    def delete_corner(self, event):
-        pass  # TODO
+    def delete_point(self, event):
+        """
+        Remove a point or a LED
+        :param event: is a Mouse event
+        :return:
+        """
+        x = round(event.x / self.scaling)
+        y = round(event.y / self.scaling)
+
+        circles = self.check_hovered(x, y)
+        if circles[0] is not None:
+            if self.is_state(CreationState.BOARD):
+                self.board().corners.remove(circles[0])
+
+            if self.is_state(CreationState.LED):
+                self.board().led.remove(circles[0])
+
+            self.parent.update_points()
 
     def add_led(self, event):
         x = round(event.x / self.scaling)

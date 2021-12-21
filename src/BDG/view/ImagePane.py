@@ -59,6 +59,7 @@ class ImagePane(tk.Frame):
         handler.parent.on_update.get("on_update_image").append(lambda: self.update_image())
 
         self.canvas.bind("<B1-Motion>", self.handler.moving_point)
+        self.canvas.bind("<Button-3>", self.handler.delete_point)
 
         #self.images = None
         #self.img = None
@@ -105,8 +106,9 @@ class ImagePane(tk.Frame):
             self.canvas.delete(ref)
 
         # Draw new corners and LEDs
-        for corner in self.board.corners:
-            self.draw_corner(corner[0], corner[1])
+        if self.handler.is_state(CreationState.BOARD):
+            for corner in self.board.corners:
+                self.draw_corner(corner[0], corner[1])
 
         for led in self.board.led:
             self.draw_led(led.position[0], led.position[1], led.radius)
@@ -243,27 +245,31 @@ class ImagePane(tk.Frame):
         :return: void
         """
         self.canvas.bind("<Button-1>", self.handler.add_corner)
-        # self.canvas.bind("<Button-3>", self.remove_anchor_point)  # TODO
         self.canvas.unbind("<MouseWheel>")  # On Windows
         self.canvas.unbind("<Button-4>")  # On Linux
         self.canvas.unbind("<Button-5>")  # On Linux
-        # self.draw_circles()  # TODO?
+        self.handler.parent.update_points()
 
     def activate_led_state(self):
         """
         change all bindings to led state settings
         :return: void
         """
-        # self.delete_circles() TODO: polygon corners
+        self.delete_circles()
         self.canvas.bind("<Button-1>", self.handler.add_led)
-        self.canvas.bind("<MouseWheel>", self.on_mousewheel)  # On Windows
-        self.canvas.bind("<Button-4>", self.on_mousewheel)  # On Linux
-        self.canvas.bind("<Button-5>", self.on_mousewheel)  # On Linux
+        self.canvas.bind("<MouseWheel>", self.handler.on_mousewheel)  # On Windows
+        self.canvas.bind("<Button-4>", self.handler.on_mousewheel)  # On Linux
+        self.canvas.bind("<Button-5>", self.handler.on_mousewheel)  # On Linux
+
+
 
     def update_board(self):
         self.board = self.handler.board()
 
 
+    def delete_circles(self):
+        for ref in self.corner_references:
+            self.canvas.delete(ref)
 
     #
     #
@@ -464,32 +470,7 @@ class ImagePane(tk.Frame):
     #         self.update_led_indices()
     # """
     #
-    # def remove_anchor_point(self, event):
-    #     """
-    #     removes an anchor_point
-    #     :param event: is a Mouse event
-    #     :return:
-    #     """
-    #     circles = self.check_hovered(event.x, event.y)
-    #     if circles[0] is not None:
-    #         if self.is_state(CreationState.BOARD):
-    #             index = self.anchor_points.index(circles[0])
     #
-    #             point = self.points[index]
-    #
-    #             self.canvas.delete(point)
-    #             self.anchor_points.remove(circles[0])
-    #             self.points.remove(point)
-    #             self.update_polygon()
-    #
-    #         if self.is_state(CreationState.LED):
-    #             index = self.leds.index(circles[0])
-    #             ref = self.leds_references[index]
-    #             self.canvas.delete(ref)
-    #             self.leds.remove(circles[0])
-    #             self.leds_references.remove(ref)
-    #             self.container.led_descriptions.remove_led_description(index)
-    #             self.update_led_indices()
 
 
 
