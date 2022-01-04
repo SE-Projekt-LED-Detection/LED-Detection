@@ -39,6 +39,7 @@ class ImagePane(tk.Frame):
         """
         tk.Frame.__init__(self, master)
 
+        self.img = None
         self.handler = handler
         self.board = handler.board()
         self.master = master
@@ -80,8 +81,8 @@ class ImagePane(tk.Frame):
 
 
 
-        self.master.bind("<Control-z>", lambda x: self.undo_point())
-        self.master.bind("<Control-y>", lambda x: self.redo_point())
+        # self.master.bind("<Control-z>", lambda x: self.undo_point())
+        # self.master.bind("<Control-y>", lambda x: self.redo_point())
         #self.master.bind("<t>", lambda x: self.current_state.set((self.current_state.get() + 1) % 2))
      
 

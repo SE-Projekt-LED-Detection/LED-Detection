@@ -62,6 +62,7 @@ class FileHandler():
         Args:
             file_path (str): [description]
         """
+        f = fd.askopenfilename()
         file_path = Path(fd.askopenfilename())
         current_dir = os.getcwd()
 
@@ -76,7 +77,7 @@ class FileHandler():
             # TODO:: see svg utils
             pass
         elif file_type in [".jpg",".png", ".gif"]:
-            board.set_image(file_path)
+            board.set_image(file_path.__str__())
 
 
         self.parent.update_board(board)
