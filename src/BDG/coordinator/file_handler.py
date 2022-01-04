@@ -62,7 +62,6 @@ class FileHandler():
         Args:
             file_path (str): [description]
         """
-        f = fd.askopenfilename()
         file_path = Path(fd.askopenfilename())
         current_dir = os.getcwd()
 
