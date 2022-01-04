@@ -106,16 +106,34 @@ def decode_img_data(img_attr: str) -> np.array:
     cv2.imshow("image", img)
     return img
 
-def coord_relat_to_real(corner_coords: np.ndarray):
+def trans_led_coord_to_real(corner_coords: np.ndarray,led_objects):
     """
-    converts relative coordinates (vector origin at upper left corner) to real coordinates (vector origin is (0,0))
+    converts relative led coordinates to real coordinates
     :param corner_coords: is nx2 nd array, where the first vector is the upper left corner
-    :return: the transformed corner vectors
+    :param led_objects: is a list of led objects
+    :return: the transformed led objects
+    """
+
+    upper_left_corner = corner_coords[0]
+    for led in led_objects:
+        led.position = np.add(led.position, upper_left_corner)
+
+    return led_objects
+
+def trans_led_coord_to_relative(corner_coords: np.ndarray, led_objects):
+    """
+
+    :param corner_coords:
+    :param led_objects:
+    :return:
     """
     upper_left_corner = corner_coords[0]
+    for led in led_objects:
+        led.position = np.subtract(led.position, upper_left_corner)
 
-    corner_coords = np.subtract(corner_coords, upper_left_corner)
-    return corner_coords
+    return led_objects
+
+
 
 
 
