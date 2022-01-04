@@ -106,13 +106,28 @@ def decode_img_data(img_attr: str) -> np.array:
     cv2.imshow("image", img)
     return img
 
+def coord_relat_to_real(corner_coords: np.ndarray):
+    """
+    converts relative coordinates (vector origin at upper left corner) to real coordinates (vector origin is (0,0))
+    :param corner_coords: is nx2 nd array, where the first vector is the upper left corner
+    :return: the transformed corner vectors
+    """
+    upper_left_corner = corner_coords[0]
+
+    corner_coords = np.subtract(corner_coords, upper_left_corner)
+    return corner_coords
+
+
+
+
+
 
 def led_id_generator(name_prefix= "led-", suffix=0):
     """
     generator function for creating led ids such as led-1
-    :param name_prefix:
-    :param suffix:
-    :return:
+    :param name_prefix: is the prefix
+    :param suffix: is the starting suffix represented as number
+    :return: a generator object for creating led-names
     """
     while(True):
         yield name_prefix + str(suffix)
