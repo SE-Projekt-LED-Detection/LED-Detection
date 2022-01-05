@@ -25,6 +25,10 @@ class EditHandler:
         return self.parent.board
 
     def add_corner(self, event):
+        # skip if image is empty
+        if self.board().image is None:
+            return
+
         x = round(event.x / self.scaling)
         y = round(event.y / self.scaling)
 
@@ -45,7 +49,7 @@ class EditHandler:
             "Coordinates outside image"
         assert (len(corners) < 4), "Only 4 corners are possible"
 
-        self.board().corners = np.append(corners, [x, y])
+        corners = np.append(corners, [x, y])
         self.board().corners = corners
         self.parent.update_points()
 

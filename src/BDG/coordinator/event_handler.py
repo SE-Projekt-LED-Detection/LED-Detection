@@ -31,6 +31,9 @@ class EventHandler:
             x()
 
     def update_points(self):
+        # skip if there is no image
+        if self.board.image is None:
+            return
         for f in self.on_update.get("on_update_point"):
             f()
 

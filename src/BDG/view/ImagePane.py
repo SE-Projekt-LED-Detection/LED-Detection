@@ -100,6 +100,10 @@ class ImagePane(tk.Frame):
         self.canvas.event_generate("<Configure>", width=self.canvas.winfo_width(), height=self.canvas.winfo_height())
 
     def update_points(self):
+        # skip if there is no image
+        if self.board.image is None:
+            return
+
         # Cleanup canvas
         for ref in self.corner_references:
             self.canvas.delete(ref)
