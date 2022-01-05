@@ -77,8 +77,10 @@ class Board:
             points (np.array): is an array of points which are a convex polygon
         """
         points = np.array(points)
-        sorted_points = sort_points(points)
-        self.corners = sorted_points
+        if points.size != 0:
+            points = sort_points(points)
+
+        self.corners = points
 
     def add_led(self, led: Led, relative_vector=False):
         """Adds an led object and calculates the relative vector if the given vector is from (0,0)
