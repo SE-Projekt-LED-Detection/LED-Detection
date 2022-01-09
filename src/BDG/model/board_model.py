@@ -63,7 +63,7 @@ class Board:
             corners = sort_points(corners)
             self. corners = corners
         else:
-            self.corners = []
+            self.corners = np.empty([2,0])
         self.led = led_objects
         if img_path != "":
             self.image = cv2.imread(img_path)
@@ -79,6 +79,8 @@ class Board:
         points = np.array(points)
         if points.size != 0:
             points = sort_points(points)
+        else:
+            points = np.empty((0,2), int) # create empty 2 dimensional array
 
         self.corners = points
 
@@ -103,7 +105,7 @@ class Board:
         """
         if isinstance(image, str):
             image = cv2.imread(image)
-        self.image = image
+        self.image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
 
     def get_relative_vector(self, vector: np.array):
         """helper class for calculating relative vector

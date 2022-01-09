@@ -1,7 +1,7 @@
 from src.BDG.model.board_model import Board
 from src.BDG.coordinator.file_handler import FileHandler
 from src.BDG.coordinator.edit_handler import EditHandler
-import itertools
+
 
 
 class EventHandler:

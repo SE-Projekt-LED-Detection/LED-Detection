@@ -35,7 +35,6 @@ def __from_json(file) -> Board:
 
     elif ("image_path" in json_dict):
         image = cv2.imread(json_dict.get("image_path"))
-        image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
     else:
         raise RuntimeError()
     board.set_image(image)

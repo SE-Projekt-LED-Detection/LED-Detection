@@ -1,6 +1,7 @@
 import tkinter
 
 from scipy.spatial import distance
+from scipy.spatial import KDTree
 
 import src.BDG.utils.json_util as js_util
 import numpy as np
@@ -13,7 +14,7 @@ class EditHandler:
     def __init__(self, parent) -> None:
         self.parent = parent
         self.scaling = 1.0
-        self.current_state = tkinter.IntVar()
+        self.current_state = tkinter.IntVar(CreationState.BOARD.value)
         self.active_circle = None
 
         self.current_state.trace_add('write', self.clean_active_circle)
@@ -32,12 +33,9 @@ class EditHandler:
         x = round(event.x / self.scaling)
         y = round(event.y / self.scaling)
 
-        circles = self.check_hovered(x, y)
-        if circles:
-            self.active_circle = circles[0]
-            return
-
-        if self.board().corners is None:
+        circle = self.check_hovered(x, y)
+        if circle is not None:
+            self.active_circle = circle
             return
 
         corners = self.board().corners
@@ -47,9 +45,14 @@ class EditHandler:
 
         assert (self.board().image.shape[1] >= x >= 0 and self.board().image.shape[0] >= y >= 0), \
             "Coordinates outside image"
-        assert (len(corners) < 4), "Only 4 corners are possible"
+        assert (corners.shape[0] < 4), "Only 4 corners are possible"
 
-        corners = np.append(corners, [x, y])
+        if corners.size == 0:
+            corners = np.array([[x, y]])
+        else:
+            corners = np.vstack((corners, np.array([x, y])))
+        # adds an additional dimension if array is one dimensional
+
         self.board().corners = corners
         self.parent.update_points()
 
@@ -106,10 +109,10 @@ class EditHandler:
             return
 
         if self.is_state(CreationState.BOARD):
-            index = self.board().corners.index(self.active_circle)
-            self.board().corners.pop(index)
-            self.board().corners.insert(index, [x, y])
-            self.active_circle = [x, y]
+            index = np.where(self.board().corners == self.active_circle)
+
+            self.board().corners[index[1]] = np.array([x, y])
+            self.active_circle = np.array([x, y])
         if self.is_state(CreationState.LED):
             self.active_circle.position = np.array([x, y])
 
@@ -141,14 +144,16 @@ class EditHandler:
         :param cy: The y coordinate to check
         :return:
         """
-        circles = []
         if self.is_state(CreationState.BOARD):
-            circles = filter(lambda x: distance.euclidean((cx, cy), x) <= round(10 / self.scaling),
-                             self.board().corners)
+            _distance, index = KDTree(self.board().corners).query([cx, cy])
+            if (_distance < 10 / self.scaling):
+                return self.board().corners[index]
         if self.is_state(CreationState.LED):
             circles = filter(lambda x: distance.euclidean((cx, cy), (x.position[0], x.position[1])) <= round(
                 x.radius / self.scaling), self.board().led)
-        return list(circles)
+            circles = list(circles)
+            return circles[0] if len(circles) > 0 else None
+        return None
 
     def is_state(self, state):
         return self.current_state.get() == state.value

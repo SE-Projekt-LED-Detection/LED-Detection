@@ -79,6 +79,7 @@ class FileHandler():
             board.set_image(file_path.__str__())
 
 
+
         self.parent.update_board(board)
         os.chdir(current_dir)
 

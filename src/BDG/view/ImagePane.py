@@ -63,30 +63,6 @@ class ImagePane(tk.Frame):
         self.canvas.bind("<Button-3>", self.handler.delete_point)
         self.canvas.bind("<Button-2>", self.handler.delete_point)
 
-        #self.images = None
-        #self.img = None
-        #self.img_path = None
-        #
-        #
-
-        #self.points = []
-        #self.leds = []
-
-        #self.leds_references = []
-        #
-        #self.undone_points = []
-        #self.undone_leds = []
-        #self.anchor_points = []
-
-
-
-
-
-        # self.master.bind("<Control-z>", lambda x: self.undo_point())
-        # self.master.bind("<Control-y>", lambda x: self.redo_point())
-        #self.master.bind("<t>", lambda x: self.current_state.set((self.current_state.get() + 1) % 2))
-     
-
         self.activate_board_state()
 
     def update_image(self):
@@ -113,8 +89,9 @@ class ImagePane(tk.Frame):
 
         # Draw new corners and LEDs
         if self.handler.is_state(CreationState.BOARD):
+
             for corner in self.board.corners:
-                self.draw_corner(corner[0], corner[1])
+                self.draw_corner(corner)
 
         for led in self.board.led:
             self.draw_led(led.position[0], led.position[1], led.radius)
@@ -151,27 +128,30 @@ class ImagePane(tk.Frame):
         self.canvas.create_image(0, 0, anchor=tk.NW, image=self.image)
         self.update_points()
 
-    def draw_corner(self, x, y):
-        reference = self.create_circle(round(x * self.handler.scaling), round(y * self.handler.scaling), 10)
+    def draw_corner(self, point):
+        reference = self.create_circle(point * self.handler.scaling, 10)
         self.corner_references.append(reference)
 
-    def draw_led(self, x, y, radius):
-        led_ref = self.create_circle(round(x * self.handler.scaling), round(y * self.handler.scaling), radius)
+    def draw_led(self, position, radius):
+        """
+
+        :param position: is the position
+        :param radius: is the radius
+        :returns:
+        """
+        led_ref = self.create_circle(position * self.handler.scaling, radius)
         self.led_references.append(led_ref)
 
-    def create_circle(self, x, y, r):
+    def create_circle(self, position, r):
         """
         helper function for creating circle
-        :param x: is the centered x
-        :param y: is the centered y
+        :param point: np.array
         :param r: is the radius
         :return: a canvas object ref represented as Integer
         """
-        x0 = x - r
-        y0 = y - r
-        x1 = x + r
-        y1 = y + r
-        return self.canvas.create_oval(x0, y0, x1, y1)
+        p_0 = position - r
+        p_1 = position + r
+        return self.canvas.create_oval(p_0[0], p_0[1], p_1[0], p_1[1])
 
     def update_polygon(self):
         """
@@ -182,9 +162,14 @@ class ImagePane(tk.Frame):
 
         if self.polygon is not None:
             self.canvas.delete(self.polygon)
-        if len(self.board.corners) > 1:
-            points = [y for x in map(lambda p: [round(p[0] * self.handler.scaling), round(p[1] * self.handler.scaling)], self.board.corners) for y in x]
-            self.polygon = self.create_polygon(*points,
+        if self.board.corners.shape[0] > 1:
+            scaling = self.handler.scaling
+            points = self.board.corners * scaling
+
+
+            # points = [y for x in map(lambda p: [round(p[0] * self.handler.scaling), round(p[1] * self.handler.scaling)], self.board.corners) for y in x]
+
+            self.polygon = self.create_polygon(points,
                                                has_index="board",
                                                outline='#f11',
                                                fill="red",
@@ -217,11 +202,17 @@ class ImagePane(tk.Frame):
 
         Because tk.Canvas doesn't support RGBA, the PIL lib is used to create an tkImage,
         which is added to the canvas
-        :param args: is an even array of coordinates such as [x0, y0, x1, y1, ... , xn, yn]
+        :param args[0] is a numpy array like this [[x_0, y_0],[x_1, y_1]]
         :param kwargs: are some named arguments which can be read in the ImageDraw Documentation. The fill keyword is required!
 
         :return: an canvas element
         """
+
+        points = args[0].astype(int)
+        max_vals = np.amax(points, axis=0)
+        points = points.T
+        points = points.flatten().tolist()
+
         has_index = kwargs.pop("has_index") if "has_index" in kwargs else None
         if "alpha" in kwargs:
             if "fill" in kwargs:
@@ -235,15 +226,15 @@ class ImagePane(tk.Frame):
                 # and they also are the width and height of it respectively (the image will be inserted into
                 # (0, 0) coords for simplicity)
 
-                image = Image.new("RGBA", (max(args[::2]), max(args[1::2])))
-                ImageDraw.Draw(image).polygon(args, fill=fill, outline=outline)
+                image = Image.new("RGBA", (max_vals[0], max_vals[1]))
+                ImageDraw.Draw(image).polygon(points, fill=fill, outline=outline)
                 # prevent the Image from being garbage-collected
 
                 self.polygon_images[has_index] = ImageTk.PhotoImage(image)
                 return self.canvas.create_image(0, 0, image=self.polygon_images[has_index],
                                                 anchor="nw")  # insert the Image to the 0, 0 coords
             raise ValueError("fill color must be specified!")
-        return self.canvas.create_polygon(*args, **kwargs)
+        return self.canvas.create_polygon(points, **kwargs)
 
     def activate_board_state(self):
         """
@@ -267,11 +258,8 @@ class ImagePane(tk.Frame):
         self.canvas.bind("<Button-4>", self.handler.on_mousewheel)  # On Linux
         self.canvas.bind("<Button-5>", self.handler.on_mousewheel)  # On Linux
 
-
-
     def update_board(self):
         self.board = self.handler.board()
-
 
     def delete_circles(self):
         for ref in self.corner_references:
@@ -477,13 +465,3 @@ class ImagePane(tk.Frame):
     # """
     #
     #
-
-
-
-
-
-
-
-
-
-
