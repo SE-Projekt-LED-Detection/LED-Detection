@@ -2,10 +2,12 @@ from tkinter.ttk import Frame
 import tkinter as tk
 from tkinter import ttk
 
+from src.BDG.model.board_model import Led
+
 
 class LedDisplay(Frame):
 
-    def __init__(self, parent, index, **kwargs):
+    def __init__(self, parent, index, led: Led, **kwargs):
         ttk.Frame.__init__(self, parent, **kwargs)
 
         self.grid(column=4, row=2 + index, sticky=tk.W, pady=10)

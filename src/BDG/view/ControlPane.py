@@ -23,7 +23,7 @@ class ControlPane(tk.Frame):
         self.master.grid_columnconfigure(1, weight=1)
         self.master.grid_rowconfigure(1, weight=1)
 
-        self.led_descriptions = ScrollbarFrame(self.master)
+        self.led_descriptions = ScrollbarFrame(self.master, self.handler.edit_handler)
         self.led_descriptions.grid(column=4, row=1, sticky=tk.NSEW)
 
         self.toolbar = Toolbar(self.master, self.imagePane, self.handler.edit_handler)
