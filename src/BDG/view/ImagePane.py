@@ -62,6 +62,8 @@ class ImagePane(tk.Frame):
         self.canvas.bind("<B1-Motion>", self.handler.moving_point)
         self.canvas.bind("<Button-3>", self.handler.delete_point)
         self.canvas.bind("<Button-2>", self.handler.delete_point)
+        self.master.bind("<Control-z>", lambda x: self.handler.undo())
+        self.master.bind("<Control-y>", lambda x: self.handler.redo())
 
         #self.images = None
         #self.img = None

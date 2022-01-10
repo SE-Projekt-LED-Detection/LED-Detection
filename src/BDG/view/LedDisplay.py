@@ -27,6 +27,7 @@ class LedDisplay(Frame):
 
         ttk.Label(self.single_description, text="Name/Function").grid(column=0, row=1, sticky=tk.W)
         self.name = tk.StringVar()
+        self.name.set(led.id)
         self.name.trace("w", lambda name, i, mode, sv=self.name: self.__on_name_changed(sv))
         ttk.Entry(self.single_description, textvariable=self.name).grid(column=1, row=1)
 
@@ -38,6 +39,11 @@ class LedDisplay(Frame):
         red_check = tk.Checkbutton(checkbox_frame, text="Red", variable=self.red)
         yellow_check = tk.Checkbutton(checkbox_frame, text="Yellow", variable=self.yellow)
         green_check = tk.Checkbutton(checkbox_frame, text="Green", variable=self.green)
+
+        # Set default values
+        self.red.set(1 if "red" in led.colors else 0)
+        self.yellow.set(1 if "yellow" in led.colors else 0)
+        self.green.set(1 if "green" in led.colors else 0)
 
         # Change events
         self.red.trace("w", lambda name, i, mode, int_var=self.red, color="red": self.__on_color_changed(int_var, color))

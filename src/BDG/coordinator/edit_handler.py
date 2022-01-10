@@ -5,17 +5,18 @@ from scipy.spatial import distance
 import src.BDG.utils.json_util as js_util
 import numpy as np
 
-
 from src.BDG.model.CreationState import CreationState
 from src.BDG.model.board_model import Led, Board
 
 
 class EditHandler:
-    def __init__(self, parent) -> None:
+    def __init__(self, parent: "EventHandler") -> None:
         self.parent = parent
         self.scaling = 1.0
         self.current_state = tkinter.IntVar()
         self.active_circle = None
+        self.deleted_corners = []
+        self.deleted_leds = []
 
         self.current_state.trace_add('write', self.clean_active_circle)
 
@@ -87,6 +88,25 @@ class EditHandler:
         self.board().add_led(led, True)
 
         self.parent.update_points()
+
+    def undo(self):
+        if self.is_state(CreationState.BOARD):
+            corner_to_remove = self.board().corners.pop()
+            self.deleted_corners.append(corner_to_remove)
+            self.parent.update_points()
+        elif self.is_state(CreationState.LED):
+            led_to_remove = self.board().led.pop()
+            self.deleted_leds.append(led_to_remove)
+            self.parent.update_points()
+
+    def redo(self):
+        if self.is_state(CreationState.BOARD):
+            if len(self.deleted_corners) > 1 and len(self.board().corners) < 4:
+                self.board().corners.append(self.deleted_corners.pop())
+                self.parent.update_points()
+        elif self.is_state(CreationState.LED) and len(self.deleted_leds) > 0:
+            self.board().led.append(self.deleted_leds.pop())
+            self.parent.update_points()
 
     def moving_point(self, event):
         """

@@ -63,5 +63,5 @@ class ControlPane(tk.Frame):
     def __init_editmenu(self, menu):
         editMenu = tk.Menu(menu)
         menu.add_cascade(label="Edit", menu=editMenu)
-        # editMenu.add_command(label="Undo", command=self.imagePane.undo_point)
-        # editMenu.add_command(label="Redo", command=self.imagePane.redo_point)
+        editMenu.add_command(label="Undo", command=lambda: self.handler.edit_handler.undo())
+        editMenu.add_command(label="Redo", command=lambda: self.handler.edit_handler.redo())
