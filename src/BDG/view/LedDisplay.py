@@ -73,16 +73,3 @@ class LedDisplay(Frame):
         self.number.set("LED " + str(new_number))
         self.grid(column=4, row=2 + new_number, sticky=tk.W, pady=10)
 
-    def get_color_list(self):
-        colors = []
-        if self.red.get() == 1:
-            colors.append("red")
-        if self.yellow.get() == 1:
-            colors.append("yellow")
-        if self.green.get() == 1:
-            colors.append("green")
-
-        return colors
-
-    def get_name(self):
-        return self.name.get()

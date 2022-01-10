@@ -70,15 +70,6 @@ class ScrollbarFrame(tk.Frame):
             self.descriptions[i][1].update_number(i)
 
 
-    def add_led_description(self, index):
-        single_description = LedDisplay(self.scrolled_frame, index)
-        self.descriptions.append(single_description)
-
-    def remove_led_description(self, index):
-        self.descriptions.pop(index).destroy()
-
-        for i in range(len(self.descriptions)):
-            self.descriptions[i].update_number(i)
 
 
 
