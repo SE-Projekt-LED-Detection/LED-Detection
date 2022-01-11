@@ -3,6 +3,8 @@ from tkinter import ttk
 
 
 # https://stackoverflow.com/questions/3085696/adding-a-scrollbar-to-a-group-of-widgets-in-tkinter/3092341
+from src.BDG.coordinator.edit_handler import EditHandler
+from src.BDG.coordinator.event_handler import EventHandler
 from src.BDG.view.LedDisplay import LedDisplay
 
 
@@ -13,10 +15,11 @@ class ScrollbarFrame(tk.Frame):
     can be used to replace a standard tk.Frame
     """
 
-    def __init__(self, parent, **kwargs):
+    def __init__(self, parent, edit_handler: EditHandler, **kwargs):
         tk.Frame.__init__(self, parent, **kwargs)
 
         # The Scrollbar, layout to the right
+        self.edit_handler = edit_handler
         vsb = tk.Scrollbar(self, orient="vertical")
         vsb.pack(side="right", fill="y")
 
@@ -38,19 +41,35 @@ class ScrollbarFrame(tk.Frame):
 
         self.descriptions = []
 
+        # Register events
+        self.edit_handler.parent.on_update.get("on_update_point").append(lambda: self.redraw_led_description())
+
     def on_configure(self, event):
         """Set the scroll region to encompass the scrolled frame"""
         self.canvas.configure(scrollregion=self.canvas.bbox("all"))
 
-    def add_led_description(self, index):
-        single_description = LedDisplay(self.scrolled_frame, index)
-        self.descriptions.append(single_description)
+    def redraw_led_description(self):
+        board = self.edit_handler.board()
+        if len(board.led) == len(self.descriptions):
+            # Count of LEDs has not been changed, meaning no changes to be made
+            return
 
-    def remove_led_description(self, index):
-        self.descriptions.pop(index).destroy()
+        # Remove old descriptions, only if actually removed in board
+        for (led, des) in self.descriptions:
+            if led not in board.led:
+                des.destroy()
+                self.descriptions.remove((led, des))
+
+        # Add new descriptions
+        for led in board.led:
+            if led not in map(lambda x: x[0], self.descriptions):
+                single_description = LedDisplay(self.scrolled_frame, 0, led)
+                self.descriptions.append((led, single_description))
 
         for i in range(len(self.descriptions)):
-            self.descriptions[i].update_number(i)
+            self.descriptions[i][1].update_number(i)
+
+
 
 
 

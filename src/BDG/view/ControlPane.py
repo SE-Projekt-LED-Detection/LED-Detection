@@ -23,7 +23,7 @@ class ControlPane(tk.Frame):
         self.master.grid_columnconfigure(1, weight=1)
         self.master.grid_rowconfigure(1, weight=1)
 
-        self.led_descriptions = ScrollbarFrame(self.master)
+        self.led_descriptions = ScrollbarFrame(self.master, self.handler.edit_handler)
         self.led_descriptions.grid(column=4, row=1, sticky=tk.NSEW)
 
         self.toolbar = Toolbar(self.master, self.imagePane, self.handler.edit_handler)
@@ -63,5 +63,5 @@ class ControlPane(tk.Frame):
     def __init_editmenu(self, menu):
         editMenu = tk.Menu(menu)
         menu.add_cascade(label="Edit", menu=editMenu)
-        # editMenu.add_command(label="Undo", command=self.imagePane.undo_point)
-        # editMenu.add_command(label="Redo", command=self.imagePane.redo_point)
+        editMenu.add_command(label="Undo", command=lambda: self.handler.edit_handler.undo())
+        editMenu.add_command(label="Redo", command=lambda: self.handler.edit_handler.redo())
