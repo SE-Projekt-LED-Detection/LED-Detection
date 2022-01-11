@@ -1,0 +1,164 @@
+@startuml
+
+
+
+
+
+package util {
+
+    class svg_utils {
+        + from_svg(str file_path): Board
+        + to_svg(str file_path): Board
+
+    }
+    class json_utils {
+        + from_json(str file_path): Board
+        + to_json(Board board): str
+    }
+
+    class util_functions {
+        + sort_points(ndarray points): ndarray
+        + led_id_generator(str prefix, int start) <<coroutine>>
+    }
+
+    note as N1
+    all functions are static
+    and can be used without
+    initialization of its classes
+    end note
+
+}
+
+package view {
+    class main {}
+
+    class control_pane {
+        + Button edit_button
+        + Button file_button
+
+    }
+
+    class image_pane {
+        + choose_image(Image image)
+        + update_poligon(ndarray corner_points)
+        + drawCircle(ndarray position)
+        + drawPoligon(ndarray points)
+        + zoom(int delta)
+    }
+
+    class tool_bar {
+
+    }
+
+    class led_note_pane {
+        + TextBox id
+        + RadioButton colors
+    }
+
+    main *-- control_pane
+
+    control_pane *-- image_pane
+
+    control_pane *-- tool_bar
+    control_pane *-- scrollabel
+    scrollabel *-- led_note_pane
+
+
+
+
+
+}
+
+package controller {
+    class file_handler {
+        - Board board
+        + handle_save(Board board): str
+        + handle_load(): Board
+
+
+    }
+
+    class edit_handler {
+        - Board board
+
+        + init_board()
+        + add_led(event)
+        + add_corner(event)
+        + delete_corner(event)
+        + delete_led(event)
+        + move_corner(event)
+        + move_led(event)
+        + resize_led(event)
+        + undo()
+        + redo()
+
+    }
+
+    class annotation_handler {
+        - Board board
+        + add_author(str name)
+        + define_led_color([str] color)
+
+
+    }
+
+    class event_handler{
+        + Enum state
+
+
+
+    }
+
+    event_handler --> edit_handler
+    event_handler --> annotation_handler
+    event_handler --> file_handler
+
+
+
+
+
+
+
+}
+
+package model {
+    class led {
+        + str id
+        + ndarray position
+        + int radius
+        + [str] colors
+    }
+    note left of led::position
+    size= 2
+    dtype= int32
+    end note
+
+    class board {
+        + str id
+        + str author
+        + ndarray corners
+        + [Led] led
+    }
+
+    note left of board::corners
+    shape nx2
+    dtype int32
+    end note
+
+    board *-d- led
+
+
+}
+control_pane --d-- event_handler
+file_handler -d-> svg_utils: <<use>>
+file_handler -d-> json_utils: <<use>>
+edit_handler -d-> util_functions: <<uses>>
+event_handler -l-> board
+
+controller --[hidden]l-- model
+view --[hidden]l-- model
+edit_handler -- image_pane: updates
+annotation_handler -- scrollabel: updates
+
+
+@enduml

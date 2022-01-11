@@ -1,6 +1,7 @@
 import tkinter as tk
 import os
-from ControlPane import ControlPane
+
+from src.BDG.view.ControlPane import ControlPane
 
 
 class App(tk.Tk):
@@ -8,7 +9,7 @@ class App(tk.Tk):
         super().__init__()
 
         self.title('Board Description Generator')
-        self.geometry('300x120')
+        self.geometry('1024x720')
 
         self.resizable(True, True)
 

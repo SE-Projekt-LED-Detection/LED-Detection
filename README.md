@@ -1,5 +1,7 @@
 # LED-Detection
 
+![example workflow](https://github.com/morgenmuesli/LED-Detection/actions/workflows/main.yml/badge.svg)
+
 The goal of this project is to have an application for tracking status leds on controller boards over webcam.
 
 ## Requirements
