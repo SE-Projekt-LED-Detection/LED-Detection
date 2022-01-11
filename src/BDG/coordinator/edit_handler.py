@@ -115,10 +115,16 @@ class EditHandler:
         Undoes the last LED or Point
         """
         if self.is_state(CreationState.BOARD):
+            if len(self.board().corners) == 0:
+                return
+
             corner_to_remove = self.board().corners.pop()
             self.deleted_corners.append(corner_to_remove)
             self.parent.update_points()
         elif self.is_state(CreationState.LED):
+            if len(self.board().led) == 0:
+                return
+
             led_to_remove = self.board().led.pop()
             self.deleted_leds.append(led_to_remove)
             self.parent.update_points()
