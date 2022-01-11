@@ -3,6 +3,10 @@ from tkinter import ttk
 
 
 class Toolbar(tk.Frame):
+    """
+    A frame which contains the ui tools for editing, undo, redo, and switching the placement mode.
+    Widgets are placed with grid.
+    """
     def __init__(self, master, container):
         tk.Frame.__init__(self, master)
         self.master = master

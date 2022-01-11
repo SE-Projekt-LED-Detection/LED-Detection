@@ -3,6 +3,9 @@ from tkinter import ttk
 
 
 # https://stackoverflow.com/questions/3085696/adding-a-scrollbar-to-a-group-of-widgets-in-tkinter/3092341
+from src.BDG.LedDisplay import LedDisplay
+
+
 class ScrollbarFrame(tk.Frame):
     """
     Extends class tk.Frame to support a scrollable Frame
@@ -18,7 +21,7 @@ class ScrollbarFrame(tk.Frame):
         vsb.pack(side="right", fill="y")
 
         # The Canvas which supports the Scrollbar Interface, layout to the left
-        self.canvas = tk.Canvas(self, borderwidth=0, background="#ffffff")
+        self.canvas = tk.Canvas(self, borderwidth=0)
         self.canvas.pack(side="left", fill="both", expand=True)
 
         # Bind the Scrollbar to the self.canvas Scrollbar Interface
@@ -33,6 +36,29 @@ class ScrollbarFrame(tk.Frame):
         # Configures the scrollregion of the Canvas dynamically
         self.scrolled_frame.bind("<Configure>", self.on_configure)
 
+        self.descriptions = []
+
     def on_configure(self, event):
         """Set the scroll region to encompass the scrolled frame"""
         self.canvas.configure(scrollregion=self.canvas.bbox("all"))
+
+    def add_led_description(self, index):
+        """
+        Generates and adds a description for a LED to the scrollable list at the given index.
+        :param index: The index where to insert the description. Will also be displayed as the index of the LED.
+        """
+        single_description = LedDisplay(self.scrolled_frame, index)
+        self.descriptions.append(single_description)
+
+    def remove_led_description(self, index):
+        """
+        Removes the LED at the given index and updates all other numbers so that the list begins at 0 again.
+        :param index:
+        """
+        self.descriptions.pop(index).destroy()
+
+        for i in range(len(self.descriptions)):
+            self.descriptions[i].update_number(i)
+
+
+
