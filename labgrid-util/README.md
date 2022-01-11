@@ -3,7 +3,7 @@
 ## GitHub Actions
 
 Auto deply is in the repo under `.github/workflows/main.yml`.
-The workflow logs itself into a server with a password set in the github secrets. In this workflow the username is `gitrunner`. After logging in the runner executes a script (deploy.sh) on the server with the current branch as an argument.
+The workflow has login with username is `gitrunner` and a password set in the github secrets. After login the runner executes a script (deploy.sh) on the server with the current branch as an argument.
 
 ## Setup LED-Detection from github actions
 
