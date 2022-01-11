@@ -1,6 +1,8 @@
 """
 Utility functions for creating Board Description Model such as Sorting Points
 """
+import typing
+
 import numpy as np
 import base64
 import pathlib
@@ -14,15 +16,16 @@ def find_index_closest_point(arr, point):
     return sort.argmin()
 
 
-def sort_points(points: np.array):
+def sort_points(points: typing.List):
     """
     Sorts a given array of vectors clockwise.
     It is assumed that the spanned polygon is convex
 
-    :param points: is a numpy array of shape n,2 with array[n] = [x_n, y_n].
+    :param points: is a  array of shape n,2 with array[n] = [x_n, y_n].
     :return: the clockwise sorted array
     """
 
+    points = np.array(points)
     center_point = np.mean(points, axis=0)
 
     zero_point = np.zeros(2)
@@ -150,3 +153,15 @@ def led_id_generator(name_prefix= "led-", suffix=0):
     while(True):
         yield name_prefix + str(suffix)
         suffix += 1
+
+
+def split_to_list(array):
+    """
+    converts a 2d numpy array into a python list, where every item is an numpy array
+    Example: input: np.array([[1,1],[2,2]]) output: [np.array([1,1]),np.array([2,2])
+    :param np_array: is an 2d numpy array or a 2d list
+    :return: a list containing numpy arrays
+    """
+    if isinstance(array, np.ndarray):
+        array = array.tolist()
+    return [np.array(x) for x in array]
