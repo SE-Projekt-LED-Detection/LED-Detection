@@ -1,13 +1,12 @@
 import tkinter
 
 from scipy.spatial import distance
-from scipy.spatial import KDTree
 
-import src.BDG.utils.json_util as js_util
 import numpy as np
 
 from src.BDG.model.CreationState import CreationState
 from src.BDG.model.board_model import Led, Board
+from src.BDG.utils.util_functions import is_equal
 
 
 class EditHandler:
@@ -44,12 +43,9 @@ class EditHandler:
 
         assert (self.board().image.shape[1] >= x >= 0 and self.board().image.shape[0] >= y >= 0), \
             "Coordinates outside image"
-        assert (corners.shape[0] < 4), "Only 4 corners are possible"
+        assert (len(corners) < 4), "Only 4 corners are possible"
 
-        if corners.size == 0:
-            corners = np.array([[x, y]])
-        else:
-            corners = np.vstack((corners, np.array([x, y])))
+        corners.append([x, y])
         # adds an additional dimension if array is one dimensional
 
         self.board().corners = corners
@@ -124,15 +120,20 @@ class EditHandler:
         if self.active_circle is None:
             return
 
-        if self.is_state(CreationState.BOARD):
-            index = self.board().corners.tolist().index(self.active_circle.tolist())
 
-            self.board().corners[index] = np.array([x, y])
-            self.active_circle = np.array([x, y])
+        if self.is_state(CreationState.BOARD):
+            position = [x for x in self.board().corners if is_equal(x, self.active_circle)]
         if self.is_state(CreationState.LED):
-            self.active_circle.position = np.array([x, y])
+            position = [x.position for x in self.board().led if is_equal(x.position, self.active_circle)]
+
+        if position:
+            position[0][:] = self.active_circle
+
+        self.active_circle = np.array([x, y])
 
         self.parent.update_points()
+
+
 
     def on_mousewheel(self, event):
         scroll_amount = 0
@@ -158,18 +159,27 @@ class EditHandler:
         Helper function for checking the currently hovered anchor point or LED.
         :param cx: The x coordinate to check
         :param cy: The y coordinate to check
-        :return:
+        :return: an np array
         """
+        circles = []
+        radius = 0
+
         if self.is_state(CreationState.BOARD):
-            _distance, index = KDTree(self.board().corners).query([cx, cy])
-            if (_distance < 10 / self.scaling):
-                return self.board().corners[index]
-        if self.is_state(CreationState.LED):
-            circles = filter(lambda x: distance.euclidean((cx, cy), (x.position[0], x.position[1])) <= round(
-                x.radius / self.scaling), self.board().led)
+            corners = self.board().corners
+            radius = 10
+            # corner is type np.array
+            circles = filter(lambda x: distance.euclidean((cx, cy), (x[0], x[1])) <= round(
+                radius / self.scaling), corners)
             circles = list(circles)
-            return circles[0] if len(circles) > 0 else None
-        return None
+
+        if self.is_state(CreationState.LED):
+            leds = self.board().led
+            # led is of type LED
+            circles = filter(lambda x: distance.euclidean((cx, cy), (x.position[0], x.position[1])) <= round(
+                radius / self.scaling), leds)
+
+            circles = [x.position for x in circles]
+        return circles[0] if len(circles) > 0 else None
 
     def is_state(self, state):
         return self.current_state.get() == state.value

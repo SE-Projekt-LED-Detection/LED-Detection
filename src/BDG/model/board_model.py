@@ -3,7 +3,7 @@ import collections
 import typing
 import cv2
 import numpy as np
-from src.BDG.utils.util_functions import sort_points
+from src.BDG.utils.util_functions import sort_points, split_to_list
 
 
 
@@ -59,11 +59,10 @@ class Board:
         self.id = name
         self.author = author
         if corners is not None:
-            corners = np.array(corners)
             corners = sort_points(corners)
             self. corners = corners
         else:
-            self.corners = np.empty([2,0])
+            self.corners = []
         self.led = led_objects
         if img_path != "":
             self.image = cv2.imread(img_path)
@@ -76,11 +75,9 @@ class Board:
         Args:
             points (np.array): is an array of points which are a convex polygon
         """
-        points = np.array(points)
-        if points.size != 0:
+        points = split_to_list(points)
+        if len(points) > 1:
             points = sort_points(points)
-        else:
-            points = np.empty((0,2), int) # create empty 2 dimensional array
 
         self.corners = points
 

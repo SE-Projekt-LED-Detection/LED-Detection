@@ -40,7 +40,7 @@ def sort_points(points: typing.List):
 
     angles[over_180] = 2 * np.pi - angles[over_180]
     indices = np.argsort(angles)
-    return points[indices]
+    return split_to_list(points[indices])
 
 
 def unit_vector(vector):
@@ -67,7 +67,6 @@ def angle_between(v1, v2):
         return angle
     else:
         return np.pi
-
 
 
 def convert_image_to_data_uri(path: str) -> str:
@@ -109,7 +108,8 @@ def decode_img_data(img_attr: str) -> np.array:
     cv2.imshow("image", img)
     return img
 
-def trans_led_coord_to_real(corner_coords: np.ndarray,led_objects):
+
+def trans_led_coord_to_real(corner_coords: np.ndarray, led_objects):
     """
     converts relative led coordinates to real coordinates
     :param corner_coords: is nx2 nd array, where the first vector is the upper left corner
@@ -122,6 +122,7 @@ def trans_led_coord_to_real(corner_coords: np.ndarray,led_objects):
         led.position = np.add(led.position, upper_left_corner)
 
     return led_objects
+
 
 def trans_led_coord_to_relative(corner_coords: np.ndarray, led_objects):
     """
@@ -137,20 +138,14 @@ def trans_led_coord_to_relative(corner_coords: np.ndarray, led_objects):
     return led_objects
 
 
-
-
-
-
-
-
-def led_id_generator(name_prefix= "led-", suffix=0):
+def led_id_generator(name_prefix="led-", suffix=0):
     """
     generator function for creating led ids such as led-1
     :param name_prefix: is the prefix
     :param suffix: is the starting suffix represented as number
     :return: a generator object for creating led-names
     """
-    while(True):
+    while (True):
         yield name_prefix + str(suffix)
         suffix += 1
 
@@ -165,3 +160,18 @@ def split_to_list(array):
     if isinstance(array, np.ndarray):
         array = array.tolist()
     return [np.array(x) for x in array]
+
+
+def is_equal(a: np.ndarray, b: np.ndarray):
+    """
+    compares two numpy arrays and returns true if the values are equal.
+    this helper function was to avoid Value errors
+    :param a: a numpy array
+    :param b: a numpy array
+    :return: True -> the arrays are equal, False -> the arrays are differnt
+    """
+    comparison = a == b
+    if isinstance(comparison, np.ndarray):
+        comparison = comparison.all()
+
+    return comparison
