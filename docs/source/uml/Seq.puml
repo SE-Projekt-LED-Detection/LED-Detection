@@ -1,0 +1,16 @@
+@startuml
+'https://plantuml.com/sequence-diagram
+actor user
+
+user -> "labgrid-client": "labgrid-client -p test subscribe_led_state"
+"labgrid-client" --> user
+
+"labgrid-client" -> "labgrid-coordinator"
+"labgrid-coordinator" -> "labgrid-exporter"
+
+
+
+"labgrid-exporter" -> "BoS-System": bos -v 1 -r "raspberry" -t led_changes "
+BoS-System --> "labgrid-exporter"
+
+@enduml

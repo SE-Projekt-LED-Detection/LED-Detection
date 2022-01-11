@@ -10,5 +10,6 @@ pillow
 lxml
 scipy
 dataclasses
-sklearn
+scikit-learn
+numpyencoder
 
