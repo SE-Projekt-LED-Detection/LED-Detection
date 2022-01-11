@@ -13,7 +13,6 @@ from src.BDG.coordinator.edit_handler import EditHandler
 class ImagePane(tk.Frame):
     """This class consist the drawing functionalities
 
-    TODO: Please move functionality in separate model class!!!!
 
     :param self.img_path: is a relative path to the image which is loaded
     :type img_path: str
@@ -32,10 +31,11 @@ class ImagePane(tk.Frame):
     """
 
     def __init__(self, master, container, handler: EditHandler):
-
         """
-
-        :param container:
+        Creates the image pane window.
+        :param master: The root window.
+        :param container: The window in which the ImagePane will be contained.
+        :param handler: The EditHandler where the callable for the events should be registered.
         """
         tk.Frame.__init__(self, master)
 
@@ -68,6 +68,10 @@ class ImagePane(tk.Frame):
         self.activate_board_state()
 
     def update_image(self):
+        """
+        Reloads the image of the current board object in the canvas.
+        Automatically fits the image to the windows size by invoking a resize event.
+        """
         self.update_board()
         self.img = Image.fromarray(self.board.image)
         self.image = ImageTk.PhotoImage(self.img)
@@ -78,6 +82,9 @@ class ImagePane(tk.Frame):
         self.canvas.event_generate("<Configure>", width=self.canvas.winfo_width(), height=self.canvas.winfo_height())
 
     def update_points(self):
+        """
+        Removes and creates again all corner points and LEDs
+        """
         # Cleanup canvas
         for ref in self.corner_references:
             self.canvas.delete(ref)
@@ -126,10 +133,21 @@ class ImagePane(tk.Frame):
         self.update_points()
 
     def draw_corner(self, x, y):
+        """
+        Draws a corner at the given coordinates
+        :param x: The x coordinate of the new corner
+        :param y: The y coordinate of the new corner
+        """
         reference = self.create_circle(round(x * self.handler.scaling), round(y * self.handler.scaling), 10)
         self.corner_references.append(reference)
 
     def draw_led(self, x, y, radius):
+        """
+        Draws a LED at the given coordinates
+        :param x: The x coordinate of the new LED
+        :param y: The y coordinate of the new LED
+        :param radius: The radius of the new LED
+        """
         led_ref = self.create_circle(round(x * self.handler.scaling), round(y * self.handler.scaling), radius)
         self.led_references.append(led_ref)
 
@@ -149,9 +167,9 @@ class ImagePane(tk.Frame):
 
     def update_polygon(self):
         """
-        Reads the current anchor_points and updates shape of polygon
+        Reads the current corner_points and updates shape of polygon
 
-        :return: void
+        :return: None
         """
 
         if self.polygon is not None:
@@ -169,7 +187,9 @@ class ImagePane(tk.Frame):
             self.polygon = None
 
     def update_led_indices(self):
-
+        """
+        Redraws the indices of the LEDs anew.
+        """
         for index in self.leds_text_indices_references:
             self.canvas.delete(index)
 
@@ -187,7 +207,7 @@ class ImagePane(tk.Frame):
 
     def create_polygon(self, *args, **kwargs):
         """
-        creates an polygon using either PIL or tk.Canvas-
+        Creates an polygon using either PIL or tk.Canvas-
 
         Because tk.Canvas doesn't support RGBA, the PIL lib is used to create an tkImage,
         which is added to the canvas
@@ -221,7 +241,7 @@ class ImagePane(tk.Frame):
 
     def activate_board_state(self):
         """
-        change all bindings to board state settings
+        Change all bindings to board state settings
         :return: void
         """
         self.canvas.bind("<Button-1>", self.handler.add_corner)
@@ -232,7 +252,7 @@ class ImagePane(tk.Frame):
 
     def activate_led_state(self):
         """
-        change all bindings to led state settings
+        Change all bindings to LED state settings
         :return: void
         """
         self.delete_circles()
@@ -242,9 +262,16 @@ class ImagePane(tk.Frame):
         self.canvas.bind("<Button-5>", self.handler.on_mousewheel)  # On Linux
 
     def update_board(self):
+        """
+        Sets the board object in self to the board object of the handler.
+        """
         self.board = self.handler.board()
 
     def delete_circles(self):
+        """
+        Deletes the corner points bounding circles in the canvas.
+        Used when the CreationState is switched to LED as the circles are then not visible anymore
+        """
         for ref in self.corner_references:
             self.canvas.delete(ref)
 

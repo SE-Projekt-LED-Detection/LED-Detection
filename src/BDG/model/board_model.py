@@ -6,7 +6,6 @@ import numpy as np
 from src.BDG.utils.util_functions import sort_points
 
 
-
 class Led:
     def __init__(self, identifier: str, position: np.array, radius, colors: typing.List[str]):
         """Creates a LED Dataclass
@@ -44,7 +43,7 @@ class Led:
 class Board:
     """Dataclass for Board Specifications"""
 
-    def __init__(self, name="", author="", img_path="", corners = None, led_objects=None, image=None):
+    def __init__(self, name="", author="", img_path="", corners=None, led_objects=None, image=None):
         """inits Board description
 
         Args:
@@ -61,7 +60,7 @@ class Board:
         if corners is not None:
             corners = np.array(corners)
             corners = sort_points(corners)
-            self. corners = corners
+            self.corners = corners
         else:
             self.corners = []
         self.led = led_objects
