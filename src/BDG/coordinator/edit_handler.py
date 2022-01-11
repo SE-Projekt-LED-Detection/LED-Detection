@@ -78,9 +78,11 @@ class EditHandler:
         if circles[0] is not None:
             if self.is_state(CreationState.BOARD):
                 self.board().corners.remove(circles[0])
+                self.deleted_corners.append(circles[0])
 
             if self.is_state(CreationState.LED):
                 self.board().led.remove(circles[0])
+                self.deleted_leds.append(circles[0])
 
             self.parent.update_points()
 
