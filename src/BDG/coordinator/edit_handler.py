@@ -125,9 +125,9 @@ class EditHandler:
             return
 
         if self.is_state(CreationState.BOARD):
-            index = np.where(self.board().corners == self.active_circle)
+            index = self.board().corners.tolist().index(self.active_circle.tolist())
 
-            self.board().corners[index[1]] = np.array([x, y])
+            self.board().corners[index] = np.array([x, y])
             self.active_circle = np.array([x, y])
         if self.is_state(CreationState.LED):
             self.active_circle.position = np.array([x, y])
@@ -145,10 +145,10 @@ class EditHandler:
         if event.num == 4 or event.delta == 120:
             scroll_amount = 1
 
-        circles = self.check_hovered(x, y)
+        circle = self.check_hovered(x, y)
 
-        if circles:
-            active_led = circles[0]
+        if circle is not None:
+            active_led = circle
             active_led.radius += scroll_amount
 
         self.parent.update_points()
