@@ -94,7 +94,7 @@ class ImagePane(tk.Frame):
                 self.draw_corner(corner)
 
         for led in self.board.led:
-            self.draw_led(led.position[0], led.position[1], led.radius)
+            self.draw_led(led.position, led.radius)
 
         self.update_polygon()
         self.update_led_indices()

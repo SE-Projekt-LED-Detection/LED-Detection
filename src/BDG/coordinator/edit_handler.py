@@ -40,9 +40,6 @@ class EditHandler:
 
         corners = self.board().corners
 
-        x = round(event.x / self.scaling)
-        y = round(event.y / self.scaling)
-
         assert (self.board().image.shape[1] >= x >= 0 and self.board().image.shape[0] >= y >= 0), \
             "Coordinates outside image"
         assert (corners.shape[0] < 4), "Only 4 corners are possible"
@@ -69,19 +66,17 @@ class EditHandler:
         if circles[0] is not None:
             if self.is_state(CreationState.BOARD):
                 self.board().corners.remove(circles[0])
-
             if self.is_state(CreationState.LED):
                 self.board().led.remove(circles[0])
-
             self.parent.update_points()
 
     def add_led(self, event):
         x = round(event.x / self.scaling)
         y = round(event.y / self.scaling)
 
-        circles = self.check_hovered(x, y)
-        if circles:
-            self.active_circle = circles[0]
+        circle = self.check_hovered(x, y)
+        if circle is not None:
+            self.active_circle = circle
             return
 
         assert (self.board().image.shape[1] >= x >= 0 and self.board().image.shape[0] >= y >= 0), \
