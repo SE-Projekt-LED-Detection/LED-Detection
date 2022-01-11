@@ -33,7 +33,8 @@ class FileHandler():
 
         board = self.parent.board
         board_dict = board.__dict__
-        cv2.imwrite(image_path, board_dict['image'])
+        img = cv2.cvtColor(board_dict['image'], cv2.COLOR_BGR2RGB)
+        cv2.imwrite(image_path, img)
         board_dict['image_path'] = image_path
         del board_dict['image']
         assert (path.suffix in [".svg", ".json"])
