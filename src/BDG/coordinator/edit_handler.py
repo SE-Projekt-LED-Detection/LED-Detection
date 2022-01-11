@@ -10,6 +10,11 @@ from src.BDG.model.board_model import Led, Board
 
 
 class EditHandler:
+    """
+    Responsible for edit event of the UI such as creating, deleting, undoing, redoing.
+    The methods which alter the LEDs or corners always call the update points method. Consequently the UI just has to
+    subscribe to the events and update the content accordingly. Realises the Model View Controller pattern.
+    """
     def __init__(self, parent: "EventHandler") -> None:
         self.parent = parent
         self.scaling = 1.0
@@ -24,9 +29,18 @@ class EditHandler:
         self.active_circle = None
 
     def board(self) -> Board:
+        """
+        Returns the current board object
+        :return: Board
+        """
         return self.parent.board
 
     def add_corner(self, event):
+        """
+        Adds a corner at the coordinates of the click event
+        :param event: The click event with the x and y coordinate
+        :return: None
+        """
         x = round(event.x / self.scaling)
         y = round(event.y / self.scaling)
 
@@ -53,7 +67,7 @@ class EditHandler:
 
     def delete_point(self, event):
         """
-        Remove a point or a LED
+        Removes the currently hovered point or LED
         :param event: is a Mouse event
         :return:
         """
@@ -71,6 +85,11 @@ class EditHandler:
             self.parent.update_points()
 
     def add_led(self, event):
+        """
+        Adds a LED on the coordinates in the click event.
+        :param event: The click event with x and y coordinates
+        :return: None
+        """
         x = round(event.x / self.scaling)
         y = round(event.y / self.scaling)
 
@@ -90,6 +109,9 @@ class EditHandler:
         self.parent.update_points()
 
     def undo(self):
+        """
+        Undoes the last LED or Point
+        """
         if self.is_state(CreationState.BOARD):
             corner_to_remove = self.board().corners.pop()
             self.deleted_corners.append(corner_to_remove)
@@ -100,6 +122,9 @@ class EditHandler:
             self.parent.update_points()
 
     def redo(self):
+        """
+        Redoes the last deleted, undone point or LED
+        """
         if self.is_state(CreationState.BOARD):
             if len(self.deleted_corners) > 1 and len(self.board().corners) < 4:
                 self.board().corners.append(self.deleted_corners.pop())
@@ -135,6 +160,11 @@ class EditHandler:
         self.parent.update_points()
 
     def on_mousewheel(self, event):
+        """
+        Processes a mousewheel event. Optimised for Windows and Unix events.
+        Does increase/decrease the radius of the active led.
+        :param event: The mousewheel event
+        """
         scroll_amount = 0
 
         x = round(event.x / self.scaling)
@@ -168,4 +198,9 @@ class EditHandler:
         return list(circles)
 
     def is_state(self, state):
+        """
+        Checks if the CreationState is currently in 'state'
+        :param state: The state to check
+        :return: True, if the CreationState is the passed state
+        """
         return self.current_state.get() == state.value
