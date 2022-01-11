@@ -18,3 +18,14 @@ cd leddet && git clone https://github.com/morgenmuesli/LED-Detection.git
 ```
 
 ## Update Labgrid Client/Exporter
+
+
+
+| What     | Labgrid File     | Link |
+| -------- | -------- | -------- |
+| LED Resource     | no     | [res](https://github.com/morgenmuesli/LED-Detection/blob/issue-43-labgrid_integration/labgrid/labgrid/resource/ledstatus.py)     |
+| Resource ini | yes |[ini](https://github.com/morgenmuesli/LED-Detection/blob/issue-43-labgrid_integration/labgrid/labgrid/resource/__init__.py) |
+| LED Driver | no | [driver](https://github.com/morgenmuesli/LED-Detection/blob/issue-43-labgrid_integration/labgrid/labgrid/driver/ledstatusdriver.py) |
+| Driver ini | yes |[ini](https://github.com/morgenmuesli/LED-Detection/blob/issue-43-labgrid_integration/labgrid/labgrid/driver/__init__.py) |
+| client subcommand | yes | |
+
