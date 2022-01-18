@@ -25,7 +25,7 @@ def convert_image_to_data_uri(path: str):
         return datauri
 
 
-class SVGCreator():
+class SVGCreator:
     def __init__(self, path):
 
         file_type = pathlib.Path(path).suffix[1:]

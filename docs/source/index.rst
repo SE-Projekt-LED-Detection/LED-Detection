@@ -7,8 +7,13 @@ Welcome to LED / Board Status Detection's documentation!
 ========================================================
 
 .. toctree::
+   :caption: Table of Contents
    :maxdepth: 2
    :caption: Contents:
+
+
+
+
 
 
 The goal of this project is to have an application for tracking status LEDs on controller boards over webcam.
@@ -52,6 +57,13 @@ first locate the region of interest of all LEDs.
 It also classifies the state of the led signals.
 Those events can be displayed with the Board State Visualizer (BSV).
 It can be displayed either as command line inside labgrid or as annotated video stream.
+
+.. contents::
+   :local:
+   :glob:
+
+   entities/*
+
 
 Glossary
 ==============

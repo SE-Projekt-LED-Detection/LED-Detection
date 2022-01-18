@@ -1,8 +1,6 @@
 """
 Utility functions for creating Board Description Model such as Sorting Points
 """
-import typing
-
 import numpy as np
 import base64
 import pathlib
@@ -16,16 +14,15 @@ def find_index_closest_point(arr, point):
     return sort.argmin()
 
 
-def sort_points(points: typing.List):
+def sort_points(points: np.array):
     """
     Sorts a given array of vectors clockwise.
     It is assumed that the spanned polygon is convex
 
-    :param points: is a  array of shape n,2 with array[n] = [x_n, y_n].
+    :param points: is a numpy array of shape n,2 with array[n] = [x_n, y_n].
     :return: the clockwise sorted array
     """
 
-    points = np.array(points)
     center_point = np.mean(points, axis=0)
 
     zero_point = np.zeros(2)
@@ -40,7 +37,7 @@ def sort_points(points: typing.List):
 
     angles[over_180] = 2 * np.pi - angles[over_180]
     indices = np.argsort(angles)
-    return split_to_list(points[indices])
+    return points[indices]
 
 
 def unit_vector(vector):
@@ -67,6 +64,7 @@ def angle_between(v1, v2):
         return angle
     else:
         return np.pi
+
 
 
 def convert_image_to_data_uri(path: str) -> str:
@@ -109,69 +107,13 @@ def decode_img_data(img_attr: str) -> np.array:
     return img
 
 
-def trans_led_coord_to_real(corner_coords: np.ndarray, led_objects):
-    """
-    converts relative led coordinates to real coordinates
-    :param corner_coords: is nx2 nd array, where the first vector is the upper left corner
-    :param led_objects: is a list of led objects
-    :return: the transformed led objects
-    """
-
-    upper_left_corner = corner_coords[0]
-    for led in led_objects:
-        led.position = np.add(led.position, upper_left_corner)
-
-    return led_objects
-
-
-def trans_led_coord_to_relative(corner_coords: np.ndarray, led_objects):
-    """
-
-    :param corner_coords:
-    :param led_objects:
-    :return:
-    """
-    upper_left_corner = corner_coords[0]
-    for led in led_objects:
-        led.position = np.subtract(led.position, upper_left_corner)
-
-    return led_objects
-
-
-def led_id_generator(name_prefix="led-", suffix=0):
+def led_id_generator(name_prefix= "led-", suffix=0):
     """
     generator function for creating led ids such as led-1
-    :param name_prefix: is the prefix
-    :param suffix: is the starting suffix represented as number
-    :return: a generator object for creating led-names
+    :param name_prefix:
+    :param suffix:
+    :return:
     """
-    while (True):
+    while(True):
         yield name_prefix + str(suffix)
         suffix += 1
-
-
-def split_to_list(array):
-    """
-    converts a 2d numpy array into a python list, where every item is an numpy array
-    Example: input: np.array([[1,1],[2,2]]) output: [np.array([1,1]),np.array([2,2])
-    :param np_array: is an 2d numpy array or a 2d list
-    :return: a list containing numpy arrays
-    """
-    if isinstance(array, np.ndarray):
-        array = array.tolist()
-    return [np.array(x) for x in array]
-
-
-def is_equal(a: np.ndarray, b: np.ndarray):
-    """
-    compares two numpy arrays and returns true if the values are equal.
-    this helper function was to avoid Value errors
-    :param a: a numpy array
-    :param b: a numpy array
-    :return: True -> the arrays are equal, False -> the arrays are differnt
-    """
-    comparison = a == b
-    if isinstance(comparison, np.ndarray):
-        comparison = comparison.all()
-
-    return comparison

@@ -6,6 +6,10 @@ from src.BDG.view.ImagePane import ImagePane
 
 
 class Toolbar(tk.Frame):
+    """
+    Responsible for the Radiobuttons which allow to switch between the CreationStates.
+    The Radiobuttons update the tk.IntVar in the EditHandler.
+    """
     def __init__(self, master, image_pane: ImagePane, handler: EditHandler):
         tk.Frame.__init__(self, master)
         self.image_pane = image_pane
