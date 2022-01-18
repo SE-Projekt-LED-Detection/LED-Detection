@@ -3,7 +3,8 @@ import collections
 import typing
 import cv2
 import numpy as np
-from src.BDG.utils.util_functions import sort_points
+from src.BDG.utils.util_functions import sort_points, split_to_list
+
 
 
 class Led:
@@ -43,7 +44,7 @@ class Led:
 class Board:
     """Dataclass for Board Specifications"""
 
-    def __init__(self, name="", author="", img_path="", corners=None, led_objects=None, image=None):
+    def __init__(self, name="", author="", img_path="", corners = None, led_objects=None, image=None):
         """inits Board description
 
         Args:
@@ -58,9 +59,8 @@ class Board:
         self.id = name
         self.author = author
         if corners is not None:
-            corners = np.array(corners)
             corners = sort_points(corners)
-            self.corners = corners
+            self. corners = corners
         else:
             self.corners = []
         self.led = led_objects
@@ -75,9 +75,11 @@ class Board:
         Args:
             points (np.array): is an array of points which are a convex polygon
         """
-        points = np.array(points)
-        sorted_points = sort_points(points)
-        self.corners = sorted_points
+        points = split_to_list(points)
+        if len(points) > 1:
+            points = sort_points(points)
+
+        self.corners = points
 
     def add_led(self, led: Led, relative_vector=False):
         """Adds an led object and calculates the relative vector if the given vector is from (0,0)
@@ -100,7 +102,7 @@ class Board:
         """
         if isinstance(image, str):
             image = cv2.imread(image)
-        self.image = image
+        self.image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
 
     def get_relative_vector(self, vector: np.array):
         """helper class for calculating relative vector

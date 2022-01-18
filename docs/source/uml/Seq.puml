@@ -1,4 +1,5 @@
 @startuml
+'https://plantuml.com/sequence-diagram
 actor user
 
 user -> "labgrid-client": "labgrid-client -p test subscribe_led_state"

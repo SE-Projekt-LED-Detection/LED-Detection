@@ -32,12 +32,12 @@ def __from_json(file) -> Board:
 
     if ("byte_image" in json_dict):
         image = decode_img_data(json_dict.get("byte_image"))
-        board.set_image(image=image)
+
     elif ("image_path" in json_dict):
-        board.set_image(cv2.imread(json_dict.get("image_path")))
+        image = cv2.imread(json_dict.get("image_path"))
     else:
         raise RuntimeError()
-
+    board.set_image(image)
     led_dicts = json_dict.get("led")
 
     board.set_board_corners(json_dict.get("corners"))

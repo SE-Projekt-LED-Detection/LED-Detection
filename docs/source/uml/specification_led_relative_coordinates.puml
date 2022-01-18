@@ -1,0 +1,16 @@
+@startuml
+'https://plantuml.com/sequence-diagram'
+note top
+disclaimer:
+
+For simpli
+
+end note
+
+actor user
+
+user -> main
+main -> controlPane: open(path="model.json")
+controlPane -> file_handler: load()
+
+@enduml
