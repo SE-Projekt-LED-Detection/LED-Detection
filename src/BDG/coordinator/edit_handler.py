@@ -148,26 +148,18 @@ class EditHandler:
         if self.active_circle is None:
             return
 
-
         if self.is_state(CreationState.BOARD):
-            #position = [x for x in self.board().corners if is_equal(x, self.active_circle)]
             for corner in self.board().corners:
                 if is_equal(corner, self.active_circle):
                     corner[:] = np.array([x, y])
         if self.is_state(CreationState.LED):
-            #position = [x.position for x in self.board().led if is_equal(x.position, self.active_circle)]
             for led in self.board().led:
                 if is_equal(led.position, self.active_circle):
                     led.position = np.array([x, y])
 
-        #if position:
-        #    position[0][:] = self.active_circle
-
         self.active_circle = np.array([x, y])
 
         self.parent.update_points()
-
-
 
     def on_mousewheel(self, event):
         """
@@ -187,9 +179,9 @@ class EditHandler:
 
         circle = self.check_hovered(x, y)
 
-        if circle is not None:
-            active_led = circle
-            active_led.radius += scroll_amount
+        for led in self.board().led:
+            if is_equal(led.position, circle):
+                led.radius += scroll_amount
 
         self.parent.update_points()
 
