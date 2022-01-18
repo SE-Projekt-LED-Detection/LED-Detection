@@ -1,0 +1,28 @@
+@startuml
+'https://plantuml.com/sequence-diagram
+
+actor user
+
+user  -> Main: getLedInfo(cameraPath: String, boardID)
+entity webcam
+Main -> webcam: getVideoStream()
+webcam --> Main: stream
+Main -> CameraHelper: getCalibratedFrame(stream)
+CameraHelper -> CameraHelper: read():np.Array
+CameraHelper -> CameraHelper: calibrate():np.Array
+CameraHelper --> Main: frame:np.Array
+
+Main -> BoardExtractor: extractBoardFromFrame(boardID, frame)
+BoardExtractor --> Main: boardImage: np.Array
+
+ Main -> LedRoiExtractor: getLedROI(boardImage)
+ LedRoiExtractor--> Main: ledBB: [(x,y,w,h)]
+ loop roi in ledBB
+    Main -> StateDetector: getState(boardImage[x:(w+x), y:(y+h)])
+    StateDetector -> StateDetector: checkState()
+
+    StateDetector --> Main: state
+ end
+ Main --> user: [state]
+
+@enduml

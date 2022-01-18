@@ -1,0 +1,14 @@
+@startuml
+boss_controller -> config_controller: load(name= "raspberry", revision= "v2.2")
+config_controller -> file_handler: load("raspberry", "v2.2")
+file_handler -> file_handler: check_file()
+alt file does not exist
+    file_handler -> download_handler: download_file("raspberry", "v2.2")
+    download_handler --> file_handler: path:Str
+
+end
+file_handler -> file_handler: load_file(path: str)
+file_handler --> config_controller: Board: object
+
+config_controller --> boss_controller: config_object
+@enduml

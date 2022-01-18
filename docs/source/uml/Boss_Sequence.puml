@@ -1,0 +1,35 @@
+@startuml
+
+actor user
+
+
+note over labgrid_client: the labgrid sequence isn't final!
+
+
+user -> labgrid_client: labgrid-client -p <place> aquire
+labgrid_client -> labgrid_coordinator:  aquire <place> boss
+labgrid_coordinator -> place: check aquire
+place --> labgrid_coordinator: True
+labgrid_coordinator --> labgrid_client: True
+labgrid_client --> user: "place aquired"
+user -> labgrid_client: labgrid-client -p <place> console
+labgrid_client -> boss_publisher: open_connection
+activate boss_publisher
+boss_publisher --> user: session
+
+note over user: only changes setting
+user -> boss_publisher: boss_config -board raspberry -revision v2.1 -camera 1
+boss_publisher -> config_handler: load_config(*args)
+
+config_handler -> file_handler: load_file("raspberry.json")
+alt file not local
+    file_handler -> file_handler: download_file()
+
+end
+file_handler -> config_handler: Board
+config_handler -> 
+
+
+
+
+@enduml

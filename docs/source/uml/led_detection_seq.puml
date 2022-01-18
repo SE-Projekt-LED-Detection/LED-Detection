@@ -1,8 +1,0 @@
-@startuml
-
-actor user
-
-user --> labgrid_client: show_led_states
-labgrid_client --> coo
-
-@endtuml
