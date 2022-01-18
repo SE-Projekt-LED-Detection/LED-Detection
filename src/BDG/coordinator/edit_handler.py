@@ -122,12 +122,18 @@ class EditHandler:
 
 
         if self.is_state(CreationState.BOARD):
-            position = [x for x in self.board().corners if is_equal(x, self.active_circle)]
+            #position = [x for x in self.board().corners if is_equal(x, self.active_circle)]
+            for corner in self.board().corners:
+                if is_equal(corner, self.active_circle):
+                    corner[:] = np.array([x, y])
         if self.is_state(CreationState.LED):
-            position = [x.position for x in self.board().led if is_equal(x.position, self.active_circle)]
+            #position = [x.position for x in self.board().led if is_equal(x.position, self.active_circle)]
+            for led in self.board().led:
+                if is_equal(led.position, self.active_circle):
+                    led.position = np.array([x, y])
 
-        if position:
-            position[0][:] = self.active_circle
+        #if position:
+        #    position[0][:] = self.active_circle
 
         self.active_circle = np.array([x, y])
 
@@ -162,7 +168,6 @@ class EditHandler:
         :return: an np array
         """
         circles = []
-        radius = 0
 
         if self.is_state(CreationState.BOARD):
             corners = self.board().corners
@@ -176,7 +181,7 @@ class EditHandler:
             leds = self.board().led
             # led is of type LED
             circles = filter(lambda x: distance.euclidean((cx, cy), (x.position[0], x.position[1])) <= round(
-                radius / self.scaling), leds)
+                x.radius / self.scaling), leds)
 
             circles = [x.position for x in circles]
         return circles[0] if len(circles) > 0 else None
