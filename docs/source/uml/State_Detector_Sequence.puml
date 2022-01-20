@@ -1,5 +1,5 @@
 @startuml
-boss_controller -> state_detector: config: Board
+boss_controller -> state_detector: config: Board, webcam_id:Integer
 note over state_detector
 
      example of an state table
@@ -16,7 +16,7 @@ loop interval 0.1 sec
     state_detector -> homography_provider: getBoardOrientation(frame: ndarray)
     homography_provider --> state_detector: orientation: BoardOrientation
     state_detector -> led_extractor: get_leds(frame: ndarray, orientation: BoardOrientation)
-    led_extractor --> state_detector: led_rois: list(ndarray) 
+    led_extractor --> state_detector: led_rois: list(ndarray)
     note over led_extractor
         ATTENTION: 
         order of led_positions list is equal to led object in config object!!!
@@ -28,7 +28,7 @@ loop interval 0.1 sec
         note over led_state_detector
             led_state: 
             {
-                light: On,
+                power: On,
                 color: "RED"
                 timestamp: nano_seconds
             }

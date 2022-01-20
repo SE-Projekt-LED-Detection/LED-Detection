@@ -3,21 +3,21 @@ import numpy as np
 from typing import List
 
 from src.BDG.model.board_model import Led
+from src.BSP.BoardOrientation import BoardOrientation
 
 
-def get_led_roi(frame: np.array, leds: List[Led], board_orientation, reference_hw) -> List[np.array]:
+def get_led_roi(frame: np.array, leds: List[Led], board_orientation: BoardOrientation) -> List[np.array]:
     """
      Returns the LEDs in the target image based on the homography matrix
     :param leds: A list with the LED objects which shall be evaluated
     :param frame: The frame where the LEDs will be cut out
     :param board_orientation: The orientation of the board in a BoardOrientation object
-    :param reference_hw: A tuple with the height and width of the reference board
     :return: The LEDs in the target image as a list
     """
 
     # Calculates the scaling between the reference and the target board
-    scale_x = abs(board_orientation.corners[0][0] - board_orientation.corners[2][0]) / reference_hw[0]
-    scale_y = abs(board_orientation.corners[0][1] - board_orientation.corners[1][1]) / reference_hw[1]
+    scale_x = abs(board_orientation.corners[0][0] - board_orientation.corners[2][0]) / board_orientation.reference_h
+    scale_y = abs(board_orientation.corners[0][1] - board_orientation.corners[1][1]) / board_orientation.reference_w
 
     # Transforms the center points
     led_centers = map(lambda x: x.position, leds)
