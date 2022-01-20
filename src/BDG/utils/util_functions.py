@@ -117,3 +117,29 @@ def led_id_generator(name_prefix= "led-", suffix=0):
     while(True):
         yield name_prefix + str(suffix)
         suffix += 1
+
+def split_to_list(array):
+    """
+    converts a 2d numpy array into a python list, where every item is an numpy array
+    Example: input: np.array([[1,1],[2,2]]) output: [np.array([1,1]),np.array([2,2])
+    :param np_array: is an 2d numpy array or a 2d list
+    :return: a list containing numpy arrays
+    """
+    if isinstance(array, np.ndarray):
+        array = array.tolist()
+    return [np.array(x) for x in array]
+
+
+def is_equal(a: np.ndarray, b: np.ndarray):
+    """
+    compares two numpy arrays and returns true if the values are equal.
+    this helper function was to avoid Value errors
+    :param a: a numpy array
+    :param b: a numpy array
+    :return: True -> the arrays are equal, False -> the arrays are differnt
+    """
+    comparison = a == b
+    if isinstance(comparison, np.ndarray):
+        comparison = comparison.all()
+
+    return comparison

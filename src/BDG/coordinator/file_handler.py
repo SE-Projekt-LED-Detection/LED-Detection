@@ -14,9 +14,9 @@ class FileHandler:
     """
     Responsible for saving and loading the svg, json or image file.
     """
-
     def __init__(self, parent):
         self.parent = parent
+
 
     def save(self):
         """saves the current board either as svg or json
@@ -38,7 +38,8 @@ class FileHandler:
 
         board = self.parent.board
         board_dict = board.__dict__
-        cv2.imwrite(image_path, board_dict['image'])
+        img = cv2.cvtColor(board_dict['image'], cv2.COLOR_BGR2RGB)
+        cv2.imwrite(image_path, img)
         board_dict['image_path'] = image_path
         del board_dict['image']
         assert (path.suffix in [".svg", ".json"])
@@ -55,6 +56,10 @@ class FileHandler:
             myzip.write(path.__str__())
             myzip.write(image_path)
         os.chdir(current_dir)
+
+
+
+
 
     def load(self):
         """loads either a predifined json file as board
@@ -76,8 +81,14 @@ class FileHandler:
         elif file_type == ".svg":
             # TODO:: see svg utils
             pass
-        elif file_type in [".jpg", ".png", ".gif"]:
+        elif file_type in [".jpg",".png", ".gif"]:
             board.set_image(file_path.__str__())
+
+
 
         self.parent.update_board(board)
         os.chdir(current_dir)
+
+
+
+

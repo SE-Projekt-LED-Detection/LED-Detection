@@ -1,7 +1,7 @@
 from src.BDG.model.board_model import Board
 from src.BDG.coordinator.file_handler import FileHandler
 from src.BDG.coordinator.edit_handler import EditHandler
-import itertools
+
 
 
 class EventHandler:
@@ -46,10 +46,15 @@ class EventHandler:
         """
         Calls all functions which are in the list 'on_update_point'.
         """
-        self.update("on_update_point")
+        # skip if there is no image
+        if self.board.image is None:
+            return
+        for f in self.on_update.get("on_update_point"):
+            f()
 
     def update_image(self):
         """
         Calls all functions which are in the list 'on_update_image'.
         """
-        self.update("on_update_image")
+        for f in self.on_update.get("on_update_image"):
+            f()

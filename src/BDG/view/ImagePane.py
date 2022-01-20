@@ -85,6 +85,10 @@ class ImagePane(tk.Frame):
         """
         Removes and creates again all corner points and LEDs
         """
+        # skip if there is no image
+        if self.board.image is None:
+            return
+
         # Cleanup canvas
         for ref in self.corner_references:
             self.canvas.delete(ref)
@@ -95,10 +99,11 @@ class ImagePane(tk.Frame):
         # Draw new corners and LEDs
         if self.handler.is_state(CreationState.BOARD):
             for corner in self.board.corners:
-                self.draw_corner(corner[0], corner[1])
+                # error prevention if corner is empty
+                self.draw_corner(corner)
 
         for led in self.board.led:
-            self.draw_led(led.position[0], led.position[1], led.radius)
+            self.draw_led(led.position, led.radius)
 
         self.update_polygon()
         self.update_led_indices()
@@ -132,26 +137,27 @@ class ImagePane(tk.Frame):
         self.canvas.create_image(0, 0, anchor=tk.NW, image=self.image)
         self.update_points()
 
-    def draw_corner(self, x, y):
+    def draw_corner(self, point):
         """
         Draws a corner at the given coordinates
         :param x: The x coordinate of the new corner
         :param y: The y coordinate of the new corner
         """
-        reference = self.create_circle(round(x * self.handler.scaling), round(y * self.handler.scaling), 10)
+        point = np.array(point)
+        reference = self.create_circle(point * self.handler.scaling, 10)
         self.corner_references.append(reference)
 
-    def draw_led(self, x, y, radius):
+    def draw_led(self, position, radius):
         """
         Draws a LED at the given coordinates
         :param x: The x coordinate of the new LED
         :param y: The y coordinate of the new LED
         :param radius: The radius of the new LED
         """
-        led_ref = self.create_circle(round(x * self.handler.scaling), round(y * self.handler.scaling), radius)
+        led_ref = self.create_circle(position * self.handler.scaling, radius)
         self.led_references.append(led_ref)
 
-    def create_circle(self, x, y, r):
+    def create_circle(self, position, r):
         """
         helper function for creating circle
         :param x: is the centered x
@@ -159,23 +165,24 @@ class ImagePane(tk.Frame):
         :param r: is the radius
         :return: a canvas object ref represented as Integer
         """
-        x0 = x - r
-        y0 = y - r
-        x1 = x + r
-        y1 = y + r
-        return self.canvas.create_oval(x0, y0, x1, y1)
+        p_0 = position - r
+        p_1 = position + r
+        return self.canvas.create_oval(p_0[0], p_0[1], p_1[0], p_1[1])
 
     def update_polygon(self):
         """
-        Reads the current corner_points and updates shape of polygon
+        Reads the current anchor_points and updates shape of polygon
 
-        :return: None
+        :return: void
         """
 
         if self.polygon is not None:
             self.canvas.delete(self.polygon)
-        if len(self.board.corners) > 1:
-            points = [y for x in map(lambda p: [round(p[0] * self.handler.scaling), round(p[1] * self.handler.scaling)], self.board.corners) for y in x]
+        if len(self.board.corners) > 2:
+            scaling = self.handler.scaling
+            points = np.rint(np.array(self.board.corners) * scaling).astype(int)
+            points = points.flatten().tolist()
+
             self.polygon = self.create_polygon(*points,
                                                has_index="board",
                                                outline='#f11',
@@ -216,6 +223,7 @@ class ImagePane(tk.Frame):
 
         :return: an canvas element
         """
+
         has_index = kwargs.pop("has_index") if "has_index" in kwargs else None
         if "alpha" in kwargs:
             if "fill" in kwargs:
@@ -262,6 +270,14 @@ class ImagePane(tk.Frame):
         self.canvas.bind("<Button-5>", self.handler.on_mousewheel)  # On Linux
 
     def update_board(self):
+        """
+        Sets the board object in self to the board object of the handler.
+        """
+        self.board = self.handler.board()
+
+    def delete_circles(self):
+        for ref in self.corner_references:
+            self.canvas.delete(ref)
         """
         Sets the board object in self to the board object of the handler.
         """
