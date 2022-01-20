@@ -16,19 +16,24 @@ user -> labgrid_client: labgrid-client -p <place> console
 labgrid_client -> boss_publisher: open_connection
 activate boss_publisher
 boss_publisher --> user: session
-
+note over boss_publisher
+    The configuration is shown
+    in another sequence diagramm!
+end note
 note over user: only changes setting
-user -> boss_publisher: boss_config -board raspberry -revision v2.1 -camera 1
-boss_publisher -> config_handler: load_config(*args)
 
-config_handler -> file_handler: load_file("raspberry.json")
-alt file not local
-    file_handler -> file_handler: download_file()
+user -> boss_publisher: subscribe(ids=["led_1", "led_2"], mode="only_changes")
 
+hnote over boss_publisher: led_1 changed it's color
+boss_publisher --> user: "led_1: active True, color=green time: 1234567"
+
+note over user: poll setting
+
+user -> boss_publisher: subscribe(ids=["led_1", "led_2"], mode= poll, interval=1)
+
+loop interval every sec
+    boss_publisher --> user: "led_1: {<<current state>>} ,led_2:{<<current_state}"
 end
-file_handler -> config_handler: Board
-config_handler -> 
-
 
 
 

@@ -3,18 +3,15 @@
    You can adapt this file completely to your liking, but it should at least
    contain the root `toctree` directive.
 
+
 Welcome to LED / Board Status Detection's documentation!
 ========================================================
-
 .. toctree::
-   :caption: Table of Contents
+   :caption: root
    :maxdepth: 2
-   :caption: Contents:
-
-
-
-
-
+   ..
+   ./entities/index
+   ...
 
 The goal of this project is to have an application for tracking status LEDs on controller boards over webcam.
 
@@ -38,7 +35,7 @@ We highly recommend to use a virtual environment such as pyenv or conda.
 
 
 The Components
-==============
+--------------
 
 Our main architecture is based on a MVC pattern.
 
@@ -58,15 +55,10 @@ It also classifies the state of the led signals.
 Those events can be displayed with the Board State Visualizer (BSV).
 It can be displayed either as command line inside labgrid or as annotated video stream.
 
-.. contents::
-   :local:
-   :glob:
-
-   entities/*
 
 
 Glossary
-==============
+--------
 
 * **Labgrid**: an embedded systems control library for development, testing, and installation. See `Labrid on GitHub <https://github.com/labgrid-project/labgrid>`_.
 
@@ -87,7 +79,7 @@ Glossary
 * **Board State Logger (BSL)**: The BSL is a board state consumer dedicated to providing logging facilities.
 
 Indices and tables
-==================
+------------------
 
 * :ref:`genindex`
 * :ref:`search`

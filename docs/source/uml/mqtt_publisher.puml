@@ -1,0 +1,16 @@
+@startuml
+'https://plantuml.com/sequence-diagram
+
+
+
+
+labgrid_exporter -> mosquitto_broker: connect
+mosquitto_broker --> labgrid_exporter: accept
+labgrid_exporter -> mosquitto_broker: subscribe(topic: "raspberry/**led_1**/changes")
+boss_mqtt_publisher -> mosquitto_broker: publish(topic:"raspberry///led_2///changes")
+boss_mqtt_publisher -> mosquitto_broker: publish(topic:"raspberry/**led_1**/changes", payload: {//current state//}})
+mosquitto_broker --> labgrid_exporter: payload:{//current state of led_1//}
+boss_mqtt_publisher -> mosquitto_broker: publish(topic:"raspberry///led_3///changes")
+
+
+@enduml

@@ -1,6 +1,9 @@
 @startuml
-boss_controller -> state_detector: config: Boar
+boss_controller -> state_detector: config: Board
 note over state_detector
+
+     example of an state table
+
      | *name* | *power* | *color* | *last_time_on* | *last_time_off* |
      | led_1 | On | Red | NUMBER | NUMBER |
      | name | power | color | NUMBER | NUMBER |
@@ -34,6 +37,7 @@ loop interval 0.1 sec
     end
     state_detector -> logger: log_state()
     logger --> state_detector: ok
+    state_detector --> boss_controller: current_changes
 end
 
 
