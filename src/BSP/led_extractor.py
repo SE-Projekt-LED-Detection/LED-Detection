@@ -20,25 +20,25 @@ def get_led_roi(frame: np.array, leds: List[Led], board_orientation: BoardOrient
     scale_y = abs(board_orientation.corners[0][1] - board_orientation.corners[1][1]) / board_orientation.reference_w
 
     # Transforms the center points
-    led_centers = map(lambda x: x.position, leds)
+    led_centers = np.float32(list(map(lambda x: x.position, leds)))
     led_centers_transformed = cv2.perspectiveTransform(np.array([led_centers]), board_orientation.homography_matrix)[0]
     radius = list(map(lambda led: round(led.radius * max(scale_x, scale_y)), leds))
-    leds: List[np.array] = _led_by_circle_coordinates(frame, led_centers_transformed.astype(int), radius)
+    led_rois: List[np.array] = _led_by_circle_coordinates(frame, led_centers_transformed.astype(int), radius)
 
 
     # Fills the squares except the circles of the LEDs with gray color
-    for led in leds:
-        x_coords = np.arange(0, led.shape[0])
-        y_coords = np.arange(0, led.shape[1])
+    for (led, roi) in zip(leds,led_rois):
+        x_coords = np.arange(0, roi.shape[0])
+        y_coords = np.arange(0, roi.shape[1])
 
         cx = x_coords.size / 2
         cy = y_coords.size / 2
         for x in x_coords:
             for y in y_coords:
                 in_circle = (x - cx)**2 + (y-cy)**2 < led.radius**2
-                led[x, y] = led[x, y, :] if in_circle else np.array([127, 127, 127])
+                roi[x, y] = roi[x, y, :] if in_circle else np.array([127, 127, 127])
 
-    return leds
+    return led_rois
 
 
 def _led_by_circle_coordinates(frame: np.array, circle_centers: List[np.array], r: List[int]):
@@ -49,9 +49,9 @@ def _led_by_circle_coordinates(frame: np.array, circle_centers: List[np.array], 
     :return:
     """
     leds = []
-    for center in circle_centers:
-        top_left = (center[0] - r, center[1] - r)
-        bottom_right = (center[0] + r, center[1] + r)
+    for (center, radius) in zip(circle_centers, r):
+        top_left = (center[0] - radius, center[1] - radius)
+        bottom_right = (center[0] + radius, center[1] + radius)
         led = frame[top_left[1]:bottom_right[1], top_left[0]:bottom_right[0]]
         leds.append(led)
     return leds
