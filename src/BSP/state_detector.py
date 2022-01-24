@@ -21,7 +21,7 @@ class StateDetector:
         self.webcam_id = webcam_id
         self.delay_in_seconds = 1
         self.state_table: List[StateTableEntry] = []
-        self.timer: sched.scheduler = sched.scheduler(time.time(), time.sleep)
+        self.timer: sched.scheduler = sched.scheduler(time.time, time.sleep)
         self.current_orientation: BoardOrientation = None
         self.video_capture: cv2.VideoCapture = None
 
@@ -32,7 +32,7 @@ class StateDetector:
             self.state_table.append(StateTableEntry(led.id, None, 0, 0))
 
     def start(self):
-        self.timer.enter(self.delay_in_seconds, 1, self._detect_current_state)
+        self.timer.enter(delay=self.delay_in_seconds, priority=1, action=self._detect_current_state)
 
     def _detect_current_state(self):
 

@@ -11,7 +11,7 @@ reference.add_led(led=Led("led1", [10,20], radius=5, colors=["green", "blue"]))
 
 def test_from_json():
 
-    board = from_json("resources/test-model.json")
+    board = from_json("resources/test_model.json")
     assert (board.id == reference.id)
     assert (board.author == reference.author)
     assert (np.all(board.corners == reference.corners))

@@ -8,5 +8,6 @@ def test_blackbox_state_detector():
     reference = jsutil.from_json(file_path="resources/pi_test.json")
     dec = StateDetector(reference, 0)
     dec.open_stream(cv2.VideoCapture("./resources/piOnOff3.mp4"))
-    dec.start()
+    dec._detect_current_state()
+    pass
 
