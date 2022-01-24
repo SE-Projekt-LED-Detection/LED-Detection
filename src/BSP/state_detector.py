@@ -25,17 +25,18 @@ class StateDetector:
         self.current_orientation: BoardOrientation = None
         self.video_capture: cv2.VideoCapture = None
 
-        self._init_table()
+        self.create_state_table()
 
     def create_state_table(self):
-        pass
+        for led in self.board.led:
+            self.state_table.append(StateTableEntry(led.id, None, 0, 0))
 
     def start(self):
         self.timer.enter(self.delay_in_seconds, 1, self._detect_current_state)
 
     def _detect_current_state(self):
 
-        self._open_stream()
+        assert self.video_capture is not None, "Video_capture is None. Has the open_stream been method called before?"
 
         read, frame = self.video_capture.read()
 
@@ -44,8 +45,10 @@ class StateDetector:
 
         leds_roi = get_led_roi(frame, self.board.led, self.current_orientation)
 
+        assert len(leds_roi) == len(self.board.led), "Not all LEDs have been detected."
+
         led_states: List[LedState] = list(map(lambda x: led_state_detector.get_state(x[0], x[1].colors),
-                                              zip(leds_roi, self.board.led)))
+                                              list(zip(leds_roi, self.board.led))))
 
         for i in range(len(self.state_table)):
             entry = self.state_table[i]
@@ -58,21 +61,12 @@ class StateDetector:
             else:
                 entry.last_time_off = state.timestamp
 
+    def open_stream(self, video_capture=None):
+        if video_capture is not None:
+            self.video_capture = video_capture
+            return
 
-
-    def _init_table(self):
-        for led in self.board.led:
-            self.state_table.append(StateTableEntry(led.id, None, 0, 0))
-
-    def _open_stream(self):
         self.video_capture = cv2.VideoCapture(self.webcam_id)
 
         if not self.video_capture.isOpened():
             raise Exception(f"StateDetector is unable to open VideoCapture with index {self.webcam_id}")
-
-
-
-
-
-
-
