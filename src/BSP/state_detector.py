@@ -8,6 +8,7 @@ import time
 from src.BDG.model.board_model import Board
 from src.BSP import led_state_detector
 from src.BSP.BoardOrientation import BoardOrientation
+from src.BSP.BufferlessVideoCapture import BufferlessVideoCapture
 from src.BSP.homographyProvider import homography_by_sift
 from src.BSP.led_extractor import get_led_roi
 from src.BSP.led_state import LedState
@@ -23,7 +24,7 @@ class StateDetector:
         self.state_table: List[StateTableEntry] = []
         self.timer: sched.scheduler = sched.scheduler(time.time, time.sleep)
         self.current_orientation: BoardOrientation = None
-        self.video_capture: cv2.VideoCapture = None
+        self.bufferless_video_capture: BufferlessVideoCapture = None
 
         self.create_state_table()
 
@@ -32,18 +33,28 @@ class StateDetector:
             self.state_table.append(StateTableEntry(led.id, None, 0, 0))
 
     def start(self):
-        self.timer.enter(delay=self.delay_in_seconds, priority=1, action=self._detect_current_state)
+
+
+        while True:
+            time.sleep(self.delay_in_seconds)
+            self._detect_current_state()
 
     def _detect_current_state(self):
 
-        assert self.video_capture is not None, "Video_capture is None. Has the open_stream been method called before?"
+        assert self.bufferless_video_capture is not None, "Video_capture is None. Has the open_stream been method called before?"
 
-        read, frame = self.video_capture.read()
+        frame = self.bufferless_video_capture.read()
 
         if self.current_orientation is None or self.current_orientation.check_if_outdated():
-            self.current_orientation = homography_by_sift(self.board.image, frame)
+            self.current_orientation = homography_by_sift(self.board.image, frame, display_result=True)
 
         leds_roi = get_led_roi(frame, self.board.led, self.current_orientation)
+
+        # Debug show LEDs
+        i = 0
+        for roi in leds_roi:
+            cv2.imshow(str(i), roi)
+            i += 1
 
         assert len(leds_roi) == len(self.board.led), "Not all LEDs have been detected."
 
@@ -60,13 +71,16 @@ class StateDetector:
                 entry.last_time_on = state.timestamp
             else:
                 entry.last_time_off = state.timestamp
+        cv2.waitKey(10)
 
     def open_stream(self, video_capture=None):
         if video_capture is not None:
-            self.video_capture = video_capture
+            assert isinstance(video_capture, BufferlessVideoCapture), "The passed video capture argument is not of " \
+                                                                      "type BufferlessVideoCapture "
+            self.bufferless_video_capture = video_capture
             return
 
-        self.video_capture = cv2.VideoCapture(self.webcam_id)
+        self.bufferless_video_capture = BufferlessVideoCapture(self.webcam_id)
 
-        if not self.video_capture.isOpened():
+        if not self.bufferless_video_capture.parent_video_capture.isOpened():
             raise Exception(f"StateDetector is unable to open VideoCapture with index {self.webcam_id}")
