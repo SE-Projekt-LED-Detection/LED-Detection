@@ -34,7 +34,6 @@ class StateDetector:
 
     def start(self):
 
-
         while True:
             time.sleep(self.delay_in_seconds)
             self._detect_current_state()
@@ -64,16 +63,23 @@ class StateDetector:
         for i in range(len(self.state_table)):
             entry = self.state_table[i]
             led = self.board.led[i]
-            state = led_states[i]
-            entry.current_state = state
+            new_state = led_states[i]
+            entry.current_state = new_state
 
-            if state.power is "on":
-                entry.last_time_on = state.timestamp
+            # Calculates the frequency
+            if entry.current_state.power is not new_state.power:
+                if new_state.power is "on":
+                    entry.hertz = 1.0 / (new_state.timestamp - entry.last_time_off)
+                if new_state is "off":
+                    entry.hertz = 1.0 / (new_state.timestamp - entry.last_time_on)
+
+            if new_state.power is "on":
+                entry.last_time_on = new_state.timestamp
             else:
-                entry.last_time_off = state.timestamp
+                entry.last_time_off = new_state.timestamp
         cv2.waitKey(10)
 
-    def open_stream(self, video_capture=None):
+    def open_stream(self, video_capture: BufferlessVideoCapture = None):
         if video_capture is not None:
             assert isinstance(video_capture, BufferlessVideoCapture), "The passed video capture argument is not of " \
                                                                       "type BufferlessVideoCapture "
