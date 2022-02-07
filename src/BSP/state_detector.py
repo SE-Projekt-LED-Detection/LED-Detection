@@ -68,12 +68,12 @@ class StateDetector:
 
             # Calculates the frequency
             if entry.current_state.power is not new_state.power:
-                if new_state.power is "on":
+                if new_state.power == "on":
                     entry.hertz = 1.0 / (new_state.timestamp - entry.last_time_off)
-                if new_state is "off":
+                if new_state == "off":
                     entry.hertz = 1.0 / (new_state.timestamp - entry.last_time_on)
 
-            if new_state.power is "on":
+            if new_state.power == "on":
                 entry.last_time_on = new_state.timestamp
             else:
                 entry.last_time_off = new_state.timestamp
