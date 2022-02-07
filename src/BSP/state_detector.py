@@ -16,8 +16,16 @@ from src.BSP.state_table_entry import StateTableEntry
 
 
 class StateDetector:
+    """
+    The State Detector continuously detects the current state of the LEDs, meaning whether they are powered on or off,
+    which color and the frequency.
+    """
 
     def __init__(self, config: Board, webcam_id: int):
+        """
+        :param config: The reference which will be used to match features with SIFT
+        :param webcam_id: The webcam id which will be used to open a video stream in open_stream()
+        """
         self.board = config
         self.webcam_id = webcam_id
         self.delay_in_seconds = 1
@@ -29,17 +37,26 @@ class StateDetector:
         self.create_state_table()
 
     def create_state_table(self):
+        """
+        Creates the state table and fills it with empty entries.
+        """
         for led in self.board.led:
             self.state_table.append(StateTableEntry(led.id, None, 0, 0))
 
     def start(self):
-
+        """
+        Starts the detection. Waits the number of seconds configured in the StateDetector, afterwards
+        detects the current state. Repeats itself, blocking.
+        """
         while True:
             time.sleep(self.delay_in_seconds)
             self._detect_current_state()
 
     def _detect_current_state(self):
-
+        """
+        Detects the current state of the LEDs, updates the StateTable.
+        Stream has to be opened with open_stream() before calling this method.
+        """
         assert self.bufferless_video_capture is not None, "Video_capture is None. Has the open_stream been method called before?"
 
         frame = self.bufferless_video_capture.read()
@@ -80,6 +97,12 @@ class StateDetector:
         cv2.waitKey(10)
 
     def open_stream(self, video_capture: BufferlessVideoCapture = None):
+        """
+        Opens the video stream.
+
+        :param video_capture: If not none, this video capture will be used, otherwise one will be created based on the
+        webcam id. Can be used for tests to pass a mock video capture.
+        """
         if video_capture is not None:
             assert isinstance(video_capture, BufferlessVideoCapture), "The passed video capture argument is not of " \
                                                                       "type BufferlessVideoCapture "

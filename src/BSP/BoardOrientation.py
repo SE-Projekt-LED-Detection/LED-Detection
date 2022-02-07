@@ -27,6 +27,7 @@ class BoardOrientation:
     def check_if_outdated(self):
         """
         Returns whether the information of the object is still valid.
+
         :return: True if since the creation time more than validity_seconds elapsed
         """
         return time() - self.timestamp >= self.validity_seconds

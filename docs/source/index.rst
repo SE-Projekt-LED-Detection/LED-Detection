@@ -3,15 +3,16 @@
    You can adapt this file completely to your liking, but it should at least
    contain the root `toctree` directive.
 
-
+========================================================
 Welcome to LED / Board Status Detection's documentation!
 ========================================================
 .. toctree::
    :caption: root
-   :maxdepth: 2
-   ..
-   ./entities/index
-   ...
+   :hidden:
+   :maxdepth: 5
+
+   entities/index
+   index
 
 The goal of this project is to have an application for tracking status LEDs on controller boards over webcam.
 
@@ -29,7 +30,7 @@ The code for that was copied from
 
 
 Creating a virtual environment
------------------------------
+------------------------------
 
 We highly recommend to use a virtual environment such as pyenv or conda.
 

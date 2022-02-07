@@ -4,6 +4,10 @@ import cv2, queue, threading, time
 # bufferless VideoCapture
 # https://stackoverflow.com/a/54755738
 class BufferlessVideoCapture:
+    """
+    A special VideoCapture which will always return the most recent frame instead of the next available, meaning
+    that all frames except the most recent one are dropped.
+    """
 
     def __init__(self, name):
         self.cap = cv2.VideoCapture(name)

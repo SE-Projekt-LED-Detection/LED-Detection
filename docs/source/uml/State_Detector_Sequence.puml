@@ -4,12 +4,13 @@ note over state_detector
 
      example of an state table
 
-     | *name* | *power* | *color* | *last_time_on* | *last_time_off* |
-     | led_1 | On | Red | NUMBER | NUMBER |
-     | name | power | color | NUMBER | NUMBER |
+     | *name* | *current_state* | *last_time_on* | *last_time_off* | *hertz* |
+     | led_1 | LedState | NUMBER | NUMBER | FLOAT |
+     | led_2 | LedState | NUMBER | NUMBER | FLOAT |
 end note
+activate state_detector
 state_detector -> state_detector: create_state_table
-state_detector -> stream_handler: open_stream(webcam_id:Integer)
+boss_controller -> state_detector: open_stream()
 activate stream_handler
 stream_handler --> state_detector: stream
 loop interval 0.1 sec
