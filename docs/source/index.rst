@@ -6,19 +6,11 @@ LED / Board Status Detection
 .. toctree::
    :caption: root
    :maxdepth: 5
-   :content:
 
-
-
-
-
-Usage
-=======
 
 .. toctree::
-   :caption: Usage
+   :caption: First steps
    :maxdepth: 5
-   :hidden:
 
    usage/index
 

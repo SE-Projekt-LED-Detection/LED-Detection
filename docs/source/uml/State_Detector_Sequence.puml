@@ -1,4 +1,5 @@
 @startuml
+activate boss_controller
 boss_controller -> state_detector: config: Board, webcam_id:Integer
 note over state_detector
 
@@ -11,6 +12,7 @@ end note
 activate state_detector
 state_detector -> state_detector: create_state_table
 boss_controller -> state_detector: open_stream()
+deactivate boss_controller
 loop interval 0.1 sec
     state_detector -> homography_provider: getBoardOrientation(frame: ndarray)
     activate homography_provider
@@ -41,8 +43,11 @@ loop interval 0.1 sec
         deactivate led_state_detector
     end
     state_detector -> logger: log_state()
+    activate logger
     logger --> state_detector: ok
+    deactivate logger
     state_detector --> boss_controller: current_changes
+    activate boss_controller
 end
 
 
