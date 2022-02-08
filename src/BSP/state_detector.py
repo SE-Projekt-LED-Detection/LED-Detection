@@ -101,7 +101,7 @@ class StateDetector:
         Opens the video stream.
 
         :param video_capture: If not none, this video capture will be used, otherwise one will be created based on the
-        webcam id. Can be used for tests to pass a mock video capture.
+            webcam id. Can be used for tests to pass a mock video capture.
         """
         if video_capture is not None:
             assert isinstance(video_capture, BufferlessVideoCapture), "The passed video capture argument is not of " \
@@ -111,5 +111,5 @@ class StateDetector:
 
         self.bufferless_video_capture = BufferlessVideoCapture(self.webcam_id)
 
-        if not self.bufferless_video_capture.parent_video_capture.isOpened():
+        if not self.bufferless_video_capture.cap.isOpened():
             raise Exception(f"StateDetector is unable to open VideoCapture with index {self.webcam_id}")

@@ -11,19 +11,22 @@ end note
 activate state_detector
 state_detector -> state_detector: create_state_table
 boss_controller -> state_detector: open_stream()
-activate stream_handler
-stream_handler --> state_detector: stream
 loop interval 0.1 sec
     state_detector -> homography_provider: getBoardOrientation(frame: ndarray)
+    activate homography_provider
     homography_provider --> state_detector: orientation: BoardOrientation
+    deactivate homography_provider
     state_detector -> led_extractor: get_leds(frame: ndarray, orientation: BoardOrientation)
+    activate led_extractor
     led_extractor --> state_detector: led_rois: list(ndarray)
+    deactivate led_extractor
     note over led_extractor
         ATTENTION: 
         order of led_positions list is equal to led object in config object!!!
     end note
     loop led in leds:
         state_detector -> led_state_detector: get_state(led_roi, colors)
+        activate led_state_detector
         led_state_detector -> led_state_detector: is_on()
         led_state_detector -> led_state_detector: which_color()
         note over led_state_detector
@@ -35,6 +38,7 @@ loop interval 0.1 sec
             }
         end note
         led_state_detector --> state_detector: led_state: LedState
+        deactivate led_state_detector
     end
     state_detector -> logger: log_state()
     logger --> state_detector: ok

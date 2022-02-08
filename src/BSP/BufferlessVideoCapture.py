@@ -7,6 +7,7 @@ class BufferlessVideoCapture:
     """
     A special VideoCapture which will always return the most recent frame instead of the next available, meaning
     that all frames except the most recent one are dropped.
+    Opens a cv2 VideoCapture with the given name what can be the webcam id to be wrapped.
     """
 
     def __init__(self, name):

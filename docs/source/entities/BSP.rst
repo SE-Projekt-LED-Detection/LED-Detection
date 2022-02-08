@@ -1,8 +1,10 @@
+.. _bsp:
+
 BSP
-========================================================
+---
 
 General approach
---------------------------------------
+~~~~~~~~~~~~~~~~
 
 Based on the reference image, features are extracted with SIFT and matched with 'knn nearest' in the target image.
 The matching allows to calculate the homography matrix which describes the rotation and scaling difference between the
@@ -17,7 +19,7 @@ regions of interest (ROI) can be extracted.
     generated with the BDG and is necessary for providing the state of the board in a target image.
 
 State Table
-~~~~~~~~~~~~
+"""""""""""
 The next step is to detect whether the LEDs shown in the ROIs are powered on or off and in addition if they are on the
 color can be determined. The so gained information will be saved in the state_table which contains a list of
 StateEntries:
@@ -42,7 +44,7 @@ Changes of the table will then be forwarded to MQTT.
 
 
 Sequence diagram
-~~~~~~~~~~~~~~~~
+""""""""""""""""
 
 
 .. uml:: ../uml/State_Detector_Sequence.puml
@@ -50,10 +52,10 @@ Sequence diagram
    :caption: The communication between the classes of the BSP
 
 The classes of the BSP
-----------------------
+~~~~~~~~~~~~~~~~~~~~~~
 
 State Detector
-~~~~~~~~~~~~~~~
+""""""""""""""
 The main entry point for accessing the BSP. Takes a Board object and the webcam id.
 
 First of all, the stream has to be opened with open_stream(). This is necessary for the tests to be able
@@ -75,7 +77,7 @@ by altering the existing entry in the list and not by creating a new one.
 
 
 Board Orientation
-~~~~~~~~~~~~~~~~~
+"""""""""""""""""
 The board orientation object is responsible for the information associated with where the board is
 in a target image. Naturally, if queried with new images this might not be true anymore as the board could have been
 moved for instance.
@@ -83,23 +85,29 @@ moved for instance.
 For this the object has a timestamp of its creation indicating the time of the calculation, allowing to recalculate
 the orientation after some time.
 
+The object allows to store the current orientation with the homography matrix, so it is always relative to the image
+used for the calculation of the homography matrix.
+
+The corners represent the corners of the board, consequently it is assumed that the board is at least rectangular.
+If the board does not have the required shape, a rectangular selection can be used for the matching as well.
+
 .. automodule:: src.BSP.BoardOrientation
     :members:
 
 Led State
-~~~~~~~~~
+"""""""""
 
 .. automodule:: src.BSP.led_state
     :members:
 
 State Table Entry
-~~~~~~~~~~~~~~~~~
+"""""""""""""""""
 
 .. automodule:: src.BSP.state_table_entry
     :members:
 
 Homography Provider
-~~~~~~~~~~~~~~~~~~~
+"""""""""""""""""""
 The homography provider is responsible for providing the board orientation, especially the homography matrix which
 is inside the BoardOrientation object.
 
@@ -108,17 +116,34 @@ is inside the BoardOrientation object.
 
 
 Bufferless Video Capture
-~~~~~~~~~~~~~~~~~~~~~~~~
+""""""""""""""""""""""""
 
 .. automodule:: src.BSP.BufferlessVideoCapture
     :members:
 
+Led Extractor
+"""""""""""""
+Responsible for extracting the ROIs of the LEDs by the given LED objects and the board orientation.
+In addition it fills the squares except the circles of the LEDs with gray color.
 
-Example
--------------
+Returns a list of numpy arrays, the ROIs of the LEDs in the same order as in the LED object list.
+
+.. automodule:: src.BSP.led_extractor
+    :members:
+
+Test coverage
+"""""""""""""
+
+The BSP has a blackbox test which runs a detection of LEDs on a Raspberry Pi. As this yields not precise tests
+more unit tests a possible but currently not planed.
+
+Example (Outdated)
+""""""""""""""""""
 
 Following example calculates the orientation of the board, translates relative coordinates into
 absolute in the target image and finally extracts the roi for the LEDs.
+
+(Outdated: in the current version this examples does not work anymore)
 
 .. code-block:: python
 

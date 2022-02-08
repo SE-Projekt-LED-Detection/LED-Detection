@@ -34,10 +34,11 @@ def scale_point(point, scaling):
 def homography_by_sift(ref_img, target_img, distance_factor=0.85, display_result=False) -> BoardOrientation:
     """
     Calculates the board orientation based on SIFT with knnMatch
+
     :param ref_img: The reference image for the calculation
     :param target_img: The target image for the calculation
     :param distance_factor: Influences the max distance of the matches as per Loew's ration test. A higher value means
-     more distant matches are also included. The optimal value may differ based on the board and image
+        more distant matches are also included. The optimal value may differ based on the board and image
     :param display_result: If true the result is plotted
     :return: A BoardOrientation object which contains the homography matrix and the corners
     """
