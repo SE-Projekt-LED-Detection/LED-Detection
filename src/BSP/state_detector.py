@@ -81,19 +81,24 @@ class StateDetector:
             entry = self.state_table[i]
             led = self.board.led[i]
             new_state = led_states[i]
-            entry.current_state = new_state
+
 
             # Calculates the frequency
-            if entry.current_state.power is not new_state.power:
+            if entry.current_state is not None and entry.current_state.power != new_state.power:
+                print("Led" + str(i) + ": " + new_state.power)
+
                 if new_state.power == "on":
-                    entry.hertz = 1.0 / (new_state.timestamp - entry.last_time_off)
-                if new_state == "off":
-                    entry.hertz = 1.0 / (new_state.timestamp - entry.last_time_on)
+                    entry.hertz = 1.0 / ((new_state.timestamp - entry.last_time_off) / 1000000000)
+                if new_state.power == "off":
+                    entry.hertz = 1.0 / ((new_state.timestamp - entry.last_time_on) / 1000000000)
 
             if new_state.power == "on":
                 entry.last_time_on = new_state.timestamp
             else:
                 entry.last_time_off = new_state.timestamp
+
+            entry.current_state = new_state
+
         cv2.waitKey(10)
 
     def open_stream(self, video_capture: BufferlessVideoCapture = None):
