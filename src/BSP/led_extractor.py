@@ -23,8 +23,17 @@ def get_led_roi(frame: np.array, leds: List[Led], board_orientation: BoardOrient
 
     # Transforms the center points
     led_centers = np.float32(list(map(lambda x: x.position, leds)))
+    led_borders = np.float32(list(map(lambda x: [x.position[0] + x.radius, x.position[1] + x.radius], leds)))
     led_centers_transformed = cv2.perspectiveTransform(np.array([led_centers]), board_orientation.homography_matrix)[0]
-    radius = list(map(lambda led: round(led.radius * max(scale_x, scale_y)), leds))
+
+    led_radius_transformed = cv2.perspectiveTransform(np.array([led_borders]), board_orientation.homography_matrix)[0]
+
+    radius = []
+
+    for i in range(len(leds)):
+        radius.append(round(max(abs(led_centers_transformed[i][0] - led_radius_transformed[i][0]), abs(led_centers_transformed[i][1] - led_radius_transformed[i][1]))))
+
+    #radius = list(map(lambda led: round(led.radius * max(scale_x, scale_y)), leds))
     led_rois: List[np.array] = _led_by_circle_coordinates(frame, led_centers_transformed.astype(int), radius)
 
 
