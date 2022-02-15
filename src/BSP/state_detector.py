@@ -59,7 +59,7 @@ class StateDetector:
         """
         assert self.bufferless_video_capture is not None, "Video_capture is None. Has the open_stream been method called before?"
 
-        retz, frame = self.bufferless_video_capture.read()
+        frame = self.bufferless_video_capture.read()
 
         frame = cv2.flip(frame, 0)
 
@@ -112,8 +112,8 @@ class StateDetector:
             webcam id. Can be used for tests to pass a mock video capture.
         """
         if video_capture is not None:
-            #assert isinstance(video_capture, BufferlessVideoCapture), "The passed video capture argument is not of " \
-               #                                                       "type BufferlessVideoCapture "
+            assert isinstance(video_capture, BufferlessVideoCapture), "The passed video capture argument is not of " \
+                                                                      "type BufferlessVideoCapture "
             self.bufferless_video_capture = video_capture
             return
 

@@ -6,6 +6,7 @@ from src.BSP.BufferlessVideoCapture import BufferlessVideoCapture
 from src.BSP.state_detector import StateDetector
 from cv2 import cv2
 import src.BDG.utils.json_util as jsutil
+from tests.MockVideoCapture import MockVideoCapture
 
 
 def test_blackbox_state_detector_with_zcu102():
@@ -17,7 +18,7 @@ def test_blackbox_state_detector_with_zcu102():
 
     dec = StateDetector(reference, 4)
 
-    cap = cv2.VideoCapture("./resources/ZCU102/zcu102_video.avi")
+    cap = MockVideoCapture("./resources/ZCU102/zcu102_video.avi", False)
     dec.open_stream(cap)
 
     th = threading.Thread(target=dec.start)
