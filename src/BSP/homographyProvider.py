@@ -31,7 +31,7 @@ def scale_point(point, scaling):
     return scaled_point
 
 
-def homography_by_sift(ref_img, target_img, distance_factor=0.85, display_result=False) -> BoardOrientation:
+def homography_by_sift(ref_img, target_img, distance_factor=0.65, display_result=False) -> BoardOrientation:
     """
     Calculates the board orientation based on SIFT with knnMatch
 

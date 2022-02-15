@@ -28,7 +28,7 @@ class StateDetector:
         """
         self.board = config
         self.webcam_id = webcam_id
-        self.delay_in_seconds = 1
+        self.delay_in_seconds = 0.05
         self.state_table: List[StateTableEntry] = []
         self.timer: sched.scheduler = sched.scheduler(time.time, time.sleep)
         self.current_orientation: BoardOrientation = None
@@ -59,7 +59,9 @@ class StateDetector:
         """
         assert self.bufferless_video_capture is not None, "Video_capture is None. Has the open_stream been method called before?"
 
-        frame = self.bufferless_video_capture.read()
+        retz, frame = self.bufferless_video_capture.read()
+
+        frame = cv2.flip(frame, 0)
 
         if self.current_orientation is None or self.current_orientation.check_if_outdated():
             self.current_orientation = homography_by_sift(self.board.image, frame, display_result=True)
@@ -70,7 +72,10 @@ class StateDetector:
         i = 0
         for roi in leds_roi:
             cv2.imshow(str(i), roi)
+            #roi[:] = (0, 0, 255)
             i += 1
+
+        cv2.imshow("Frame", frame)
 
         assert len(leds_roi) == len(self.board.led), "Not all LEDs have been detected."
 
@@ -107,8 +112,8 @@ class StateDetector:
             webcam id. Can be used for tests to pass a mock video capture.
         """
         if video_capture is not None:
-            assert isinstance(video_capture, BufferlessVideoCapture), "The passed video capture argument is not of " \
-                                                                      "type BufferlessVideoCapture "
+            #assert isinstance(video_capture, BufferlessVideoCapture), "The passed video capture argument is not of " \
+               #                                                       "type BufferlessVideoCapture "
             self.bufferless_video_capture = video_capture
             return
 

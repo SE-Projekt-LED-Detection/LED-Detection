@@ -8,7 +8,7 @@ class BoardOrientation:
     The validity seconds indicate how long the information this object provides shall be valid.
     """
 
-    def __init__(self, homography_matrix, corners, reference_hw, validity_seconds=3):
+    def __init__(self, homography_matrix, corners, reference_hw, validity_seconds=300):
         """
 
         :param homography_matrix: The homography matrix which is able to translate the coordinates from the reference
