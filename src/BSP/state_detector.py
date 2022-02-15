@@ -88,9 +88,7 @@ class StateDetector:
                 print("Led" + str(i) + ": " + new_state.power)
 
                 if new_state.power == "on":
-                    entry.hertz = 1.0 / ((new_state.timestamp - entry.last_time_off) / 1000000000)
-                if new_state.power == "off":
-                    entry.hertz = 1.0 / ((new_state.timestamp - entry.last_time_on) / 1000000000)
+                    entry.hertz = 1.0 / (new_state.timestamp - entry.last_time_on)
 
             if new_state.power == "on":
                 entry.last_time_on = new_state.timestamp
