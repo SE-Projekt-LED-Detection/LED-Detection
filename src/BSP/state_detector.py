@@ -26,7 +26,7 @@ class StateDetector:
         :param config: The reference which will be used to match features with SIFT
         :param webcam_id: The webcam id which will be used to open a video stream in open_stream()
         """
-        self.board = config
+        self.board = config.get_cropped_board()
         self.webcam_id = webcam_id
         self.delay_in_seconds = 0.05
         self.state_table: List[StateTableEntry] = []
