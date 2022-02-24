@@ -3,11 +3,10 @@ from enum import Enum
 import numpy as np
 from PIL import Image, ImageDraw, ImageTk
 
-from scipy.spatial import distance
 
-from src.BDG.model.CreationState import CreationState
-from src.BDG.model.board_model import Board
-from src.BDG.coordinator.edit_handler import EditHandler
+
+from BDG.coordinator.edit_handler import EditHandler
+from BDG.model.CreationState import CreationState
 
 
 class ImagePane(tk.Frame):

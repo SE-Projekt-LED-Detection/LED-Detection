@@ -3,7 +3,7 @@ import numpy as np
 import typing
 import matplotlib.pyplot as plt
 
-from src.BSP.BoardOrientation import BoardOrientation
+from BSP.BoardOrientation import BoardOrientation
 
 
 def calc_scale(crn_pts_src, crn_pts_dst):

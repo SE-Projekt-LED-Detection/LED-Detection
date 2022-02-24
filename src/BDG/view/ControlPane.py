@@ -1,13 +1,11 @@
 import tkinter as tk
 
+from BDG.coordinator.event_handler import EventHandler
+from BDG.model.board_model import Board
+from BDG.view.ImagePane import ImagePane
+from BDG.view.Scrollable import ScrollbarFrame
+from BDG.view.Toolbar import Toolbar
 
-
-from src.BDG.utils.json_util import from_json
-from src.BDG.view.ImagePane import ImagePane
-from src.BDG.view.Scrollable import ScrollbarFrame
-from src.BDG.view.Toolbar import Toolbar
-from src.BDG.model.board_model import Board
-from src.BDG.coordinator.event_handler import EventHandler
 
 
 

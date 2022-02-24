@@ -5,11 +5,12 @@ import json
 import os
 
 import numpy as np
-from src.BDG.model.board_model import Board, Led
+
 import cv2
 from numpyencoder import NumpyEncoder
 
-from src.BDG.utils.util_functions import decode_img_data
+from BDG.model.board_model import Board, Led
+from BDG.utils import util_functions
 
 
 def from_json(file_path: str):
@@ -33,7 +34,7 @@ def __from_json(file) -> Board:
     board = Board()
 
     if ("byte_image" in json_dict):
-        image = decode_img_data(json_dict.get("byte_image"))
+        image = util_functions.decode_img_data(json_dict.get("byte_image"))
 
     elif ("image_path" in json_dict):
         image = cv2.imread(os.path.join(os.path.dirname(file.name), json_dict.get("image_path")))

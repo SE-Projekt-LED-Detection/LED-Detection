@@ -1,4 +1,4 @@
-from src.BSP.led_state import LedState
+from BSP.led_state import LedState
 
 
 class StateTableEntry:

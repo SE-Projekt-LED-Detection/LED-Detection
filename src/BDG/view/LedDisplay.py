@@ -2,7 +2,7 @@ from tkinter.ttk import Frame
 import tkinter as tk
 from tkinter import ttk
 
-from src.BDG.model.board_model import Led
+from BDG.model.board_model import Led
 
 
 class LedDisplay(Frame):

@@ -3,7 +3,7 @@ import time
 import numpy as np
 from cv2 import cv2
 
-from src.BSP.led_state import LedState
+from BSP.led_state import LedState
 
 
 def get_state(led_roi: np.array, colors):
