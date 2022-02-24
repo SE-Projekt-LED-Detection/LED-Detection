@@ -1,0 +1,1 @@
+{"id": "", "author": "", "corners": [[3, 3], [5, 1600], [1595, 1603], [1597, 0]], "led": [{"id": "First", "position": [325, 748], "radius": 4, "colors": ["green"]}, {"id": "Second", "position": [325, 732], "radius": 4, "colors": ["green"]}, {"id": "Third", "position": [398, 555], "radius": 4, "colors": ["green"]}], "image_path": "ref.jpg"}

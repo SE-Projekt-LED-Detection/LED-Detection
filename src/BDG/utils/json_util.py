@@ -2,6 +2,8 @@
     Provides functions for encoding and decoding board description models from or to json
     """
 import json
+import os
+
 import numpy as np
 from src.BDG.model.board_model import Board, Led
 import cv2
@@ -34,7 +36,7 @@ def __from_json(file) -> Board:
         image = decode_img_data(json_dict.get("byte_image"))
 
     elif ("image_path" in json_dict):
-        image = cv2.imread(json_dict.get("image_path"))
+        image = cv2.imread(os.path.join(os.path.dirname(file.name), json_dict.get("image_path")))
     else:
         raise RuntimeError()
     board.set_image(image)

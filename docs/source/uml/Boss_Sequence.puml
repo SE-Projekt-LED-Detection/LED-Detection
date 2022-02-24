@@ -6,19 +6,19 @@ actor user
 note over labgrid_client: the labgrid sequence isn't final!
 
 
-user -> labgrid_client: labgrid-client -p <place> aquire
-labgrid_client -> labgrid_coordinator:  aquire <place> boss
-labgrid_coordinator -> place: check aquire
+user -> labgrid_client: labgrid-client -p <place> acquire
+labgrid_client -> labgrid_coordinator:  acquire <place> boss
+labgrid_coordinator -> place: check acquire
 place --> labgrid_coordinator: True
 labgrid_coordinator --> labgrid_client: True
-labgrid_client --> user: "place aquired"
+labgrid_client --> user: "place acquired"
 user -> labgrid_client: labgrid-client -p <place> console
 labgrid_client -> boss_publisher: open_connection
 activate boss_publisher
 boss_publisher --> user: session
 note over boss_publisher
     The configuration is shown
-    in another sequence diagramm!
+    in another sequence diagram!
 end note
 note over user: only changes setting
 

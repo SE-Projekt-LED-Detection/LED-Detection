@@ -121,6 +121,20 @@ class Board:
         relative_vector = ul_corner - vector
         return relative_vector
 
+    def get_cropped_board(self):
+        assert self.image is not None and len(self.corners) == 4, "No image or not enough corners"
+
+        min_x = min(self.corners, key=lambda t: t[0])[0]
+        max_x = max(self.corners, key=lambda t: t[0])[0]
+        min_y = min(self.corners, key=lambda t: t[1])[1]
+        max_y = max(self.corners, key=lambda t: t[1])[1]
+
+        led = list(map(lambda x: Led(x.id,[x.position[0] - min_x, x.position[1] - min_y], x.radius, x.colors), self.led))
+
+        new_board = Board(self.id, self.author, "", self.corners, led, self.image[min_y:max_y, min_x:max_x])
+
+        return new_board
+
     def __eq__(self, other):
         """
         TODO!!
