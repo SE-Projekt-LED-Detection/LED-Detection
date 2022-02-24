@@ -1,8 +1,7 @@
 import numpy as np
 
-
-from src.BDG.model.board_model import Board, Led
-from src.BDG.utils.json_util import from_json
+from BDG.model.board_model import Board, Led
+from BDG.utils.json_util import from_json
 
 reference = Board(name= "raspberry",author= "christoph", img_path="resources/test_image.jpg", corners=[[1, 1], [1, 10], [10, 10], [10, 1]])
 
