@@ -81,57 +81,9 @@ def homography_by_sift(ref_img, target_img, distance_factor=0.85, display_result
         img3 = cv2.drawMatches(ref_img, kp1, target_img, kp2, good, None, **draw_params)
         plt.imshow(img3, 'gray'), plt.show()
 
-    return BoardOrientation(homography_matrix, dst)
+    return BoardOrientation(homography_matrix, dst, ref_img.shape[:2])
 
 
-def get_led_roi(board_orientation, reference_hw, led_center):
-    """
-     Returns the LEDs in the target image based on the homography matrix
-    :param board_orientation: The orientation of the board in a BoardOrientation object
-    :param reference_hw: A tuple with the height and width of the reference board
-    :param led_center: A numpy list with the x,y coordinates of the centers of the LEDs
-    :return: The LEDs in the target image as a list
-    """
-
-    # Calculates the scaling between the reference and the target board
-    scale_x = abs(board_orientation.corners[0][0] - board_orientation.corners[2][0]) / reference_hw[0]
-    scale_y = abs(board_orientation.corners[0][1] - board_orientation.corners[1][1]) / reference_hw[1]
-
-    # Transforms the center points
-    led_center = cv2.perspectiveTransform(np.array([led_center]), board_orientation.homography_matrix)[0]
-    radius = round(5 * max(scale_x, scale_y))
-    leds = led_by_circle_coordinates(led_center.astype(int), radius)
-
-    # Fills the squares except the circles of the LEDs with gray color
-    for led in leds:
-        x_coords = np.arange(0, led.shape[0])
-        y_coords = np.arange(0, led.shape[1])
-
-        cx = x_coords.size / 2
-        cy = y_coords.size / 2
-        for x in x_coords:
-            for y in y_coords:
-                in_circle = (x - cx)**2 + (y-cy)**2 < radius**2
-                led[x, y] = led[x, y, :] if in_circle else np.array([127, 127, 127])
-
-    return leds
-
-
-def led_by_circle_coordinates(circle_centers, r):
-    leds = []
-    for center in circle_centers:
-        top_left = (center[0] - r, center[1] - r)
-        bottom_right = (center[0] + r, center[1] + r)
-        led = img[top_left[1]:bottom_right[1], top_left[0]:bottom_right[0]]
-        leds.append(led)
-    return leds
-
-
-
-
-
-if __name__ == "__main__":
-    img = cv2.imread("baseball.png", cv2.IMREAD_COLOR)
 
 
 
