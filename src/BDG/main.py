@@ -1,7 +1,7 @@
 import tkinter as tk
 import os
 
-from src.BDG.view.ControlPane import ControlPane
+from BDG.view.ControlPane import ControlPane
 
 
 class App(tk.Tk):

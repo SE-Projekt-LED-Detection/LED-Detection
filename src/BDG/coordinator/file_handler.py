@@ -2,9 +2,9 @@ import os
 
 import cv2
 
-from src.BDG.model.board_model import Board, Led
+from model.board_model import Board, Led
 
-import src.BDG.utils.json_util as jsutil
+import utils.json_util as jsutil
 from pathlib import Path
 from tkinter import filedialog as fd
 from zipfile import ZipFile

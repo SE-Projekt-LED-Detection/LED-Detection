@@ -3,7 +3,7 @@ import numpy as np
 import typing
 import matplotlib.pyplot as plt
 
-from src.BSP.BoardOrientation import BoardOrientation
+from BSP.BoardOrientation import BoardOrientation
 
 
 def calc_scale(crn_pts_src, crn_pts_dst):
@@ -31,13 +31,14 @@ def scale_point(point, scaling):
     return scaled_point
 
 
-def homography_by_sift(ref_img, target_img, distance_factor=0.85, display_result=False) -> BoardOrientation:
+def homography_by_sift(ref_img, target_img, distance_factor=0.65, display_result=False) -> BoardOrientation:
     """
     Calculates the board orientation based on SIFT with knnMatch
+
     :param ref_img: The reference image for the calculation
     :param target_img: The target image for the calculation
     :param distance_factor: Influences the max distance of the matches as per Loew's ration test. A higher value means
-     more distant matches are also included. The optimal value may differ based on the board and image
+        more distant matches are also included. The optimal value may differ based on the board and image
     :param display_result: If true the result is plotted
     :return: A BoardOrientation object which contains the homography matrix and the corners
     """

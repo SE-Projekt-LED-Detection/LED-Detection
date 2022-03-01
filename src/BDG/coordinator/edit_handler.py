@@ -4,9 +4,9 @@ from scipy.spatial import distance
 
 import numpy as np
 
-from src.BDG.model.CreationState import CreationState
-from src.BDG.model.board_model import Led, Board
-from src.BDG.utils.util_functions import is_equal
+from model.CreationState import CreationState
+from model.board_model import Led, Board
+from utils.util_functions import is_equal
 
 
 class EditHandler:

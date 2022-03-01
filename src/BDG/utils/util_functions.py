@@ -37,7 +37,10 @@ def sort_points(points: np.array):
 
     angles[over_180] = 2 * np.pi - angles[over_180]
     indices = np.argsort(angles)
-    return points[indices]
+
+    points = list(map(lambda i: points[i], indices))
+
+    return points
 
 
 def unit_vector(vector):

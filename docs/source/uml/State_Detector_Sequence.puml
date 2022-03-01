@@ -1,43 +1,53 @@
 @startuml
-boss_controller -> state_detector: config: Board
+activate boss_controller
+boss_controller -> state_detector: config: Board, webcam_id:Integer
 note over state_detector
 
      example of an state table
 
-     | *name* | *power* | *color* | *last_time_on* | *last_time_off* |
-     | led_1 | On | Red | NUMBER | NUMBER |
-     | name | power | color | NUMBER | NUMBER |
+     | *name* | *current_state* | *last_time_on* | *last_time_off* | *hertz* |
+     | led_1 | LedState | NUMBER | NUMBER | FLOAT |
+     | led_2 | LedState | NUMBER | NUMBER | FLOAT |
 end note
+activate state_detector
 state_detector -> state_detector: create_state_table
-state_detector -> stream_handler: open_stream(webcam_id:Integer)
-activate stream_handler
-stream_handler --> state_detector: stream
+boss_controller -> state_detector: open_stream()
+deactivate boss_controller
 loop interval 0.1 sec
     state_detector -> homography_provider: getBoardOrientation(frame: ndarray)
+    activate homography_provider
     homography_provider --> state_detector: orientation: BoardOrientation
+    deactivate homography_provider
     state_detector -> led_extractor: get_leds(frame: ndarray, orientation: BoardOrientation)
-    led_extractor --> state_detector: led_rois: list(ndarray) 
+    activate led_extractor
+    led_extractor --> state_detector: led_rois: list(ndarray)
+    deactivate led_extractor
     note over led_extractor
         ATTENTION: 
         order of led_positions list is equal to led object in config object!!!
     end note
     loop led in leds:
         state_detector -> led_state_detector: get_state(led_roi, colors)
+        activate led_state_detector
         led_state_detector -> led_state_detector: is_on()
         led_state_detector -> led_state_detector: which_color()
         note over led_state_detector
             led_state: 
             {
-                light: On,
+                power: On,
                 color: "RED"
                 timestamp: nano_seconds
             }
         end note
         led_state_detector --> state_detector: led_state: LedState
+        deactivate led_state_detector
     end
     state_detector -> logger: log_state()
+    activate logger
     logger --> state_detector: ok
+    deactivate logger
     state_detector --> boss_controller: current_changes
+    activate boss_controller
 end
 
 
