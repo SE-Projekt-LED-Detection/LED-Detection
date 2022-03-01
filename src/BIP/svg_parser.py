@@ -1,10 +1,11 @@
-from lxml import etree
-import matplotlib.pyplot as plt
-from dataclasses import dataclass
 import base64
-import numpy as np
-import cv2
 import typing
+from dataclasses import dataclass
+
+import cv2
+import matplotlib.pyplot as plt
+import numpy as np
+from lxml import etree
 
 
 @dataclass

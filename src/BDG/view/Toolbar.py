@@ -1,8 +1,8 @@
 import tkinter as tk
 from tkinter import ttk
 
-from src.BDG.coordinator.edit_handler import EditHandler
-from src.BDG.view.ImagePane import ImagePane
+from BDG.coordinator.edit_handler import EditHandler
+from BDG.view.ImagePane import ImagePane
 
 
 class Toolbar(tk.Frame):

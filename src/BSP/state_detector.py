@@ -5,14 +5,14 @@ import numpy as np
 import sched
 import time
 
-from src.BDG.model.board_model import Board
-from src.BSP import led_state_detector
-from src.BSP.BoardOrientation import BoardOrientation
-from src.BSP.BufferlessVideoCapture import BufferlessVideoCapture
-from src.BSP.homographyProvider import homography_by_sift
-from src.BSP.led_extractor import get_led_roi
-from src.BSP.led_state import LedState
-from src.BSP.state_table_entry import StateTableEntry
+from BDG.model.board_model import Board
+from BSP import led_state_detector
+from BSP.BoardOrientation import BoardOrientation
+from BSP.BufferlessVideoCapture import BufferlessVideoCapture
+from BSP.homographyProvider import homography_by_sift
+from BSP.led_extractor import get_led_roi
+from BSP.led_state import LedState
+from BSP.state_table_entry import StateTableEntry
 
 
 class StateDetector:

@@ -2,8 +2,8 @@ from cv2 import cv2
 import numpy as np
 from typing import List
 
-from src.BDG.model.board_model import Led
-from src.BSP.BoardOrientation import BoardOrientation
+from BDG.model.board_model import Led
+from BSP.BoardOrientation import BoardOrientation
 
 
 def get_led_roi(frame: np.array, leds: List[Led], board_orientation: BoardOrientation) -> List[np.array]:

@@ -3,7 +3,8 @@ import collections
 import typing
 import cv2
 import numpy as np
-from src.BDG.utils.util_functions import sort_points, split_to_list
+
+from BDG.utils.util_functions import sort_points, split_to_list
 
 
 

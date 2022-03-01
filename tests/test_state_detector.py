@@ -2,12 +2,11 @@ import threading
 import time
 
 import pytest
-
-from src.BDG.model.board_model import Board
-from src.BSP.BufferlessVideoCapture import BufferlessVideoCapture
-from src.BSP.state_detector import StateDetector
+from BDG.model.board_model import Board
+from BSP.BufferlessVideoCapture import BufferlessVideoCapture
+from BSP.state_detector import StateDetector
 from cv2 import cv2
-import src.BDG.utils.json_util as jsutil
+import BDG.utils.json_util as jsutil
 from tests.MockVideoCapture import MockVideoCapture
 
 

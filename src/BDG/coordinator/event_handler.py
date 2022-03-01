@@ -1,6 +1,6 @@
-from src.BDG.model.board_model import Board
-from src.BDG.coordinator.file_handler import FileHandler
-from src.BDG.coordinator.edit_handler import EditHandler
+from model.board_model import Board
+from coordinator.file_handler import FileHandler
+from coordinator.edit_handler import EditHandler
 
 
 

@@ -1,8 +1,8 @@
 import tkinter
 
-from src.BDG.coordinator.event_handler import EventHandler
-from src.BDG.model.CreationState import CreationState
-from src.BDG.model.board_model import Board
+from BDG.coordinator.event_handler import EventHandler
+from BDG.model.CreationState import CreationState
+from BDG.model.board_model import Board
 from types import SimpleNamespace
 
 tk = tkinter.Tk()

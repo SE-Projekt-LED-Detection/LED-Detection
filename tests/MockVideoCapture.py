@@ -1,4 +1,4 @@
-from src.BSP.BufferlessVideoCapture import BufferlessVideoCapture
+from BSP.BufferlessVideoCapture import BufferlessVideoCapture
 import cv2
 
 
