@@ -13,3 +13,15 @@ dataclasses
 scikit-learn
 numpyencoder
 
+
+paho-mqtt
+pytest
+pexpect
+attrs
+yaml
+pyyaml
+py
+requests
+packaging
+jinja2
+setuptools
