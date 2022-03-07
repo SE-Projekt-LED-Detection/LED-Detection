@@ -1,5 +1,7 @@
+from json.tool import main
 import logging
 import asyncio
+from unicodedata import name
 
 import paho.mqtt.client as mqtt
 
@@ -22,7 +24,9 @@ sample_config = {
 """
 This class is used to publish messages to a MQTT broker.
 
-    example of changes object:
+    example of changes object:# %%
+config = {"broker_address":"89.58.3.45", "broker_port":1883, "topics": {"changes":"changes", "avail": "avail", "config":"config"}}
+
     {
         boards: [
             {
@@ -57,20 +61,39 @@ class BoardChanges:
 class MQTTConnector(mqtt.Client):
     """
     Class for publishing messages to MQTT broker.
+    Example Config dictionary: (All comments are from the Board State Provider's perspective. )
+    {
+        "broker_address": "localhost",
+        "broker_port": 1883,
+        "topics": {
+            "changes": "changes", #  publishes changes of board led to this topic
+            "avail": "avail", # publish an heartbeat to this topic to indicate that the provider is online
+            "config": "config" # receive configuration from user (e.g. Board Type)
+    }
     """
 
     def __init__(self, config):
         super().__init__()
+
+        # required configurations
         if config is None:
             raise Exception("No config provided")
         self._config = config
+        if self._config["topics"] is None:
+            raise Exception("No topics provided")
+
+        self._topics = config["topics"]
         self._is_connected = False
         self.init_connect_callback()
 
-    def connect_to_broker(self):
+    def connect(self):
+        """
+        initializes the connection to the broker
+        
+        """
         _host = self._config["broker_address"]
         _port = self._config["broker_port"]
-        self.connect(_host, _port, 60)
+        super().connect(_host, _port, 60)
 
     def publish_changes(self, changes):
         """
@@ -79,26 +102,37 @@ class MQTTConnector(mqtt.Client):
         :return:
         """
         logging.info("Publish changes")
-        topic = self._config["changes_topic"]
+        topic = self._topics["changes"]
         topic = topic + "/" + changes.board + "/" + changes.id / changes.value + "/" + changes.color
         self.publish(topic, payload=changes.time)
 
     def publish_heartbeat(self):
-        topic = self._config["heartbeat_topic"]
+        """
+        publish heartbeat to the broker
+        """
+        print("publish heartbeat")
+        topic = self._topics["avail"]
         self.publish(topic, payload="online")
 
     def init_connect_callback(self):
         def connect_callback(client, userdata, flags, rc):
-            self.subscribe("changes")
-            logging.info("Connected to broker")
-            self._is_connected = True
+            if rc == 0:
+                self.subscribe(self._topics["config"])
+                print("connected to broker")
+                self._is_connected = True
+            else:
+                print("BAD CONNECTION")
 
         self.on_connect = connect_callback
 
-    def init_config_handler(self, handler):
-        self.message_callback_add(self._config["config_topic"], handler)
+    def add_config_handler(self, handler):
+        assert self._topics["config"] is not None
+        self.message_callback_add(self._topics["config"], handler)
 
     def disconnect(self):
+        """
+            disconnects and publishes an offline msg to the broker
+        """
         self._is_connected = False
         self.publish(self._config["heartbeat_topic"], payload="offline")
         super().disconnect()
@@ -106,7 +140,23 @@ class MQTTConnector(mqtt.Client):
 
 async def publish_heartbeat(mqtt_connector: MQTTConnector):
     """publishes a heartbeat to the broker"""
-    while mqtt_connector.is_connected():
-        print("publish heartbeat")
+    while True:
         await asyncio.sleep(10)
-        mqtt_connector.publish_heartbeat()
+        print("calling coroutine")
+        if mqtt_connector.is_connected():
+            mqtt_connector.publish_heartbeat()
+
+
+if __name__ == "__main__":
+    config = {"broker_address": "89.58.3.45", "broker_port": 1883,
+              "topics": {"changes": "changes", "avail": "avail", "config": "config"}}
+    mqtt_connector = MQTTConnector(config)
+
+    mqtt_connector.connect()
+
+
+    mqtt_connector.loop_start()
+    mqtt_connector.add_config_handler(lambda client, userdata, message: print(message.payload))
+    asyncio.run(publish_heartbeat(mqtt_connector))
+
+    print("client is running")

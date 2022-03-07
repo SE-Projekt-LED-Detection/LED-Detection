@@ -18,9 +18,7 @@ paho-mqtt
 pytest
 pexpect
 attrs
-yaml
-pyyaml
-py
+
 requests
 packaging
 jinja2
