@@ -1,7 +1,6 @@
-from json.tool import main
+
 import logging
 import asyncio
-from unicodedata import name
 
 import paho.mqtt.client as mqtt
 
@@ -50,12 +49,7 @@ config = {"broker_address":"89.58.3.45", "broker_port":1883, "topics": {"changes
 """
 
 
-class BoardChanges:
-    def __init__(self, changes_dict):
-        self.id = changes_dict["id"]
-        self.time = changes_dict["time"]
-        self.changes = changes_dict["changes"]
-        self.is_connected = False
+
 
 
 class MQTTConnector(mqtt.Client):
@@ -103,7 +97,7 @@ class MQTTConnector(mqtt.Client):
         """
         logging.info("Publish changes")
         topic = self._topics["changes"]
-        topic = topic + "/" + changes.board + "/" + changes.id / changes.value + "/" + changes.color
+        topic = topic + "/" + changes.board + "/" + changes.id + '/' + changes.value + "/" + changes.color
         self.publish(topic, payload=changes.time)
 
     def publish_heartbeat(self):
@@ -158,5 +152,4 @@ if __name__ == "__main__":
     mqtt_connector.loop_start()
     mqtt_connector.add_config_handler(lambda client, userdata, message: print(message.payload))
     asyncio.run(publish_heartbeat(mqtt_connector))
-
     print("client is running")
