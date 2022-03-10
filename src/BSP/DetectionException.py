@@ -1,0 +1,4 @@
+
+
+class DetectionException(Exception):
+    pass
