@@ -28,6 +28,12 @@ def get_led_roi(frame: np.array, leds: List[Led], board_orientation: BoardOrient
 
     led_radius_transformed = cv2.perspectiveTransform(np.array([led_borders]), board_orientation.homography_matrix)[0]
 
+    for center in led_centers_transformed:
+        for other_center in led_centers_transformed:
+            if center[0] != other_center[0] and center[1] != other_center[1]:
+                if calculateIntersection(center[0], center[1], other_center[0], other_center[1]):
+                    print("Overlapping ROIs detected")
+
     radius = []
 
     for i in range(len(leds)):
@@ -67,3 +73,16 @@ def _led_by_circle_coordinates(frame: np.array, circle_centers: List[np.array], 
         led = frame[top_left[1]:bottom_right[1], top_left[0]:bottom_right[0]]
         leds.append(led)
     return leds
+
+# https://stackoverflow.com/questions/48477130/find-area-of-overlapping-rectangles-in-python-cv2-with-a-raw-list-of-points
+def calculateIntersection(a0, a1, b0, b1):
+    if a0 >= b0 and a1 <= b1: # Contained
+        return True
+    elif a0 < b0 and a1 > b1: # Contains
+        return True
+    elif a0 < b0 and a1 > b0: # Intersects right
+        return True
+    elif a1 > b1 and a0 < b1: # Intersects left
+        return True
+    else: # No intersection (either side)
+        return False

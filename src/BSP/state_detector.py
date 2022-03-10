@@ -74,7 +74,6 @@ class StateDetector:
                 self.current_orientation = None
                 print("Wrong homography matrix. Retry on next frame...")
                 return
-                #raise DetectionException("Could not detect ROIs probably because of a wrong homography matrix. (ROI size is 0)")
 
         assert len(leds_roi) == len(self.board.led), "Not all LEDs have been detected."
 
