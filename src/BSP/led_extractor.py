@@ -33,8 +33,8 @@ def get_led_roi(frame: np.array, leds: List[Led], board_orientation: BoardOrient
         j = 0
         for other_center in led_centers_transformed:
             if center[0] != other_center[0] and center[1] != other_center[1]:
-                if calculateIntersection(center[0] - led_radius_transformed[i], center[0] + led_radius_transformed[i], other_center[0] + led_radius_transformed[j], other_center[0] + led_radius_transformed[j]) or \
-                        calculateIntersection(center[1] - led_radius_transformed[i], center[1] + led_radius_transformed[i], other_center[1] + led_radius_transformed[j], other_center[1] + led_radius_transformed[j]):
+                if calculateIntersection(center[0] - led_radius_transformed[i][0], center[0] + led_radius_transformed[i][0], other_center[0] + led_radius_transformed[j][0], other_center[0] + led_radius_transformed[j][0]) or \
+                        calculateIntersection(center[1] - led_radius_transformed[i][1], center[1] + led_radius_transformed[i][1], other_center[1] + led_radius_transformed[j][1], other_center[1] + led_radius_transformed[j][1]):
                     print("Overlapping ROIs detected")
             j += 1
         i += 1
