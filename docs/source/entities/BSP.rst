@@ -72,7 +72,7 @@ by altering the existing entry in the list and not by creating a new one.
 .. warning::
     The order of the state table entries or the content shall not be changed.
 
-.. automodule:: src.BSP.state_detector
+.. automodule:: BSP.state_detector
     :members:
 
 
@@ -91,19 +91,19 @@ used for the calculation of the homography matrix.
 The corners represent the corners of the board, consequently it is assumed that the board is at least rectangular.
 If the board does not have the required shape, a rectangular selection can be used for the matching as well.
 
-.. automodule:: src.BSP.BoardOrientation
+.. automodule:: BSP.BoardOrientation
     :members:
 
 Led State
 """""""""
 
-.. automodule:: src.BSP.led_state
+.. automodule:: BSP.led_state
     :members:
 
 State Table Entry
 """""""""""""""""
 
-.. automodule:: src.BSP.state_table_entry
+.. automodule:: BSP.state_table_entry
     :members:
 
 Homography Provider
@@ -111,14 +111,14 @@ Homography Provider
 The homography provider is responsible for providing the board orientation, especially the homography matrix which
 is inside the BoardOrientation object.
 
-.. automodule:: src.BSP.homographyProvider
+.. automodule:: BSP.homographyProvider
     :members:
 
 
 Bufferless Video Capture
 """"""""""""""""""""""""
 
-.. automodule:: src.BSP.BufferlessVideoCapture
+.. automodule:: BSP.BufferlessVideoCapture
     :members:
 
 Led Extractor
@@ -128,7 +128,7 @@ In addition it fills the squares except the circles of the LEDs with gray color.
 
 Returns a list of numpy arrays, the ROIs of the LEDs in the same order as in the LED object list.
 
-.. automodule:: src.BSP.led_extractor
+.. automodule:: BSP.led_extractor
     :members:
 
 Test coverage
