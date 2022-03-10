@@ -37,6 +37,7 @@ def get_led_roi(frame: np.array, leds: List[Led], board_orientation: BoardOrient
     recs = list(map(lambda x: Rectangle(x[0][0], x[0][1], x[0][0] + x[1], x[0][1] + x[1]),
                     zip(led_centers_transformed, radius)))
 
+    # Check for overlapping ROIs
     i = 0
     for rec in recs:
         j = 0
@@ -44,8 +45,8 @@ def get_led_roi(frame: np.array, leds: List[Led], board_orientation: BoardOrient
             if i == j:
                 continue
             if rec & other_rec is not None:
-                print("Overlapping")
-                break
+                print("Overlapping ROIs, abort.")
+                return [np.array([0, 0])]
             j += 1
         i += 1
 
