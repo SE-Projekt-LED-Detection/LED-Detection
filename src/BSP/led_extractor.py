@@ -40,6 +40,8 @@ def get_led_roi(frame: np.array, leds: List[Led], board_orientation: BoardOrient
             if rec & other_rec is not None:
                 print("Overlapping")
                 break
+            j += 1
+        i += 1
 
     radius = []
 
