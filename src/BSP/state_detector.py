@@ -61,21 +61,14 @@ class StateDetector:
 
         frame = self.bufferless_video_capture.read()
 
-        frame = cv2.flip(frame, 0)
+        #frame = cv2.flip(frame, 0)
 
         if self.current_orientation is None or self.current_orientation.check_if_outdated():
             self.current_orientation = homography_by_sift(self.board.image, frame, display_result=True)
 
         leds_roi = get_led_roi(frame, self.board.led, self.current_orientation)
 
-        # Debug show LEDs
-        i = 0
-        for roi in leds_roi:
-            cv2.imshow(str(i), roi)
-            #roi[:] = (0, 0, 255)
-            i += 1
 
-        cv2.imshow("Frame", frame)
 
         assert len(leds_roi) == len(self.board.led), "Not all LEDs have been detected."
 
@@ -101,6 +94,20 @@ class StateDetector:
                 entry.last_time_off = new_state.timestamp
 
             entry.current_state = new_state
+
+        # Debug show LEDs
+        i = 0
+        for roi in leds_roi:
+            cv2.imshow(str(i), roi)
+
+            if led_states[i].power == "on":
+                roi[:] = (0, 255, 0)
+            else:
+                roi[:] = (0, 0, 255)
+
+            i += 1
+
+        cv2.imshow("Frame", frame)
 
         cv2.waitKey(10)
 
