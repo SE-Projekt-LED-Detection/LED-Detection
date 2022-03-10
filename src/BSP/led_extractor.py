@@ -28,11 +28,16 @@ def get_led_roi(frame: np.array, leds: List[Led], board_orientation: BoardOrient
 
     led_radius_transformed = cv2.perspectiveTransform(np.array([led_borders]), board_orientation.homography_matrix)[0]
 
+    i = 0
     for center in led_centers_transformed:
+        j = 0
         for other_center in led_centers_transformed:
             if center[0] != other_center[0] and center[1] != other_center[1]:
-                if calculateIntersection(center[0], center[1], other_center[0], other_center[1]):
+                if calculateIntersection(center[0] - led_radius_transformed[i], center[0] + led_radius_transformed[i], other_center[0] + led_radius_transformed[j], other_center[0] + led_radius_transformed[j]) or \
+                        calculateIntersection(center[1] - led_radius_transformed[i], center[1] + led_radius_transformed[i], other_center[1] + led_radius_transformed[j], other_center[1] + led_radius_transformed[j]):
                     print("Overlapping ROIs detected")
+            j += 1
+        i += 1
 
     radius = []
 
