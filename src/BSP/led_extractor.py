@@ -4,6 +4,7 @@ from typing import List
 
 from BDG.model.board_model import Led
 from BSP.BoardOrientation import BoardOrientation
+from BSP.Rectangle import Rectangle
 
 
 def get_led_roi(frame: np.array, leds: List[Led], board_orientation: BoardOrientation) -> List[np.array]:
@@ -28,16 +29,17 @@ def get_led_roi(frame: np.array, leds: List[Led], board_orientation: BoardOrient
 
     led_radius_transformed = cv2.perspectiveTransform(np.array([led_borders]), board_orientation.homography_matrix)[0]
 
+    recs = list(map(lambda center,radius: Rectangle(center[0], center[1], center[0] + radius, center[1] + radius), zip(led_centers_transformed, led_radius_transformed)))
+
     i = 0
-    for center in led_centers_transformed:
+    for rec in recs:
         j = 0
-        for other_center in led_centers_transformed:
-            if center[0] != other_center[0] and center[1] != other_center[1]:
-                if calculateIntersection(center[0] - led_radius_transformed[i][0], center[0] + led_radius_transformed[i][0], other_center[0] + led_radius_transformed[j][0], other_center[0] + led_radius_transformed[j][0]) or \
-                        calculateIntersection(center[1] - led_radius_transformed[i][1], center[1] + led_radius_transformed[i][1], other_center[1] + led_radius_transformed[j][1], other_center[1] + led_radius_transformed[j][1]):
-                    print("Overlapping ROIs detected")
-            j += 1
-        i += 1
+        for other_rec in recs:
+            if i == j:
+                continue
+            if rec & other_rec is not None:
+                print("Overlapping")
+                break
 
     radius = []
 
