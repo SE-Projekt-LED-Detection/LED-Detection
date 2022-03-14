@@ -46,10 +46,9 @@ Changes of the table will then be forwarded to MQTT.
 Sequence diagram
 """"""""""""""""
 
-
 .. uml:: ../uml/State_Detector_Sequence.puml
    :align: center
-   :caption: The communication between the classes of the BSP
+   :caption: The communication between the classes of the BSP and the call hierarchy
 
 The classes of the BSP
 ~~~~~~~~~~~~~~~~~~~~~~
@@ -59,18 +58,23 @@ State Detector
 The main entry point for accessing the BSP. Takes a Board object and the webcam id.
 
 First of all, the stream has to be opened with open_stream(). This is necessary for the tests to be able
-to pass a mock video capture which works with an already recorded video. Consequently, if the video capture passed is
+to pass a mock video capture which works with an already recorded video (see :ref:`MockVideoCapture` for more). Consequently, if the video capture passed is
 None, the open stream method will open one based on the webcam_id.
 
 .. note::
-    The open_stream uses a BufferlessVideoCapture the State Detector always needs the most recent picture. As the
-    processing normally takes longer than the time of new frames to arrive, effectively frames will be dropped.
+    The open_stream uses a BufferlessVideoCapture as the State Detector always needs the most recent picture. The
+    processing normally takes longer than the time for new frames to arrive, so effectively frames will be dropped.
 
 The current states will be saved in the state table and are meant to be accessible from the outside. Updates are placed
 by altering the existing entry in the list and not by creating a new one.
 
 .. warning::
-    The order of the state table entries or the content shall not be changed.
+    The order of the state table entries or the content shall not be changed from outside.
+
+On the first detection the homography matrix is calculated and more following detections only check_if_outdated return true,
+meaning that the matrix is not fresh anymore. If the calculation fails indicated by ROIs with zero size the calculation
+will be repeated for the next iteration. The same happens when ROIs are overlapping because this indicates that the
+calculation went wrong as normal LEDs do not overlap.
 
 .. automodule:: BSP.state_detector
     :members:
@@ -90,6 +94,8 @@ used for the calculation of the homography matrix.
 
 The corners represent the corners of the board, consequently it is assumed that the board is at least rectangular.
 If the board does not have the required shape, a rectangular selection can be used for the matching as well.
+
+In addition the detection also works if the board is only partly visible.
 
 .. automodule:: BSP.BoardOrientation
     :members:
@@ -121,6 +127,17 @@ Bufferless Video Capture
 .. automodule:: BSP.BufferlessVideoCapture
     :members:
 
+.. _MockVideoCapture:
+
+Mock Video Capture
+""""""""""""""""""
+
+Can be used for tests. Is of type BufferlessVideoCapture in order to pass the type check but with a flag can be set
+if is is actually bufferless or rather acts like a normal video capture.
+
+.. automodule:: MockVideoCapture
+    :members:
+
 Led Extractor
 """""""""""""
 Responsible for extracting the ROIs of the LEDs by the given LED objects and the board orientation.
@@ -137,26 +154,24 @@ Test coverage
 The BSP has a blackbox test which runs a detection of LEDs on a Raspberry Pi. As this yields not precise tests
 more unit tests a possible but currently not planed.
 
-Example (Outdated)
+Example
 """"""""""""""""""
 
-Following example calculates the orientation of the board, translates relative coordinates into
-absolute in the target image and finally extracts the roi for the LEDs.
+Following example starts the StateDetector with a video stream on /dev/video1.
+The detection is run in another thread.
 
-(Outdated: in the current version this examples does not work anymore)
 
 .. code-block:: python
 
-    #Loading the reference image
-    ref = cv2.imread("referenceCropped.jpg", cv2.IMREAD_COLOR)
-    #Loading the target image
-    img = cv2.imread("targetImage.jpg", cv2.IMREAD_COLOR)
-    #Calculate orientation of board in target
-    board_orientation = homography_by_sift(ref, img)
-    led_centers = np.float32([[2, 38], [2, 57]])
-    #Extract ROI from target
-    leds = get_led_roi(board_orientation, (ref.shape[0], ref.shape[1]), led_centers)
-    #Show LEDs
-    cv2.imshow("Led1", leds[0])
-    cv2.imshow("Led2", leds[1])
-    cv2.waitKey(0)
+    # Load json reference from file
+    reference = jsutil.from_json(file_path=reference-file-path)
+    # Creat new State Detector instance with webcam on /dev/video1
+    dec = StateDetector(reference,1)
+    # Open video stream
+    dec.open_stream()
+    # Start detection in other thread
+    th = threading.Thread(target=dec.start)
+    th.start()
+
+    # Avoid closing main thread
+    th.join()

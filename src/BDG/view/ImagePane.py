@@ -139,8 +139,7 @@ class ImagePane(tk.Frame):
     def draw_corner(self, point):
         """
         Draws a corner at the given coordinates
-        :param x: The x coordinate of the new corner
-        :param y: The y coordinate of the new corner
+        :param point: The coordinates to draw
         """
         point = np.array(point)
         reference = self.create_circle(point * self.handler.scaling, 10)
@@ -149,8 +148,7 @@ class ImagePane(tk.Frame):
     def draw_led(self, position, radius):
         """
         Draws a LED at the given coordinates
-        :param x: The x coordinate of the new LED
-        :param y: The y coordinate of the new LED
+        :param position: The coordinates of the new LED
         :param radius: The radius of the new LED
         """
         led_ref = self.create_circle(position * self.handler.scaling, radius)
@@ -159,8 +157,7 @@ class ImagePane(tk.Frame):
     def create_circle(self, position, r):
         """
         helper function for creating circle
-        :param x: is the centered x
-        :param y: is the centered y
+        :param position: The coordinates of the circle
         :param r: is the radius
         :return: a canvas object ref represented as Integer
         """
