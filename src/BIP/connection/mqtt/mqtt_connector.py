@@ -1,6 +1,7 @@
 
 import logging
 import asyncio
+import json
 
 import paho.mqtt.client as mqtt
 
@@ -98,7 +99,7 @@ class MQTTConnector(mqtt.Client):
         logging.info("Publish changes")
         topic = self._topics["changes"]
         topic = topic + "/" + changes.board + "/" + changes.id + '/' + changes.value + "/" + changes.color
-        self.publish(topic, payload=changes.time)
+        self.publish(topic, payload=json.dumps({"time": changes.time, "frequency": changes.frequency}))
 
     def publish_heartbeat(self):
         """
