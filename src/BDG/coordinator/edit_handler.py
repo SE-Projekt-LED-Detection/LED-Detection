@@ -19,11 +19,16 @@ class EditHandler:
         self.parent = parent
         self.scaling = 1.0
         self.current_state = tkinter.IntVar(CreationState.BOARD.value)
+        self.board_id = tkinter.StringVar()
+        self.board_id.trace('w', self.assign_board_id)
         self.active_circle = None
         self.deleted_corners = []
         self.deleted_leds = []
 
         self.current_state.trace_add('write', self.clean_active_circle)
+
+    def assign_board_id(self, var, index, mode):
+        self.parent.board.id = self.board_id.get()
 
     def clean_active_circle(self, var, index, mode):
         self.active_circle = None
