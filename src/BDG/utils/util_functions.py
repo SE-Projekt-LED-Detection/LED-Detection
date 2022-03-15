@@ -8,7 +8,7 @@ import cv2
 
 
 def find_index_closest_point(arr, point):
-    """returns closest point using the cartesian product"""
+    """Returns closest point using the cartesian product"""
     newList = arr - point
     sort = np.sum(np.power(newList, 2), axis=1)
     return sort.argmin()
@@ -71,12 +71,12 @@ def angle_between(v1, v2):
 
 
 def convert_image_to_data_uri(path: str) -> str:
-    '''
-    reads an image from path and converts it to a data uri scheme as string
+    """
+    Reads an image from path and converts it to a data uri scheme as string
 
     :param path: is a path to an image
     :return: a binary image as datauri
-    '''
+    """
 
     type = pathlib.Path(path).suffix[1:]  # removing dot
 
@@ -112,7 +112,8 @@ def decode_img_data(img_attr: str) -> np.array:
 
 def led_id_generator(name_prefix= "led-", suffix=0):
     """
-    generator function for creating led ids such as led-1
+    Generator function for creating led ids such as led-1
+
     :param name_prefix:
     :param suffix:
     :return:
@@ -125,6 +126,7 @@ def split_to_list(array):
     """
     converts a 2d numpy array into a python list, where every item is an numpy array
     Example: input: np.array([[1,1],[2,2]]) output: [np.array([1,1]),np.array([2,2])
+
     :param np_array: is an 2d numpy array or a 2d list
     :return: a list containing numpy arrays
     """
@@ -135,8 +137,9 @@ def split_to_list(array):
 
 def is_equal(a: np.ndarray, b: np.ndarray):
     """
-    compares two numpy arrays and returns true if the values are equal.
+    Compares two numpy arrays and returns true if the values are equal.
     this helper function was to avoid Value errors
+
     :param a: a numpy array
     :param b: a numpy array
     :return: True -> the arrays are equal, False -> the arrays are differnt
