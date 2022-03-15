@@ -1,3 +1,5 @@
+import asyncio
+from threading import Thread
 from typing import List
 
 from cv2 import cv2
@@ -6,6 +8,9 @@ import sched
 import time
 
 from BDG.model.board_model import Board
+from BIP.connection.message.change_msg import BoardChanges
+from BIP.connection.mqtt import MQTTConnector
+from BIP.connection.mqtt.mqtt_connector import publish_heartbeat
 from BSP import led_state_detector
 from BSP.BoardOrientation import BoardOrientation
 from BSP.BufferlessVideoCapture import BufferlessVideoCapture
@@ -35,6 +40,21 @@ class StateDetector:
         self.bufferless_video_capture: BufferlessVideoCapture = None
 
         self.create_state_table()
+
+        Thread(target=self.start_mqtt_client).start()
+
+        print("Done")
+
+
+    def start_mqtt_client(self):
+        config = {"broker_address": "89.58.3.45", "broker_port": 1883,
+                  "topics": {"changes": "changes", "avail": "avail", "config": "config"}}
+        self.mqtt_connector = MQTTConnector(config)
+        self.mqtt_connector.connect()
+
+        self.mqtt_connector.loop_start()
+        self.mqtt_connector.add_config_handler(lambda client, userdata, message: print(message.payload))
+        asyncio.run(publish_heartbeat(self.mqtt_connector))
 
     def create_state_table(self):
         """
@@ -91,6 +111,9 @@ class StateDetector:
             # Calculates the frequency
             if entry.current_state is not None and entry.current_state.power != new_state.power:
                 print("Led" + str(i) + ": " + new_state.power)
+
+
+                self.mqtt_connector.publish_changes(BoardChanges(self.board.id, led.id, new_state.power, new_state.color, new_state.timestamp))
 
                 if new_state.power == "on":
                     entry.hertz = 1.0 / (new_state.timestamp - entry.last_time_on)
