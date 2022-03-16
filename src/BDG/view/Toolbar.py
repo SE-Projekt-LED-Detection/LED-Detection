@@ -16,8 +16,8 @@ class Toolbar(tk.Frame):
         self.master = master
         self.handler = handler
 
-        self.l1 = ttk.Label(self, text="Board id:")
-        self.t1 = ttk.Entry(self, textvariable=self.handler.board_id)
+        self.boardid_label = ttk.Label(self, text="Board id:")
+        self.boardid_entry = ttk.Entry(self, textvariable=self.handler.board_id)
 
         handler.parent.on_update.get("on_update_image").append(lambda: self._make_boardid_entry_visible())
 
@@ -37,7 +37,6 @@ class Toolbar(tk.Frame):
         r2.grid(column=5, row=0, sticky=tk.W, padx=2)
 
     def _make_boardid_entry_visible(self):
-        self.l1.grid(column=2, row=0, sticky=tk.W, padx=2)
-        self.t1.grid(column=3, row=0, sticky=tk.W, padx=2)
+        self.boardid_label.grid(column=2, row=0, sticky=tk.W, padx=2)
+        self.boardid_entry.grid(column=3, row=0, sticky=tk.W, padx=2)
         self.handler.board_id.set("")
-        pass
