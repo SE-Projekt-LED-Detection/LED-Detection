@@ -6,12 +6,14 @@ from BDG.model.board_model import Board
 from types import SimpleNamespace
 
 tk = tkinter.Tk()
-reference = Board(name="raspberry", author="christoph", img_path="resources/test_image.jpg",
+reference = Board(name="raspberry", author="christoph", img_path="resources/test_model.jpg",
                   corners=None)
 event_handler = EventHandler()
 event_handler.update_board(reference)
 edit_handler = event_handler.edit_handler
 start_position = SimpleNamespace(x=80, y=80)
+
+assert reference.image is not None, "Image has not been loaded"
 
 
 def test_add_corner():
