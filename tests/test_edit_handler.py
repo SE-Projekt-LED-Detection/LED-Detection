@@ -16,10 +16,14 @@ start_position = SimpleNamespace(x=80, y=80)
 assert reference.image is not None, "Image has not been loaded"
 
 
-def test_add_corner():
+def test_add_delete_corner():
     edit_handler.add_corner(SimpleNamespace(x=100, y=100))
-    corner = reference.corners.pop(0)
+    corner = reference.corners[0]
     assert(corner[0] == corner[1] == 100)
+
+    edit_handler.delete_point(SimpleNamespace(x=100, y=100))
+
+    assert len(reference.corners) == 0
 
 
 def test_add_corner_scaling():

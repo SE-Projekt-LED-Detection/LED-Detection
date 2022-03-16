@@ -75,11 +75,11 @@ class EditHandler:
         y = round(event.y / self.scaling)
 
         circles = self.check_hovered(x, y)
-        if circles[0] is not None:
+        if circles is not None:
             if self.is_state(CreationState.BOARD):
-                self.board().corners.remove(circles[0])
+                self.board().corners.remove(circles)
             if self.is_state(CreationState.LED):
-                self.board().led.remove(circles[0])
+                self.board().led.remove(circles)
             self.parent.update_points()
 
     def add_led(self, event):
