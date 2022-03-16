@@ -6,7 +6,7 @@ from model.board_model import Board, Led
 
 import utils.json_util as jsutil
 from pathlib import Path
-from tkinter import filedialog as fd
+from tkinter import filedialog as fd, messagebox
 from zipfile import ZipFile
 
 
@@ -24,6 +24,11 @@ class FileHandler:
         Args:
             file_name (str, optional): [description]. Defaults to "".
         """
+
+        if self.parent.board.id == "":
+            messagebox.showerror(title="Could not save", message="You have to set a board id before saving the board")
+            return
+
         f = fd.asksaveasfile(mode='w', defaultextension=".json")
         path = Path(f.name)
         file_name = Path(path.name)
