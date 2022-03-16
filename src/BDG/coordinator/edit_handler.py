@@ -125,7 +125,7 @@ class EditHandler:
         Redoes the last deleted, undone point or LED
         """
         if self.is_state(CreationState.BOARD):
-            if len(self.deleted_corners) > 1 and len(self.board().corners) < 4:
+            if len(self.deleted_corners) > 0 and len(self.board().corners) < 4:
                 self.board().corners.append(self.deleted_corners.pop())
                 self.parent.update_points()
         elif self.is_state(CreationState.LED) and len(self.deleted_leds) > 0:
