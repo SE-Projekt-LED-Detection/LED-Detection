@@ -79,7 +79,7 @@ class EditHandler:
             if self.is_state(CreationState.BOARD):
                 self.board().corners.remove(circles)
             if self.is_state(CreationState.LED):
-                self.board().led.remove(circles)
+                self.board().led = list(filter(lambda x: x.position[0] != circles[0] and x.position[1] != circles[1], self.board().led))
             self.parent.update_points()
 
     def add_led(self, event):
