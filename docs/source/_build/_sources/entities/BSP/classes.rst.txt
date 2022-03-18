@@ -1,69 +1,7 @@
-.. _bsp:
-
-BSP - Board State Provider
-----------------------------
-
-The board state provider is the brain of the detector.
-It is responsible for the localization of the LEDs as well as the detection of their states or state changes.
-
-
-
-.. _bsp_general_approach:
-
-General approach
-~~~~~~~~~~~~~~~~
-
-Based on the reference image, features are extracted with SIFT and matched with 'knn nearest' in the target image.
-The matching allows to calculate the homography matrix which describes the rotation and scaling difference between the
-reference and target image. With the difference known, it is possible to calculate relative coordinates from the reference
-into absolut coordinates in the target image. Consequently, the coordinates of the LEDs can be calculated and
-regions of interest (ROI) can be extracted.
-
-.. figure:: images/raspberryPiReferenceExample.jpg
-
-    An example for a reference picture of a Raspberry Pi model B+
-    The image shows the board from above and is cropped to the corner points of the board. Such reference data can be
-    generated with the BDG and is necessary for providing the state of the board in a target image.
-
-State Table
-"""""""""""
-The next step is to detect whether the LEDs shown in the ROIs are powered on or off and in addition if they are on the
-color can be determined. The so gained information will be saved in the state_table which contains a list of
-StateEntries:
-
-.. list-table:: State_Entry
-    :header-rows: 1
-
-    * - name
-      - current_state
-      - last_time_on
-      - last_time_off
-      - hertz
-    * - String
-      - LEDState
-      - Timestamp
-      - Timestamp
-      - Float
-
-The frequency saved in the attribute 'hertz' will be calculated by the detector when the first change between on and off
-occurs.
-Changes of the table will then be forwarded to MQTT.
-
-
-
-
-
+.. _classes:
 
 The classes of the BSP
 ~~~~~~~~~~~~~~~~~~~~~~
-
-Sequence diagram
-""""""""""""""""
-
-
-.. uml:: ../uml/State_Detector_Sequence.puml
-   :align: center
-   :caption: The communication between the classes of the BSP
 
 State Detector
 """"""""""""""
@@ -125,12 +63,6 @@ The homography provider is responsible for providing the board orientation,
 especially the homography matrix which is inside the BoardOrientation object.
 
 For a detailed and mathematical description of the homography matrix, see :ref:`homography_pipeline`.
-
-.. toctree::
-    :maxdepth: 1
-    :hidden:
-    
-    bsp/homography_pipeline
 
 .. automodule:: BSP.homographyProvider
     :members:

@@ -1,0 +1,26 @@
+.. _bsp_state_table:
+
+
+State Table
+"""""""""""
+The next step is to detect whether the LEDs shown in the ROIs are powered on or off and in addition if they are on the
+color can be determined. The so gained information will be saved in the state_table which contains a list of
+StateEntries:
+
+.. list-table:: State_Entry
+    :header-rows: 1
+
+    * - name
+      - current_state
+      - last_time_on
+      - last_time_off
+      - hertz
+    * - String
+      - LEDState
+      - Timestamp
+      - Timestamp
+      - Float
+
+The frequency saved in the attribute 'hertz' will be calculated by the detector when the first change between on and off
+occurs.
+Changes of the table will then be forwarded to MQTT.
