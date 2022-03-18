@@ -1,7 +1,14 @@
 .. _bsp:
 
-BSP
----
+BSP - Board State Provider
+----------------------------
+
+The board state provider is the brain of the detector.
+It is responsible for the localization of the LEDs as well as the detection of their states or state changes.
+
+
+
+.. _bsp_general_approach:
 
 General approach
 ~~~~~~~~~~~~~~~~
@@ -43,15 +50,19 @@ occurs.
 Changes of the table will then be forwarded to MQTT.
 
 
+
+
+
+
+The classes of the BSP
+~~~~~~~~~~~~~~~~~~~~~~
+
 Sequence diagram
 """"""""""""""""
 
 .. uml:: ../uml/State_Detector_Sequence.puml
    :align: center
    :caption: The communication between the classes of the BSP and the call hierarchy
-
-The classes of the BSP
-~~~~~~~~~~~~~~~~~~~~~~
 
 State Detector
 """"""""""""""
@@ -114,8 +125,18 @@ State Table Entry
 
 Homography Provider
 """""""""""""""""""
-The homography provider is responsible for providing the board orientation, especially the homography matrix which
-is inside the BoardOrientation object.
+
+
+The homography provider is responsible for providing the board orientation,
+especially the homography matrix which is inside the BoardOrientation object.
+
+For a detailed and mathematical description of the homography matrix, see :ref:`homography_pipeline`.
+
+.. toctree::
+    :maxdepth: 1
+    :hidden:
+    
+    bsp/homography_pipeline
 
 .. automodule:: BSP.homographyProvider
     :members:
