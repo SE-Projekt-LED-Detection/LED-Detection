@@ -1,5 +1,7 @@
 import tkinter
 
+import pytest
+
 from BDG.coordinator.event_handler import EventHandler
 from BDG.model.CreationState import CreationState
 from BDG.model.board_model import Board
@@ -15,7 +17,16 @@ start_position = SimpleNamespace(x=80, y=80)
 
 assert reference.image is not None, "Image has not been loaded"
 
-
+@pytest.fixture(autouse=True)
+def setup():
+    global reference
+    global event_handler
+    global edit_handler
+    reference = Board(name="raspberry", author="christoph", img_path="resources/test_model.jpg",
+                      corners=None)
+    event_handler = EventHandler()
+    event_handler.update_board(reference)
+    edit_handler = event_handler.edit_handler
 
 def test_add_delete_undo_redo_corner():
     edit_handler.add_corner(SimpleNamespace(x=100, y=100))
@@ -36,9 +47,39 @@ def test_add_delete_undo_redo_corner():
 
     edit_handler.redo()
 
+    # Corner redone
     corner = reference.corners[0]
     assert (corner[0] == corner[1] == 100)
 
+    edit_handler.delete_point(SimpleNamespace(x=100, y=100))
+
+
+def test_add_delete_undo_redo_led():
+    edit_handler.current_state.set(CreationState.LED.value)
+    edit_handler.add_led(SimpleNamespace(x=100, y=100))
+
+
+    assert len(reference.led) == 1
+
+    led_id = "identifier1"
+    reference.led[0].id = led_id
+
+    # Undo
+    edit_handler.undo()
+    assert len(reference.led) == 0
+
+    # Redo
+    edit_handler.redo()
+    assert len(reference.led) == 1
+    assert reference.led[0].id == led_id  # ID still the same?
+
+
+    # Delete
+    edit_handler.delete_point(SimpleNamespace(x=100, y=100))
+    assert len(reference.led) == 0
+
+    # Cleanup
+    edit_handler.current_state.set(CreationState.BOARD.value)
 
 def test_add_corner_scaling():
     edit_handler.scaling = 0.5
@@ -59,6 +100,7 @@ def test_add_led_scaling():
 
     assert (led.position[0] == led.position[1] == 200)
 
+    edit_handler.scaling = 1
 
 def test_check_hovered():
     edit_handler.scaling = 1
