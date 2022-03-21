@@ -31,14 +31,13 @@ def test_blackbox_state_detector_with_zcu102():
     assert dec.state_table[5].current_state.power == "on", "LED 5 not detected correctly"
     assert dec.state_table[6].current_state.power == "off", "LED 6 not detected correctly"
 
-
     cv2.waitKey(100)
 
 
 def test_blackbox_state_detector():
     reference = jsutil.from_json(file_path="resources/pi_test.json")
     dec = StateDetector(reference, 0)
-    dec.open_stream(BufferlessVideoCapture("./resources/piOnOff2.mp4"))
+    dec.open_stream(MockVideoCapture("./resources/piOnOff2.mp4", False))
 
     dec._detect_current_state()
 
