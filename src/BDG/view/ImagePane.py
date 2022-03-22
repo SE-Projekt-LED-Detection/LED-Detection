@@ -193,7 +193,7 @@ class ImagePane(tk.Frame):
                                                fill="red",
                                                width=2,
                                                tag="poly",
-                                               alpha=0.5)
+                                               alpha=0.25)
         else:
             self.polygon = None
 
