@@ -4,9 +4,9 @@ from scipy.spatial import distance
 
 import numpy as np
 
-from model.CreationState import CreationState
-from model.board_model import Led, Board
-from utils.util_functions import is_equal
+from BDG.model.CreationState import CreationState
+from BDG.model.board_model import Led, Board
+from BDG.utils.util_functions import is_equal
 
 
 class EditHandler:
@@ -75,11 +75,11 @@ class EditHandler:
         y = round(event.y / self.scaling)
 
         circles = self.check_hovered(x, y)
-        if circles[0] is not None:
+        if circles is not None:
             if self.is_state(CreationState.BOARD):
-                self.board().corners.remove(circles[0])
+                self.board().corners.remove(circles)
             if self.is_state(CreationState.LED):
-                self.board().led.remove(circles[0])
+                self.board().led = list(filter(lambda x: x.position[0] != circles[0] and x.position[1] != circles[1], self.board().led))
             self.parent.update_points()
 
     def add_led(self, event):
@@ -125,7 +125,7 @@ class EditHandler:
         Redoes the last deleted, undone point or LED
         """
         if self.is_state(CreationState.BOARD):
-            if len(self.deleted_corners) > 1 and len(self.board().corners) < 4:
+            if len(self.deleted_corners) > 0 and len(self.board().corners) < 4:
                 self.board().corners.append(self.deleted_corners.pop())
                 self.parent.update_points()
         elif self.is_state(CreationState.LED) and len(self.deleted_leds) > 0:
