@@ -4,7 +4,6 @@ from typing import List
 
 from BDG.model.board_model import Led
 from BSP.BoardOrientation import BoardOrientation
-from BSP.Rectangle import Rectangle
 
 
 def get_led_roi(frame: np.array, leds: List[Led], board_orientation: BoardOrientation) -> List[np.array]:
@@ -33,22 +32,6 @@ def get_led_roi(frame: np.array, leds: List[Led], board_orientation: BoardOrient
 
     for i in range(len(leds)):
         radius.append(round(max(abs(led_centers_transformed[i][0] - led_radius_transformed[i][0]), abs(led_centers_transformed[i][1] - led_radius_transformed[i][1]))))
-
-    recs = list(map(lambda x: Rectangle(x[0][0], x[0][1], x[0][0] + x[1], x[0][1] + x[1]),
-                    zip(led_centers_transformed, radius)))
-
-    # Check for overlapping ROIs
-    i = 0
-    for rec in recs:
-        j = 0
-        for other_rec in recs:
-            if i == j:
-                continue
-            if rec & other_rec is not None:
-                print("Overlapping ROIs, abort.")
-                return [np.array([0, 0])]
-            j += 1
-        i += 1
 
     #radius = list(map(lambda led: round(led.radius * max(scale_x, scale_y)), leds))
     led_rois: List[np.array] = _led_by_circle_coordinates(frame, led_centers_transformed.astype(int), radius)
@@ -84,16 +67,3 @@ def _led_by_circle_coordinates(frame: np.array, circle_centers: List[np.array], 
         led = frame[top_left[1]:bottom_right[1], top_left[0]:bottom_right[0]]
         leds.append(led)
     return leds
-
-# https://stackoverflow.com/questions/48477130/find-area-of-overlapping-rectangles-in-python-cv2-with-a-raw-list-of-points
-def calculateIntersection(a0, a1, b0, b1):
-    if a0 >= b0 and a1 <= b1: # Contained
-        return True
-    elif a0 < b0 and a1 > b1: # Contains
-        return True
-    elif a0 < b0 and a1 > b0: # Intersects right
-        return True
-    elif a1 > b1 and a0 < b1: # Intersects left
-        return True
-    else: # No intersection (either side)
-        return False

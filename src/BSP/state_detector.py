@@ -65,7 +65,7 @@ class StateDetector:
         #frame = cv2.flip(frame, 0)
 
         if self.current_orientation is None or self.current_orientation.check_if_outdated():
-            self.current_orientation = homography_by_sift(self.board.image, frame, display_result=False)
+            self.current_orientation = homography_by_sift(self.board.image, frame, display_result=True)
 
         leds_roi = get_led_roi(frame, self.board.led, self.current_orientation)
 
@@ -74,6 +74,7 @@ class StateDetector:
                 self.current_orientation = None
                 print("Wrong homography matrix. Retry on next frame...")
                 return
+                #raise DetectionException("Could not detect ROIs probably because of a wrong homography matrix. (ROI size is 0)")
 
         assert len(leds_roi) == len(self.board.led), "Not all LEDs have been detected."
 
