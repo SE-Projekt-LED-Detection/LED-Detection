@@ -191,3 +191,34 @@ def test_on_mousewheel():
     assert reference.led[0].radius == org_radius
 
 
+def test_moving_one_pixel():
+    """
+    Tests moving the placed corner with arrow keys
+    """
+    edit_handler.add_corner(SimpleNamespace(x=100, y=100))
+    corner = reference.corners[0]
+    assert (corner[0] == corner[1] == 100)
+
+    edit_handler.move_current_led_one_pixel_vertically(-1)
+    edit_handler.move_current_led_one_pixel_horizontally(-1)
+    assert (corner[0] == corner[1] == 99)
+
+    edit_handler.move_current_led_one_pixel_horizontally(1)
+    edit_handler.move_current_led_one_pixel_vertically(1)
+    assert (corner[0] == corner[1] == 100)
+
+    # Same test with LED
+
+    edit_handler.current_state.set(CreationState.LED.value)
+    edit_handler.add_led(SimpleNamespace(x=100, y=100))
+    led = reference.led[0]
+
+    assert reference.led[0].position[0] == reference.led[0].position[1] == 100
+
+    edit_handler.move_current_led_one_pixel_vertically(-1)
+    edit_handler.move_current_led_one_pixel_horizontally(-1)
+    assert reference.led[0].position[0] == reference.led[0].position[1] == 99
+
+    edit_handler.move_current_led_one_pixel_horizontally(1)
+    edit_handler.move_current_led_one_pixel_vertically(1)
+    assert reference.led[0].position[0] == reference.led[0].position[1] == 100
