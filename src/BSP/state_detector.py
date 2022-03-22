@@ -65,7 +65,7 @@ class StateDetector:
         #frame = cv2.flip(frame, 0)
 
         if self.current_orientation is None or self.current_orientation.check_if_outdated():
-            self.current_orientation = homography_by_sift(self.board.image, frame, display_result=True)
+            self.current_orientation = homography_by_sift(self.board.image, frame, display_result=False)
 
         leds_roi = get_led_roi(frame, self.board.led, self.current_orientation)
 
