@@ -1,4 +1,5 @@
 import tkinter
+from types import SimpleNamespace
 
 from scipy.spatial import distance
 
@@ -67,6 +68,7 @@ class EditHandler:
         corners.append([x, y])
         # adds an additional dimension if array is one dimensional
 
+        self.active_circle = np.array([x, y])
         self.board().corners = corners
         self.parent.update_points()
 
@@ -107,6 +109,7 @@ class EditHandler:
         led = Led("", np.array([x, y]), 20, [])
         self.board().add_led(led, True)
 
+        self.active_circle = np.array([x, y])
         self.parent.update_points()
 
     def undo(self):
@@ -136,6 +139,31 @@ class EditHandler:
         elif self.is_state(CreationState.LED) and len(self.deleted_leds) > 0:
             self.board().led.append(self.deleted_leds.pop())
             self.parent.update_points()
+
+    def move_current_led_one_pixel_horizontally(self, amount: int):
+        """
+        Moves the active led horizontally by the amount
+
+        :param amount: The amount negative means left, positive right
+        :return:
+        """
+        if self.active_circle is None:
+            return
+
+        self.moving_point(SimpleNamespace(x=(self.active_circle[0] + amount) * self.scaling, y=self.active_circle[1] * self.scaling))
+
+    def move_current_led_one_pixel_vertically(self, amount: int):
+        """
+        Moves the active led vertically by the amount
+
+        :param amount: The amount to move, negative means up, positive down
+        :return:
+        """
+        if self.active_circle is None:
+            return
+
+        self.moving_point(SimpleNamespace(x=self.active_circle[0] * self.scaling,
+                                          y=(self.active_circle[1] + amount) * self.scaling))
 
     def moving_point(self, event):
         """
