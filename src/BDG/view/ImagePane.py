@@ -68,7 +68,6 @@ class ImagePane(tk.Frame):
         self.canvas.bind("<Up>", lambda x: self.handler.move_current_led_one_pixel_vertically(-1))
         self.canvas.bind("<Down>", lambda x: self.handler.move_current_led_one_pixel_vertically(1))
 
-
         self.activate_board_state()
 
     def update_image(self):

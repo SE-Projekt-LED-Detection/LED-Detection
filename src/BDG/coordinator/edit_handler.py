@@ -57,6 +57,7 @@ class EditHandler:
         circle = self.check_hovered(x, y)
         if circle is not None:
             self.active_circle = circle
+            self.parent.update_points()  # Used to focus canvas
             return
 
         corners = self.board().corners
@@ -101,6 +102,7 @@ class EditHandler:
         circle = self.check_hovered(x, y)
         if circle is not None:
             self.active_circle = circle
+            self.parent.update_points()  # Used to focus canvas
             return
 
         assert (self.board().image.shape[1] >= x >= 0 and self.board().image.shape[0] >= y >= 0), \
