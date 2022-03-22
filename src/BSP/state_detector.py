@@ -9,6 +9,7 @@ from BDG.model.board_model import Board
 from BSP import led_state_detector
 from BSP.BoardOrientation import BoardOrientation
 from BSP.BufferlessVideoCapture import BufferlessVideoCapture
+from BSP.DetectionException import DetectionException
 from BSP.homographyProvider import homography_by_sift
 from BSP.led_extractor import get_led_roi
 from BSP.led_state import LedState
@@ -57,25 +58,23 @@ class StateDetector:
         Detects the current state of the LEDs, updates the StateTable.
         Stream has to be opened with open_stream() before calling this method.
         """
-        assert self.bufferless_video_capture is not None, "Video_capture is None. Has the open_stream been method called before?"
+        assert self.bufferless_video_capture is not None, "Video_capture is None. Has the open_stream method been called before?"
 
         frame = self.bufferless_video_capture.read()
 
-        frame = cv2.flip(frame, 0)
+        #frame = cv2.flip(frame, 0)
 
         if self.current_orientation is None or self.current_orientation.check_if_outdated():
-            self.current_orientation = homography_by_sift(self.board.image, frame, display_result=True)
+            self.current_orientation = homography_by_sift(self.board.image, frame, display_result=False)
 
         leds_roi = get_led_roi(frame, self.board.led, self.current_orientation)
 
-        # Debug show LEDs
-        i = 0
         for roi in leds_roi:
-            cv2.imshow(str(i), roi)
-            #roi[:] = (0, 0, 255)
-            i += 1
-
-        cv2.imshow("Frame", frame)
+            if roi.shape[0] <= 0 or roi.shape[1] <= 0:
+                self.current_orientation = None
+                print("Wrong homography matrix. Retry on next frame...")
+                return
+                #raise DetectionException("Could not detect ROIs probably because of a wrong homography matrix. (ROI size is 0)")
 
         assert len(leds_roi) == len(self.board.led), "Not all LEDs have been detected."
 
@@ -101,6 +100,20 @@ class StateDetector:
                 entry.last_time_off = new_state.timestamp
 
             entry.current_state = new_state
+
+        # Debug show LEDs
+        i = 0
+        for roi in leds_roi:
+            cv2.imshow(str(i), roi)
+
+            if led_states[i].power == "on":
+                roi[:] = (0, 255, 0)
+            else:
+                roi[:] = (0, 0, 255)
+
+            i += 1
+
+        cv2.imshow("Frame", frame)
 
         cv2.waitKey(10)
 
