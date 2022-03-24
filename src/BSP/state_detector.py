@@ -7,6 +7,8 @@ import numpy as np
 import sched
 import time
 
+from LED.StateDetection.BoardObserver import BoardObserver
+from LED.LedStateDetector import LedStateDetector
 from BDG.model.board_model import Board
 from BIP.connection.message.change_msg import BoardChanges
 from BIP.connection.mqtt import MQTTConnector
@@ -40,12 +42,13 @@ class StateDetector:
         self.current_orientation: BoardOrientation = None
         self.bufferless_video_capture: BufferlessVideoCapture = None
 
+        self._board_observer = None
+
         self.create_state_table()
 
         Thread(target=self.start_mqtt_client).start()
 
         print("Done")
-
 
     def start_mqtt_client(self):
         config = {"broker_address": "89.58.3.45", "broker_port": 1883,
@@ -82,7 +85,7 @@ class StateDetector:
 
         frame = self.bufferless_video_capture.read()
 
-        #frame = cv2.flip(frame, 0)
+        # frame = cv2.flip(frame, 0)
 
         if self.current_orientation is None or self.current_orientation.check_if_outdated():
             self.current_orientation = homography_by_sift(self.board.image, frame, display_result=False)
@@ -94,51 +97,18 @@ class StateDetector:
                 self.current_orientation = None
                 print("Wrong homography matrix. Retry on next frame...")
                 return
-                #raise DetectionException("Could not detect ROIs probably because of a wrong homography matrix. (ROI size is 0)")
+                # raise DetectionException("Could not detect ROIs probably because of a wrong homography matrix. (ROI size is 0)")
 
         assert len(leds_roi) == len(self.board.led), "Not all LEDs have been detected."
 
-        led_states: List[LedState] = list(map(lambda x: led_state_detector.get_state(x[0], x[1].colors),
-                                              list(zip(leds_roi, self.board.led))))
+        # Initialize BoardObserver and all LEDs
+        if self._board_observer is None:
+            self._board_observer = BoardObserver()
+            for led in self.board.led:
+                self._board_observer.leds.append(LedStateDetector(led.id, led.colors))
 
-        for i in range(len(self.state_table)):
-            entry = self.state_table[i]
-            led = self.board.led[i]
-            new_state = led_states[i]
-
-
-            # Calculates the frequency
-            if entry.current_state is not None and entry.current_state.power != new_state.power:
-                print("Led" + str(i) + ": " + new_state.power)
-
-                if new_state.power == "on":
-                    entry.hertz = 1.0 / (new_state.timestamp - entry.last_time_on)
-
-                self.mqtt_connector.publish_changes(
-                    BoardChanges(self.board.id, led.id, new_state.power, new_state.color, entry.hertz, new_state.timestamp))
-
-            if new_state.power == "on":
-                entry.last_time_on = new_state.timestamp
-            else:
-                entry.last_time_off = new_state.timestamp
-
-            entry.current_state = new_state
-
-        # Debug show LEDs
-        i = 0
-        for roi in leds_roi:
-            cv2.imshow(str(i), roi)
-
-            if led_states[i].power == "on":
-                roi[:] = (0, 255, 0)
-            else:
-                roi[:] = (0, 0, 255)
-
-            i += 1
-
-        cv2.imshow("Frame", frame)
-
-        cv2.waitKey(10)
+        # Check LED states
+        self._board_observer.check(frame, leds_roi, self.on_change)
 
     def open_stream(self, video_capture: BufferlessVideoCapture = None):
         """
@@ -157,3 +127,30 @@ class StateDetector:
 
         if not self.bufferless_video_capture.cap.isOpened():
             raise Exception(f"StateDetector is unable to open VideoCapture with index {self.webcam_id}")
+
+    def on_change(self, led: LedStateDetector) -> None:
+        """
+        Function that should be called when a LED has changed it's state.
+        :param led: The LED that changed it's state.
+        :return: None.
+        """
+        entry = self.state_table[led.id]
+        new_state = LedState("on" if led.is_on else "off", led.color, led.last_state_time)
+
+        # Calculates the frequency
+        if entry.current_state is not None and entry.current_state.power != new_state.power:
+            print("Led" + str(led.id) + ": " + new_state.power)
+
+            if new_state.power == "on":
+                entry.hertz = 1.0 / (new_state.timestamp - entry.last_time_on)
+
+            self.mqtt_connector.publish_changes(
+                BoardChanges(self.board.id, led.id, new_state.power, new_state.color, entry.hertz,
+                             new_state.timestamp))
+
+        if new_state.power == "on":
+            entry.last_time_on = new_state.timestamp
+        else:
+            entry.last_time_off = new_state.timestamp
+
+        entry.current_state = new_state
