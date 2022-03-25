@@ -31,11 +31,15 @@ class BoardObserver:
         """
         gray_frame = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
         brightness = Brightness.avg_brightness(gray_frame)
-        avg_brightness = int(sum(self._brightnesses) / len(self._brightnesses))
 
-        if abs(brightness - avg_brightness) > deviation:
-            for led in self.leds:
-                led.invalidate()
+        if len(self._brightnesses) > 0:
+            avg_brightness = int(sum(self._brightnesses) / len(self._brightnesses))
+
+            if abs(brightness - avg_brightness) > deviation:
+                for led in self.leds:
+                    led.invalidate()
+
+        self._brightnesses.append(brightness)
 
         for led in self.leds:
             gray_roi = cv2.cvtColor(rois[led.id], cv2.COLOR_BGR2GRAY)
@@ -51,5 +55,4 @@ class BoardObserver:
 
         # Debug show LEDs
         cv2.imshow("Frame", frame)
-
         cv2.waitKey(10)
