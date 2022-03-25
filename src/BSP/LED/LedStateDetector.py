@@ -10,7 +10,7 @@ from ColorDetection import DominantColor, KMeans, Util
 
 class LedStateDetector:
 
-    def __init__(self, id: int, colors: [str] = None):
+    def __init__(self, id: int, name: str, colors: [str] = None):
         """
         Bounding box should be (left, top, right, bottom).
         Current LED state can be checked with is_on.
@@ -24,6 +24,7 @@ class LedStateDetector:
         self._hue_comparison = Comparison(colors)
 
         self.id: int = id
+        self.name: str = name
         self.is_on = None
         self.passed_time = None
         self.last_state_time = None
