@@ -42,8 +42,7 @@ class BoardObserver:
         self._brightnesses.append(brightness)
 
         for led in self.leds:
-            gray_roi = cv2.cvtColor(rois[led.id], cv2.COLOR_BGR2GRAY)
-            if led.detect(gray_roi):
+            if led.detect(rois[led.id]):
                 on_change(led, args, kwargs)
 
                 # Debug show LEDs
