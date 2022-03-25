@@ -91,7 +91,6 @@ class StateDetector:
             self.current_orientation = homography_by_sift(self.board.image, frame, display_result=False)
 
         leds_roi = get_led_roi(frame, self.board.led, self.current_orientation)
-
         for roi in leds_roi:
             if roi.shape[0] <= 0 or roi.shape[1] <= 0:
                 self.current_orientation = None
@@ -104,8 +103,9 @@ class StateDetector:
         # Initialize BoardObserver and all LEDs
         if self._board_observer is None:
             self._board_observer = BoardObserver()
-            for led in self.board.led:
-                self._board_observer.leds.append(LedStateDetector(led.id, led.colors))
+            for i in range(len(self.board.led)):
+                led = self.board.led[i]
+                self._board_observer.leds.append(LedStateDetector(i, led.id, led.colors))
 
         # Check LED states
         self._board_observer.check(frame, leds_roi, self.on_change)
@@ -139,13 +139,13 @@ class StateDetector:
 
         # Calculates the frequency
         if entry.current_state is not None and entry.current_state.power != new_state.power:
-            print("Led" + str(led.id) + ": " + new_state.power)
+            print("Led" + str(led.name) + ": " + new_state.power)
 
             if new_state.power == "on":
                 entry.hertz = 1.0 / (new_state.timestamp - entry.last_time_on)
 
             self.mqtt_connector.publish_changes(
-                BoardChanges(self.board.id, led.id, new_state.power, new_state.color, entry.hertz,
+                BoardChanges(self.board.id, led.name, new_state.power, new_state.color, entry.hertz,
                              new_state.timestamp))
 
         if new_state.power == "on":
