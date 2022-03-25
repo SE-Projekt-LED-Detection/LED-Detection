@@ -39,11 +39,10 @@ class LedStateDetector:
         :param image: The BGR image of the board that should be checked.
         :return: True if the led has changed it's state.
         """
-        gray_img = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
         if imshow:
-            on = self._brightness_comparison.detect(gray_img, str(self.id) + " Gray")
+            on = self._brightness_comparison.detect(image, str(self.id) + " Gray")
         else:
-            on = self._brightness_comparison.detect(gray_img)
+            on = self._brightness_comparison.detect(image)
 
         change = on is not None and (self.is_on is None or on is not self.is_on)
         if change:
