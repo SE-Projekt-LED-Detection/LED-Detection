@@ -3,7 +3,7 @@
 Homography Pipeline
 ====================
 
-The homography pipeline provides an homography matrix for estimating the transformation between two images.
+The homography pipeline provides a homography matrix for estimating the transformation between two images.
 With this matrix, it is possible to calculate the locations of the led coordinates in the second image
 with the prior knowledge of the location of the leds in the reference image.
 
@@ -15,7 +15,7 @@ The classical Pipeline
     :align: center
     :alt: The general pipeline for the homography estimation
 
-    The general pipeline for the homography estimation. source: https://ducha-aiki.medium.com/are-all-sifts-created-equal-part-1-1dbdc565bffb
+    The general pipeline for the homography estimation. Source: https://ducha-aiki.medium.com/are-all-sifts-created-equal-part-1-1dbdc565bffb
 There are 5 basic steps for getting the homography matrix of an image pair:
     1. Detection of Keypoints which are repeatable structures in the images.
     2. Description of the Keypoints which means that the patches are converted to an vector.
@@ -33,7 +33,7 @@ There are several options for the keypoint detection.
 
 
 
-The Homogrpahy Matrix
+The Homography Matrix
 ----------------------
 The homography matrix describes projection of on plane onto another plane.
 With this matrix, it is possible to calculate the locations of the led coordinates in the second image
@@ -80,7 +80,7 @@ To calibrate our projection we need to divide it by its z-coordinate.
   z_a \begin{bmatrix} \hat{x} \\ \hat{y} \\ 1 \end{bmatrix} = \begin{bmatrix} x_a \\ y_a \\ z_a \end{bmatrix}
 
 
-Alltogether we get the following equation for our projection:
+Altogether we get the following equation for our projection:
 
 .. math::
   \begin{bmatrix} \hat{x} \\ \hat{y} \\ 1 \end{bmatrix} = \frac{1}{z_a} H \begin{bmatrix} x \\ y \\ 1 \end{bmatrix}
@@ -113,7 +113,7 @@ For mapping the 3D world to an image we multiply it with the intrinsic and extri
 .. math::
   \begin{bmatrix} x_a\\ y_a \\ z_a \end{bmatrix} = C_{\text{int}}C_{\text{ext}}\begin{bmatrix} x \\ y \\ z \\ 1 \end{bmatrix}
 
-The instrinsic matrix is the matrix describes the focal length, the principal point and the skew. 
+The intrinsic matrix is the matrix describes the focal length, the principal point and the skew. 
 Whereas the extrinsic matrix describes the position of the camera.
 It describes the rotation and the translation of the camera.
 
