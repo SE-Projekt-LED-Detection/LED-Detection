@@ -138,8 +138,6 @@ For a detailed and mathematical description of the homography matrix, see :ref:`
     
     bsp/homography_pipeline
 
-.. automodule:: BSP.homographyProvider
-    :members:
 
 
 Bufferless Video Capture
