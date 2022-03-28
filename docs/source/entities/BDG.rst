@@ -39,6 +39,17 @@ list and on the lower left corner of each LED as well. By using the mousewheel t
 
 The BSP will use these regions to detect the status of the LED.
 
+Key support
+~~~~~~~~~~~
+
+**Control + Z / Control + Y**: Undo/Redo placement of a corner or LED.
+
+**Arrow Keys**: Move the last selected circle a pixel in the direction
+
+**Mouse Wheel**: Increase/Decrease size of a LED
+
+In addition it is possible to resize the window but this will not affect the final coordinates of the corners/leds.
+
 
 Classes of the BDG
 ~~~~~~~~~~~~~~~~~~
