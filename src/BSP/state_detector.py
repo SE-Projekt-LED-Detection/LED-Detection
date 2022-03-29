@@ -27,18 +27,29 @@ class StateDetector:
     which color and the frequency.
     """
 
-    def __init__(self, config: Board, webcam_id: int):
+    def __init__(self, **kwargs):
         """
-        :param config: The reference which will be used to match features with SIFT
-        :param webcam_id: The webcam id which will be used to open a video stream in open_stream()
+        Expected parameters:
+        config (Board): The reference Board object to match the features
+        webcam_id (int): The id of the webcam
+
+        Optional parameters:
+        broker_path (str): The url to the mqtt broker
+        broker_port (int): The port of the mqtt broker
+        logging_level = "DEFAULT": The logging level
+        visulize_results = FALSE: Visualise the results with the BIP
+
         """
-        self.board = config.get_cropped_board()
-        self.webcam_id = webcam_id
+        self.board = kwargs["config"].get_cropped_board()
+        self.webcam_id = kwargs["webcam_id"]
         self.delay_in_seconds = 0.05
         self.state_table: List[StateTableEntry] = []
         self.timer: sched.scheduler = sched.scheduler(time.time, time.sleep)
         self.current_orientation: BoardOrientation = None
         self.bufferless_video_capture: BufferlessVideoCapture = None
+
+        self.broker_address = kwargs["broker_path"]
+        self.broker_port = kwargs["broker_port"]
 
         self.create_state_table()
 
@@ -48,7 +59,7 @@ class StateDetector:
 
 
     def start_mqtt_client(self):
-        config = {"broker_address": "89.58.3.45", "broker_port": 1883,
+        config = {"broker_address": self.broker_address, "broker_port": self.broker_port,
                   "topics": {"changes": "changes", "avail": "avail", "config": "config"}}
         self.mqtt_connector = MQTTConnector(config)
         self.mqtt_connector.connect()
