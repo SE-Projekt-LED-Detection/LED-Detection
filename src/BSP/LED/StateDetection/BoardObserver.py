@@ -45,12 +45,12 @@ class BoardObserver:
             if led.detect(rois[led.id]):
                 on_change(led, args, kwargs)
 
-                # Debug show LEDs
-                cv2.imshow(str(led.id), rois[led.id])
-                if led.is_on:
-                    rois[led.id][:] = (0, 255, 0)
-                else:
-                    rois[led.id][:] = (0, 0, 255)
+            # Debug show LEDs
+            cv2.imshow(str(led.id), rois[led.id])
+            if led.is_on:
+                rois[led.id][:] = (0, 255, 0)
+            else:
+                rois[led.id][:] = (0, 0, 255)
 
         # Debug show LEDs
         cv2.imshow("Frame", frame)
