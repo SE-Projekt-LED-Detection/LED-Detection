@@ -2,7 +2,7 @@ import cv2
 
 from operator import itemgetter
 
-import Util
+from BSP.LED.ColorDetection.Util import color_range
 
 
 class Comparison:
@@ -44,7 +44,7 @@ class Comparison:
     def _color(self, hist):
         values = []
         for c in self._colors:
-            lower, upper = Util.color_range.get(c)
+            lower, upper = color_range.get(c)
             if lower < 0 < upper:
                 values.append((sum(hist[lower:] + hist[0: upper]), c))
             else:

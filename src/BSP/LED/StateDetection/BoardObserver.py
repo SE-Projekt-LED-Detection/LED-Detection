@@ -1,11 +1,11 @@
 import collections
 from typing import List
 
-import Brightness
 import cv2
 import numpy as np
 
-from src.BSP.LED import LedStateDetector
+from BSP.LED.StateDetection import Brightness
+from BSP.LED import LedStateDetector
 
 deviation = 5
 

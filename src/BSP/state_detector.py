@@ -7,8 +7,8 @@ import numpy as np
 import sched
 import time
 
-from LED.StateDetection.BoardObserver import BoardObserver
-from LED.LedStateDetector import LedStateDetector
+from BSP.LED.StateDetection.BoardObserver import BoardObserver
+from BSP.LED.LedStateDetector import LedStateDetector
 from BDG.model.board_model import Board
 from BIP.connection.message.change_msg import BoardChanges
 from BIP.connection.mqtt import MQTTConnector

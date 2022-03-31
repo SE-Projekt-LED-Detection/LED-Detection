@@ -3,9 +3,9 @@ import colorsys
 
 import cv2
 
-from StateDetection.BrightnessComparison import BrightnessComparison
-from ColorDetection.HueComparison import Comparison
-from ColorDetection import DominantColor, KMeans, Util
+from BSP.LED.StateDetection.BrightnessComparison import BrightnessComparison
+from BSP.LED.ColorDetection.HueComparison import Comparison
+from BSP.LED.ColorDetection import DominantColor, KMeans, Util
 
 
 class LedStateDetector:
