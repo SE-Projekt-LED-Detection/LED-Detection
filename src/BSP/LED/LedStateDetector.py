@@ -66,12 +66,12 @@ class LedStateDetector:
 
     def _state_change(self, state: bool) -> None:
         self.is_on = state
-        if self._last_state_time is None:
-            self._last_state_time = time.time()
+        if self.last_state_time is None:
+            self.last_state_time = time.time()
         else:
             current = time.time()
-            self.passed_time = current - self._last_state_time
-            self._last_state_time = current
+            self.passed_time = current - self.last_state_time
+            self.last_state_time = current
 
     def invalidate(self) -> None:
         """
