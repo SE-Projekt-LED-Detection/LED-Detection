@@ -131,7 +131,7 @@ class MQTTConnector(mqtt.Client):
         """
         self._is_connected = False
         self.closed = True
-        self.publish(self._config["heartbeat_topic"], payload="offline")
+        self.publish(self._topics["avail"], payload="offline")
         super().disconnect()
 
 
