@@ -1,7 +1,7 @@
 import cv2
 import collections
 
-import Brightness
+from BSP.LED.StateDetection import Brightness
 
 
 class BrightnessComparison:

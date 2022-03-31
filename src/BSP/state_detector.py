@@ -7,8 +7,8 @@ import numpy as np
 import sched
 import time
 
-from LED.StateDetection.BoardObserver import BoardObserver
-from LED.LedStateDetector import LedStateDetector
+from BSP.LED.StateDetection.BoardObserver import BoardObserver
+from BSP.LED.LedStateDetector import LedStateDetector
 from BDG.model.board_model import Board
 from BIP.connection.message.change_msg import BoardChanges
 from BIP.connection.mqtt import MQTTConnector
@@ -128,7 +128,7 @@ class StateDetector:
         if not self.bufferless_video_capture.cap.isOpened():
             raise Exception(f"StateDetector is unable to open VideoCapture with index {self.webcam_id}")
 
-    def on_change(self, led: LedStateDetector) -> None:
+    def on_change(self, led: LedStateDetector, *args, **kwargs) -> None:
         """
         Function that should be called when a LED has changed it's state.
         :param led: The LED that changed it's state.
