@@ -13,7 +13,6 @@ from BDG.model.board_model import Board
 from BIP.connection.message.change_msg import BoardChanges
 from BIP.connection.mqtt import MQTTConnector
 from BIP.connection.mqtt.mqtt_connector import publish_heartbeat
-from BSP import led_state_detector
 from BSP.BoardOrientation import BoardOrientation
 from BSP.BufferlessVideoCapture import BufferlessVideoCapture
 from BSP.DetectionException import DetectionException
