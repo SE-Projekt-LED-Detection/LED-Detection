@@ -49,6 +49,8 @@ class StateDetector:
         self.current_orientation: BoardOrientation = None
         self.bufferless_video_capture: BufferlessVideoCapture = None
 
+        self._closed = False
+
         self.broker_address = kwargs["broker_path"]
         self.broker_port = kwargs["broker_port"]
         self.validity_seconds = 300 if kwargs["validity_seconds"] is None else kwargs["validity_seconds"]
@@ -57,7 +59,14 @@ class StateDetector:
 
         Thread(target=self.start_mqtt_client).start()
 
-        print("Done")
+    def __enter__(self):
+        return self
+
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        self._closed = True
+        self.mqtt_connector.disconnect()
+        self.bufferless_video_capture.close()
+        cv2.destroyAllWindows()
 
 
     def start_mqtt_client(self):
@@ -82,7 +91,7 @@ class StateDetector:
         Starts the detection. Waits the number of seconds configured in the StateDetector, afterwards
         detects the current state. Repeats itself, blocking.
         """
-        while True:
+        while not self._closed:
             time.sleep(self.delay_in_seconds)
             self._detect_current_state()
 
