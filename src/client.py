@@ -24,7 +24,7 @@ class VideoStream:
         """
         if not self.process:
             self.start_streaming(frame.shape[1], frame.shape[0])
-        self.process.stdin.write(frame.tostring())
+        self.process.stdin.write(frame.tobytes())
 
 
 
@@ -64,3 +64,32 @@ class VideoStream:
             self.process.kill()
             self.process = None
 
+
+
+def main():
+    """
+    Main function just for testing
+    :return:
+    """
+    video_stream = VideoStream(server_url)
+
+    try:
+        cap = cv2.VideoCapture(1)
+        height = int(cap.get(cv2.CAP_PROP_FRAME_HEIGHT))
+        width = int(cap.get(cv2.CAP_PROP_FRAME_WIDTH))
+        video_stream.start_streaming(width, height)
+
+        while True:
+            ret, frame = cap.read()
+            if ret:
+                video_stream.write(frame)
+            else:
+                break
+    except KeyboardInterrupt:
+        video_stream.stop_streaming()
+        cv2.destroyAllWindows()
+        sys.exit(0)
+
+
+if __name__ == '__main__':
+    sys.exit(main())
