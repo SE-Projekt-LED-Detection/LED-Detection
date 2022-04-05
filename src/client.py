@@ -1,3 +1,4 @@
+import queue
 import sys
 
 import ffmpeg
@@ -9,51 +10,57 @@ server_url = "http://localhost:8080"
 
 
 
+class VideoStream:
+    def __init__(self, url):
+        self.url = url
+        self.process = None
+        self.queue = queue.Queue()
 
-def start_streaming(width, height,fps):
-    process = (
-        ffmpeg
-        .input('pipe:', format='rawvideo',codec="rawvideo", pix_fmt='bgr24', s='{}x{}'.format(width, height))
-        .output(
-            server_url + '/stream',
-            #codec = "copy", # use same codecs of the original video
-            listen=1, # enables HTTP server
-            pix_fmt="yuv420p",
-            preset="ultrafast",
-            f=video_format,
+    def write(self, frame):
+        """
+        Writes the frame to the ffmpeg process
+        :param frame:
+        :return:
+        """
+        if not self.process:
+            self.start_streaming(frame.shape[1], frame.shape[0])
+        self.process.stdin.write(frame.tostring())
 
+
+
+
+    def start_streaming(self, width, height,fps=30):
+        """
+        Starts the ffmpeg process to stream the video on th
+        :param width:
+        :param height:
+        :param fps:
+        :return:
+        """
+        self.process = (
+            ffmpeg
+            .input('pipe:', format='rawvideo',codec="rawvideo", pix_fmt='bgr24', s='{}x{}'.format(width, height))
+            .output(
+                self.url + '/stream',
+                #codec = "copy", # use same codecs of the original video
+                listen=1, # enables HTTP server
+                pix_fmt="yuv420p",
+                preset="ultrafast",
+                f=video_format,
+
+            )
+            .global_args('-re')
+            .overwrite_output()
+            .run_async(pipe_stdin=True)
         )
-        .global_args('-re')
-        .overwrite_output()
-        .run_async(pipe_stdin=True)
-    )
-    return process
-
-def init_cap():
-    cap = cv2.VideoCapture(1)
-    width = int(cap.get(cv2.CAP_PROP_FRAME_WIDTH))
-    height = int(cap.get(cv2.CAP_PROP_FRAME_HEIGHT))
-    return cap, width, height
-
-def run():
-    cap, width, height = init_cap()
-    fps = cap.get(cv2.CAP_PROP_FPS)
-    streaming_process = start_streaming(width, height,fps)
-    while True:
-        ret, frame = cap.read()
-        if ret:
-            try:
-                streaming_process.stdin.write(frame.tobytes())
-            except BrokenPipeError:
-                break
-    streaming_process.stdin.close()
-    streaming_process.wait()
-    cap.release()
 
 
-if __name__ == "__main__":
-    try:
-        run()
-    finally:
-        print("Exiting")
-        sys.exit(0)
+    def stop_streaming(self):
+        """
+        Stops the ffmpeg process
+        :return:
+        """
+        if self.process:
+            self.process.kill()
+            self.process = None
+
