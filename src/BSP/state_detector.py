@@ -117,8 +117,10 @@ class StateDetector:
                     entry.hertz = 1.0 / (new_state.timestamp - entry.last_time_on)
                     info("Led" + str(i) + " frequency: %s", entry.hertz)
 
-                self.mqtt_connector.publish_changes(
-                    BoardChanges(self.board.id, led.id, new_state.power, new_state.color, entry.hertz, new_state.timestamp))
+                bc = BoardChanges(self.board.id, led.id, new_state.power, new_state.color, entry.hertz, new_state.timestamp)
+                bc.log()
+                self.mqtt_connector.publish_changes(bc)
+
 
             if new_state.power == "on":
                 entry.last_time_on = new_state.timestamp
