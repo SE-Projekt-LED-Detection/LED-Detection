@@ -23,3 +23,4 @@ requests
 packaging
 jinja2
 setuptools
+wget
