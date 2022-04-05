@@ -4,6 +4,9 @@ import configargparse
 import os
 import sys
 
+from BSP.state_detector import StateDetector
+
+
 def main():
     parser = configargparse.ArgParser(default_config_files=['./config.conf'], description='A led state provider state detecting different controller boards')
     parser.add('-c', '--config', type=str, is_config_file=True, help='Path to config file. NOTE: this is not the reference path, but the path to the config file')
@@ -20,7 +23,14 @@ def main():
     parser.add('-s', '--validity_seconds', type=int, default=300, help='The seconds until the homography matrix is calculated anew')
 
     args = parser.parse_args()
+
+    logging.basicConfig(filename=args["log_file"], filemode='w', level=args["log_level"], format='%(levelname)s:%(message)s', force=True)
+
+
+
     print(args)
+
+
 
 
 if __name__ == '__main__':
