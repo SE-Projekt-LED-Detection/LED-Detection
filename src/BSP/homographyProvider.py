@@ -31,10 +31,11 @@ def scale_point(point, scaling):
     return scaled_point
 
 
-def homography_by_sift(ref_img, target_img, distance_factor=0.65, display_result=False) -> BoardOrientation:
+def homography_by_sift(ref_img, target_img, distance_factor=0.65, display_result=False, validity_seconds=300) -> BoardOrientation:
     """
     Calculates the board orientation based on SIFT with knnMatch
 
+    :param validity_seconds: The time the generated BoardOrientation is considered valid
     :param ref_img: The reference image for the calculation
     :param target_img: The target image for the calculation
     :param distance_factor: Influences the max distance of the matches as per Loew's ration test. A higher value means
@@ -82,7 +83,7 @@ def homography_by_sift(ref_img, target_img, distance_factor=0.65, display_result
         img3 = cv2.drawMatches(ref_img, kp1, target_img, kp2, good, None, **draw_params)
         plt.imshow(img3, 'gray'), plt.show()
 
-    return BoardOrientation(homography_matrix, dst, ref_img.shape[:2])
+    return BoardOrientation(homography_matrix, dst, ref_img.shape[:2], validity_seconds)
 
 
 
