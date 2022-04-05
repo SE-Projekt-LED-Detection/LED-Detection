@@ -14,7 +14,7 @@ def main():
     parser.add('-l', '--log_to_console', action='store_true', help='Enable logging to console')
     parser.add('-ll', '--log_level', type=str, help='Enable logging', choices=['DEBUG', 'INFO', 'WARNING', 'ERROR', 'CRITICAL'], default='INFO')
     parser.add('-lf', '--log_file', type=str, help='Enable logging to file', default='./led_state_provider.log')
-
+    parser.add('-s', '--validity_seconds', type=int, default=300, help='The seconds until the homography matrix is calculated anew')
 
 
 
