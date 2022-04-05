@@ -53,5 +53,6 @@ class BoardObserver:
                 rois[led.id][:] = (0, 0, 255)
 
         # Debug show LEDs
-        cv2.imshow("Frame", frame)
+        imR = cv2.resize(frame, (1632, 1224))
+        cv2.imshow("Frame", imR)
         cv2.waitKey(10)

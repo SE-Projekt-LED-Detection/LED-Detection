@@ -84,7 +84,7 @@ class StateDetector:
 
         frame = self.bufferless_video_capture.read()
 
-        # frame = cv2.flip(frame, 0)
+        frame = cv2.rotate(frame, cv2.ROTATE_180)
 
         if self.current_orientation is None or self.current_orientation.check_if_outdated():
             self.current_orientation = homography_by_sift(self.board.image, frame, display_result=False)
