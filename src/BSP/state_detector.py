@@ -38,6 +38,7 @@ class StateDetector:
         broker_port (int): The port of the mqtt broker
         logging_level = "DEFAULT": The logging level
         visulize_results = FALSE: Visualise the results with the BIP
+        validity_seconds = 300: The time until a new homography matrix is calculated
 
         """
         self.board = kwargs["config"].get_cropped_board()
@@ -50,6 +51,7 @@ class StateDetector:
 
         self.broker_address = kwargs["broker_path"]
         self.broker_port = kwargs["broker_port"]
+        self.validity_seconds = 300 if kwargs["validity_seconds"] is None else kwargs["validity_seconds"]
 
         self.create_state_table()
 
@@ -96,7 +98,7 @@ class StateDetector:
         #frame = cv2.flip(frame, 0)
 
         if self.current_orientation is None or self.current_orientation.check_if_outdated():
-            self.current_orientation = homography_by_sift(self.board.image, frame, display_result=False)
+            self.current_orientation = homography_by_sift(self.board.image, frame, display_result=False, validity_seconds=self.validity_seconds)
 
         leds_roi = get_led_roi(frame, self.board.led, self.current_orientation)
 
