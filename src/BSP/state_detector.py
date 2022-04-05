@@ -1,4 +1,5 @@
 import asyncio
+from logging import debug, error, warning, info
 from threading import Thread
 from typing import List
 
@@ -50,9 +51,11 @@ class StateDetector:
     def start_mqtt_client(self):
         config = {"broker_address": "89.58.3.45", "broker_port": 1883,
                   "topics": {"changes": "changes", "avail": "avail", "config": "config"}}
+        debug("Logging config %s", config)
         self.mqtt_connector = MQTTConnector(config)
         self.mqtt_connector.connect()
 
+        debug("Connecting mqtt and starting loop")
         self.mqtt_connector.loop_start()
         self.mqtt_connector.add_config_handler(lambda client, userdata, message: print(message.payload))
         asyncio.run(publish_heartbeat(self.mqtt_connector))
@@ -92,9 +95,8 @@ class StateDetector:
         for roi in leds_roi:
             if roi.shape[0] <= 0 or roi.shape[1] <= 0:
                 self.current_orientation = None
-                print("Wrong homography matrix. Retry on next frame...")
+                warning("One ROI's size is 0. Assuming the homography matrix is wrong, retry on next frame.")
                 return
-                #raise DetectionException("Could not detect ROIs probably because of a wrong homography matrix. (ROI size is 0)")
 
         assert len(leds_roi) == len(self.board.led), "Not all LEDs have been detected."
 
@@ -109,10 +111,11 @@ class StateDetector:
 
             # Calculates the frequency
             if entry.current_state is not None and entry.current_state.power != new_state.power:
-                print("Led" + str(i) + ": " + new_state.power)
+                info("Led" + str(i) + ": %s", new_state.power)
 
                 if new_state.power == "on":
                     entry.hertz = 1.0 / (new_state.timestamp - entry.last_time_on)
+                    info("Led" + str(i) + " frequency: %s", entry.hertz)
 
                 self.mqtt_connector.publish_changes(
                     BoardChanges(self.board.id, led.id, new_state.power, new_state.color, entry.hertz, new_state.timestamp))
@@ -151,9 +154,12 @@ class StateDetector:
             assert isinstance(video_capture, BufferlessVideoCapture), "The passed video capture argument is not of " \
                                                                       "type BufferlessVideoCapture "
             self.bufferless_video_capture = video_capture
+            debug("Set video capture to the provided one")
             return
 
+        debug("Opening video capture with device id %s", self.webcam_id)
         self.bufferless_video_capture = BufferlessVideoCapture(self.webcam_id)
 
         if not self.bufferless_video_capture.cap.isOpened():
-            raise Exception(f"StateDetector is unable to open VideoCapture with index {self.webcam_id}")
+            error("The created video capture is not opened.")
+            raise Exception(f"StateDetector is unable to open VideoCapture with index {self.webcam_id}.")
