@@ -64,6 +64,7 @@ class StateDetector:
         return self
 
     def __exit__(self, exc_type, exc_val, exc_tb):
+        logging.info("Closing StateDetector")
         self._closed = True
         self.mqtt_connector.disconnect()
         self.bufferless_video_capture.close()
@@ -74,7 +75,10 @@ class StateDetector:
         config = {"broker_address": self.broker_address, "broker_port": self.broker_port,
                   "topics": {"changes": "changes", "avail": "avail", "config": "config"}}
         self.mqtt_connector = MQTTConnector(config)
-        self.mqtt_connector.connect()
+        try:
+            self.mqtt_connector.connect()
+        except ConnectionRefusedError:
+            logging.error("Connection to mqtt failed: connection refused")
 
         self.mqtt_connector.loop_start()
         self.mqtt_connector.add_config_handler(lambda client, userdata, message: print(message.payload))
