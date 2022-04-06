@@ -30,18 +30,18 @@ class StateDetector:
     def __init__(self, **kwargs):
         """
         Expected parameters:
-        config (Board): The reference Board object to match the features
+        reference (Board): The reference Board object to match the features
         webcam_id (int): The id of the webcam
 
         Optional parameters:
-        broker_path (str): The url to the mqtt broker
+        broker_host (str): The url to the mqtt broker
         broker_port (int): The port of the mqtt broker
         logging_level = "DEFAULT": The logging level
-        visulize_results = FALSE: Visualise the results with the BIP
+        visualizer = FALSE: Visualise the results with the BIP
         validity_seconds = 300: The time until a new homography matrix is calculated
 
         """
-        self.board = kwargs["config"].get_cropped_board()
+        self.board = kwargs["reference"].get_cropped_board()
         self.webcam_id = kwargs["webcam_id"]
         self.delay_in_seconds = 0.05
         self.state_table: List[StateTableEntry] = []
@@ -49,11 +49,11 @@ class StateDetector:
         self.current_orientation: BoardOrientation = None
         self.bufferless_video_capture: BufferlessVideoCapture = None
 
-        self._closed = False
-
-        self.broker_address = kwargs["broker_path"]
+        self.broker_address = kwargs["broker_host"]
         self.broker_port = kwargs["broker_port"]
         self.validity_seconds = 300 if kwargs["validity_seconds"] is None else kwargs["validity_seconds"]
+
+        self._closed = False
 
         self.create_state_table()
 

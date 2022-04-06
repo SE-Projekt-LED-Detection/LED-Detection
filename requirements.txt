@@ -12,7 +12,7 @@ scipy
 dataclasses
 scikit-learn
 numpyencoder
-
+configargparse
 
 paho-mqtt
 pytest
