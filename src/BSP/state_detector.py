@@ -1,4 +1,5 @@
 import asyncio
+import logging
 from threading import Thread
 from typing import List
 
@@ -103,6 +104,9 @@ class StateDetector:
         assert self.bufferless_video_capture is not None, "Video_capture is None. Has the open_stream method been called before?"
 
         frame = self.bufferless_video_capture.read()
+
+        if frame is None:
+            return
 
         #frame = cv2.flip(frame, 0)
 
