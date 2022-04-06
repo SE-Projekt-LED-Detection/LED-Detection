@@ -19,7 +19,7 @@ def main():
 
     parser.add('-d', '--debug', action='store_true', help='Enable debug mode')
     parser.add('-v', '--visualizer', action='store_true', help='activate visualizer mode')
-    parser.add('-l', '--log_to_console', action='store_true', help='Enable logging to console')
+    parser.add('-l', '--log_to_console', action='store_true', help='Enable logging to console. Only necessary if log_file is set otherwise logging will be printed in the console by default')
     parser.add('-ll', '--log_level', type=str, help='Enable logging', choices=['DEBUG', 'INFO', 'WARNING', 'ERROR', 'CRITICAL'], default='INFO')
     parser.add('-lf', '--log_file', type=str, help='Enable logging to file', default=None)
     parser.add('-s', '--validity_seconds', type=int, default=300, help='The seconds until the homography matrix is calculated anew')
@@ -29,10 +29,19 @@ def main():
     logging.basicConfig(filename=args.log_file, filemode='w', level=args.log_level, format='%(levelname)s:%(message)s', force=True)
 
     if args.log_to_console:
-        logging.getLogger().addHandler(logging.StreamHandler())
+        if args.log_file is not None:
+            logging.getLogger().addHandler(logging.StreamHandler())
+        else:
+            logging.warning("Ignoring log_to_console flag as no log_file is set.")
 
-    board = jsutil.from_json(file_path=args.reference)
+    # Load reference board
+    board = None
+    try:
+        board = jsutil.from_json(file_path=args.reference)
+    except Exception as e:
+        logging.error("Could not load board: %s", e)
 
+    # Open StateDetector
     with StateDetector(reference=board, webcam_id=args.webcam_id, broker_host=args.broker_host, broker_port=args.broker_port, validity_seconds=args.validity_seconds) as detector:
         try:
             detector.open_stream()
