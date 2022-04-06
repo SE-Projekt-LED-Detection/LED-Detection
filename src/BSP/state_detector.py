@@ -8,9 +8,9 @@ import sched
 import time
 
 from BDG.model.board_model import Board
-from BIP.connection.message.change_msg import BoardChanges
-from BIP.connection.mqtt import MQTTConnector
-from BIP.connection.mqtt.mqtt_connector import publish_heartbeat
+from publisher.connection.message.change_msg import BoardChanges
+from publisher.connection.mqtt import MQTTConnector
+from publisher.connection.mqtt.mqtt_connector import publish_heartbeat
 from BSP import led_state_detector
 from BSP.BoardOrientation import BoardOrientation
 from BSP.BufferlessVideoCapture import BufferlessVideoCapture
