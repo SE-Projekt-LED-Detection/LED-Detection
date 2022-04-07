@@ -127,24 +127,27 @@ class StateDetector:
         if not self.bufferless_video_capture.cap.isOpened():
             raise Exception(f"StateDetector is unable to open VideoCapture with index {self.webcam_id}")
 
-    def on_change(self, led: LedStateDetector, *args, **kwargs) -> None:
+    def on_change(self, id: int, name: str, state: bool, color: str, time, *args, **kwargs) -> None:
         """
-        Function that should be called when a LED has changed it's state.
-        :param led: The LED that changed it's state.
+        Function that should be called when a LED state change has been detected.
+        :param id: The id of the LED used to assign the table slot.
+        :param name: The name of the LED for clear debug outputs.
+        :param state: True if this LED is currently powered on.
+        :param color: The color that has been detected.
+        :param time: The time the LED changed it's state.
         :return: None.
         """
-        entry = self.state_table[led.id]
-        new_state = LedState("on" if led.is_on else "off", led.color, led.last_state_time)
+        entry = self.state_table[id]
+        new_state = LedState("on" if state else "off", color, time)
 
         # Calculates the frequency
         if entry.current_state is not None and entry.current_state.power != new_state.power:
-            print("Led" + str(led.name) + ": " + new_state.power)
+            print("Led" + str(name) + ": " + new_state.power)
 
             if new_state.power == "on":
                 entry.hertz = 1.0 / (new_state.timestamp - entry.last_time_on)
-
             self.mqtt_connector.publish_changes(
-                BoardChanges(self.board.id, led.name, new_state.power, new_state.color, entry.hertz,
+                BoardChanges(self.board.id, name, new_state.power, new_state.color, entry.hertz,
                              new_state.timestamp))
 
         if new_state.power == "on":
