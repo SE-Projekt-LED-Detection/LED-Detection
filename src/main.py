@@ -46,6 +46,7 @@ def main(args):
             th.join()
         except KeyboardInterrupt:
             logging.info("Exiting...")
+            publisher.stop()
             return
 
 
@@ -53,7 +54,8 @@ def start_publisher(publisher: MasterPublisher, broker_host, broker_port):
     publisher.init_mqqt({"broker_address": broker_host, "broker_port": broker_port,
                          "topics": {"changes": "changes", "avail": "avail", "config": "config"}})
     publisher.init_video("rtmp://localhost:8080")
-    publisher.start_publish_heartbeats()
+
+    threading.Thread(target=publisher.start_publish_heartbeats).start()
     threading.Thread(target=publisher.run).start()
 
 

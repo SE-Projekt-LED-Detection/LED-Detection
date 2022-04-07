@@ -78,7 +78,10 @@ class MasterPublisher:
         :return:
         """
         if self.heartbeat_thread is None:
-            self.heartbeat_thread = asyncio.create_task(mqtt.publish_heartbeat_routine(self.mqqt_publisher))
+            loop = asyncio.new_event_loop()
+            asyncio.set_event_loop(loop)
+            self.heartbeat_thread = loop.create_task(mqtt.publish_heartbeat_routine(self.mqqt_publisher))
+            loop.run_until_complete(self.heartbeat_thread)
 
     def __del__(self):
         self.stop()
