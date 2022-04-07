@@ -5,8 +5,7 @@ import json
 
 import paho.mqtt.client as mqtt
 
-logging.basicConfig(level=logging.DEBUG,
-                    format='(%(threadName)-9s) %(message)s', )
+
 
 host = "89.58.3.45"
 port = 1883
