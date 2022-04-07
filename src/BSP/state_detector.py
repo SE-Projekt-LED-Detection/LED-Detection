@@ -1,4 +1,5 @@
 import asyncio
+from queue import Queue
 from threading import Thread
 from typing import List
 
@@ -59,6 +60,8 @@ class StateDetector:
         self._closed = False
 
         self.create_state_table()
+
+        self.state_queue = Queue()
 
         Thread(target=self.start_mqtt_client).start()
 
@@ -131,6 +134,9 @@ class StateDetector:
         # Check LED states
         self._board_observer.check(frame, leds_roi, self.on_change)
 
+        # Publish frame
+        self.state_queue.put({"frame": frame})
+
     def open_stream(self, video_capture: BufferlessVideoCapture = None):
         """
         Opens the video stream.
@@ -168,9 +174,10 @@ class StateDetector:
 
             if new_state.power == "on":
                 entry.hertz = 1.0 / (new_state.timestamp - entry.last_time_on)
-            self.mqtt_connector.publish_changes(
-                BoardChanges(self.board.id, name, new_state.power, new_state.color, entry.hertz,
-                             new_state.timestamp))
+
+            board_changes = BoardChanges(self.board.id, name, new_state.power, new_state.color, entry.hertz,
+                             new_state.timestamp)
+            self.state_queue.put({"changes": board_changes})
 
         if new_state.power == "on":
             entry.last_time_on = new_state.timestamp
