@@ -1,3 +1,4 @@
+import logging
 import queue
 import sys
 
@@ -17,7 +18,7 @@ class VideoStream:
     VideoStream class
     for creating an rtmp stream out of opencv frames
     """
-    def __init__(self, url, logger: log.Logger):
+    def __init__(self, url, logger: log.Logger = logging.root):
 
         self.url = url
         self.process = None

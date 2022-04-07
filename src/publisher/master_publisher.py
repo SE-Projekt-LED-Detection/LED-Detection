@@ -66,6 +66,7 @@ class MasterPublisher:
         :return:
         """
         self.running = False
+        self.state_queue.put(None)  # Needed to stop the get method in the run method
         if self.video_publisher is not None:
             self.video_publisher.stop_streaming()
         if self.mqqt_publisher is not None:

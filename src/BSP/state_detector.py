@@ -37,8 +37,6 @@ class StateDetector:
         webcam_id (int): The id of the webcam
 
         Optional parameters:
-        broker_host (str): The url to the mqtt broker
-        broker_port (int): The port of the mqtt broker
         logging_level = "DEFAULT": The logging level
         visualizer = FALSE: Visualise the results with the BIP
         validity_seconds = 300: The time until a new homography matrix is calculated
@@ -54,8 +52,6 @@ class StateDetector:
 
         self._board_observer = None
 
-        self.broker_address = kwargs["broker_host"]
-        self.broker_port = kwargs["broker_port"]
         self.validity_seconds = 300 if kwargs["validity_seconds"] is None else kwargs["validity_seconds"]
 
         self._closed = False
@@ -64,30 +60,15 @@ class StateDetector:
 
         self.state_queue = Queue()
 
-        Thread(target=self.start_mqtt_client).start()
-
     def __enter__(self):
         return self
 
     def __exit__(self, exc_type, exc_val, exc_tb):
         logging.info("Closing StateDetector")
         self._closed = True
-        self.mqtt_connector.disconnect()
         self.bufferless_video_capture.close()
         cv2.destroyAllWindows()
 
-    def start_mqtt_client(self):
-        config = {"broker_address": self.broker_address, "broker_port": self.broker_port,
-                  "topics": {"changes": "changes", "avail": "avail", "config": "config"}}
-        self.mqtt_connector = MQTTConnector(config)
-        try:
-            self.mqtt_connector.connect()
-        except ConnectionRefusedError:
-            logging.error("Connection to mqtt failed: connection refused")
-
-        self.mqtt_connector.loop_start()
-        self.mqtt_connector.add_config_handler(lambda client, userdata, message: print(message.payload))
-        asyncio.run(publish_heartbeat(self.mqtt_connector))
 
     def create_state_table(self):
         """
