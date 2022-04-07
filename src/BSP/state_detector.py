@@ -10,9 +10,9 @@ import time
 from BSP.LED.StateDetection.BoardObserver import BoardObserver
 from BSP.LED.LedStateDetector import LedStateDetector
 from BDG.model.board_model import Board
-from BIP.connection.message.change_msg import BoardChanges
-from BIP.connection.mqtt import MQTTConnector
-from BIP.connection.mqtt.mqtt_connector import publish_heartbeat
+from publisher.connection.message.change_msg import BoardChanges
+from publisher.connection.mqtt import MQTTConnector
+from publisher.connection.mqtt.mqtt_connector import publish_heartbeat
 from BSP.BoardOrientation import BoardOrientation
 from BSP.BufferlessVideoCapture import BufferlessVideoCapture
 from BSP.DetectionException import DetectionException
@@ -28,13 +28,22 @@ class StateDetector:
     which color and the frequency.
     """
 
-    def __init__(self, config: Board, webcam_id: int):
+    def __init__(self, **kwargs):
         """
-        :param config: The reference which will be used to match features with SIFT
-        :param webcam_id: The webcam id which will be used to open a video stream in open_stream()
+        Expected parameters:
+        reference (Board): The reference Board object to match the features
+        webcam_id (int): The id of the webcam
+
+        Optional parameters:
+        broker_host (str): The url to the mqtt broker
+        broker_port (int): The port of the mqtt broker
+        logging_level = "DEFAULT": The logging level
+        visualizer = FALSE: Visualise the results with the BIP
+        validity_seconds = 300: The time until a new homography matrix is calculated
+
         """
-        self.board = config.get_cropped_board()
-        self.webcam_id = webcam_id
+        self.board = kwargs["reference"].get_cropped_board()
+        self.webcam_id = kwargs["webcam_id"]
         self.delay_in_seconds = 0.05
         self.state_table: List[StateTableEntry] = []
         self.timer: sched.scheduler = sched.scheduler(time.time, time.sleep)
@@ -43,14 +52,27 @@ class StateDetector:
 
         self._board_observer = None
 
+        self.broker_address = kwargs["broker_host"]
+        self.broker_port = kwargs["broker_port"]
+        self.validity_seconds = 300 if kwargs["validity_seconds"] is None else kwargs["validity_seconds"]
+
+        self._closed = False
+
         self.create_state_table()
 
         Thread(target=self.start_mqtt_client).start()
 
-        print("Done")
+    def __enter__(self):
+        return self
+
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        self._closed = True
+        self.mqtt_connector.disconnect()
+        self.bufferless_video_capture.close()
+        cv2.destroyAllWindows()
 
     def start_mqtt_client(self):
-        config = {"broker_address": "89.58.3.45", "broker_port": 1883,
+        config = {"broker_address": self.broker_address, "broker_port": self.broker_port,
                   "topics": {"changes": "changes", "avail": "avail", "config": "config"}}
         self.mqtt_connector = MQTTConnector(config)
         self.mqtt_connector.connect()
@@ -71,7 +93,7 @@ class StateDetector:
         Starts the detection. Waits the number of seconds configured in the StateDetector, afterwards
         detects the current state. Repeats itself, blocking.
         """
-        while True:
+        while not self._closed:
             time.sleep(self.delay_in_seconds)
             self._detect_current_state()
 
@@ -87,7 +109,7 @@ class StateDetector:
         frame = cv2.rotate(frame, cv2.ROTATE_180)
 
         if self.current_orientation is None or self.current_orientation.check_if_outdated():
-            self.current_orientation = homography_by_sift(self.board.image, frame, display_result=False)
+            self.current_orientation = homography_by_sift(self.board.image, frame, display_result=False, validity_seconds=self.validity_seconds)
 
         leds_roi = get_led_roi(frame, self.board.led, self.current_orientation)
         for roi in leds_roi:

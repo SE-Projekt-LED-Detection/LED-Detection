@@ -5,8 +5,7 @@ import json
 
 import paho.mqtt.client as mqtt
 
-logging.basicConfig(level=logging.DEBUG,
-                    format='(%(threadName)-9s) %(message)s', )
+
 
 host = "89.58.3.45"
 port = 1883
@@ -79,6 +78,7 @@ class MQTTConnector(mqtt.Client):
 
         self._topics = config["topics"]
         self._is_connected = False
+        self.closed = False
         self.init_connect_callback()
 
     def connect(self):
@@ -129,13 +129,14 @@ class MQTTConnector(mqtt.Client):
             disconnects and publishes an offline msg to the broker
         """
         self._is_connected = False
-        self.publish(self._config["heartbeat_topic"], payload="offline")
+        self.closed = True
+        self.publish(self._topics["avail"], payload="offline")
         super().disconnect()
 
 
 async def publish_heartbeat(mqtt_connector: MQTTConnector):
     """publishes a heartbeat to the broker"""
-    while True:
+    while not mqtt_connector.closed:
         await asyncio.sleep(10)
         print("calling coroutine")
         if mqtt_connector.is_connected():
