@@ -131,13 +131,18 @@ class MQTTConnector(mqtt.Client):
         self._is_connected = False
         self.closed = True
         self.publish(self._topics["avail"], payload="offline")
+        self.loop_stop()
         super().disconnect()
 
 
 async def publish_heartbeat(mqtt_connector: MQTTConnector):
     """publishes a heartbeat to the broker"""
     while not mqtt_connector.closed:
-        await asyncio.sleep(10)
+        for i in range(10):
+            await asyncio.sleep(1)
+            if mqtt_connector.closed:
+                break
+
         print("calling coroutine")
         if mqtt_connector.is_connected():
             mqtt_connector.publish_heartbeat()

@@ -20,8 +20,9 @@ class BufferlessVideoCapture:
         self.q = queue.Queue()
         self.t = threading.Thread(target=self._reader)
         self.t.daemon = True
-        self.t.start()
         self.closed = False
+        self.t.start()
+
 
     # read frames as soon as they are available, keeping only most recent one
     def _reader(self):
@@ -41,5 +42,6 @@ class BufferlessVideoCapture:
 
     def close(self):
         self.closed = True
+        self.q.put(None)  # The read could be blocking the state detection if there is not video stream
         self.cap.release()
 
