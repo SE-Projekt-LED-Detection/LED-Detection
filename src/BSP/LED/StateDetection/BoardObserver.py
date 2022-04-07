@@ -5,6 +5,7 @@ import cv2
 import time
 import numpy as np
 
+from BSP.LED.ColorDetection import DominantColor, Util
 from BSP.LED.StateDetection import Brightness
 from BSP.LED import LedStateDetector
 
