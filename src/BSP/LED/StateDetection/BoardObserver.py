@@ -2,6 +2,7 @@ import collections
 from typing import List
 
 import cv2
+import time
 import numpy as np
 
 from BSP.LED.StateDetection import Brightness
@@ -42,15 +43,31 @@ class BoardObserver:
         self._brightnesses.append(brightness)
 
         for led in self.leds:
-            if led.detect(rois[led.id]):
-                on_change(led, args, kwargs)
-
-            # Debug show LEDs
-            cv2.imshow(str(led.id), rois[led.id])
-            if led.is_on:
-                rois[led.id][:] = (0, 255, 0)
+            led_img = rois[led.id]
+            if led.detect_change(led_img):
+                on_change(led.id, led.name, led.is_on, led.color, led.last_state_time, args, kwargs)
+            # Detect initial state
+            if led.is_on is None:
+                led_brightness = Brightness.avg_brightness(led_img)
+                # TODO find a better value for board_brightness
+                board_brightness = int(sum(self._brightnesses) / len(self._brightnesses))
+                if led_brightness > board_brightness:
+                    dominant = DominantColor.get_dominant_color_value(led_img)
+                    dominant_name = Util.get_color(dominant)
+                    on_change(led.id, led.name, True, dominant_name, time.time(), args, kwargs)
+                    # Debug
+                    rois[led.id][:] = (0, 255, 0)
+                else:
+                    on_change(led.id, led.name, False, "", time.time(), args, kwargs)
+                    # Debug
+                    rois[led.id][:] = (0, 0, 255)
             else:
-                rois[led.id][:] = (0, 0, 255)
+                # Debug show LEDs
+                cv2.imshow(str(led.id), rois[led.id])
+                if led.is_on:
+                    rois[led.id][:] = (0, 255, 0)
+                else:
+                    rois[led.id][:] = (0, 0, 255)
 
         # Debug show LEDs
         imR = cv2.resize(frame, (1632, 1224))
