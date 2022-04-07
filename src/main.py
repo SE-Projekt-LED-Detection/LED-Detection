@@ -31,6 +31,7 @@ def main(args):
     # Open StateDetector
     with StateDetector(reference=board, webcam_id=args.webcam_id, validity_seconds=args.validity_seconds) as detector:
         publisher = MasterPublisher(detector.state_queue)
+        publisher.init_video("rtmp://localhost:8080", args.visualizer)
         start_publisher(publisher, args.broker_host, args.broker_port)
 
 
@@ -53,7 +54,7 @@ def main(args):
 def start_publisher(publisher: MasterPublisher, broker_host, broker_port):
     publisher.init_mqqt({"broker_address": broker_host, "broker_port": broker_port,
                          "topics": {"changes": "changes", "avail": "avail", "config": "config"}})
-    publisher.init_video("rtmp://localhost:8080")
+
 
     threading.Thread(target=publisher.start_publish_heartbeats).start()
     threading.Thread(target=publisher.run).start()

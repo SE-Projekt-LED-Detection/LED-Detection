@@ -66,7 +66,8 @@ class StateDetector:
     def __exit__(self, exc_type, exc_val, exc_tb):
         logging.info("Closing StateDetector")
         self._closed = True
-        self.bufferless_video_capture.close()
+        if self.bufferless_video_capture is not None:
+            self.bufferless_video_capture.close()
         cv2.destroyAllWindows()
 
 

@@ -31,18 +31,15 @@ class MasterPublisher:
         self.mqqt_publisher = mqtt.MQTTConnector(mqqt_config)
         self.mqqt_publisher.connect()
 
-    def init_video(self, video_config):
+    def init_video(self, video_config, publish_stream):
         """
         initialize video publisher and start streaming
+        :param publish_stream:
         :param video_config:
         :return:
         """
 
-        self.video_publisher = VideoStream(video_config)
-
-    def start_stream(self):
-        if self.video_publisher is not None:
-            self.video_publisher.start_stream()
+        self.video_publisher = VideoStream(video_config, publish_stream)
 
     def run(self):
         """
