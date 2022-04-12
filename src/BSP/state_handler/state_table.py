@@ -6,16 +6,26 @@ import matplotlib.pyplot as plt
 state_table = pd.DataFrame(columns=["led_id", "state", "color", "time", "last_time_off", "last_time_on", "frequency"])
 
 
-def add_state(led_id,
-              state,
-              color):
+def insert_state_entry(led_id:str,
+                       state:str,
+                       color:str,
+                       timestamp=None):
+    """
+    insert a new row to the state_table
+    :param led_id: is the name of the LED type: str
+    :param state: the current state. Can be "on" or "off"
+    :param color: the color as str
+    :param timestamp: the timestamp or None if time.time() should be used.
+    :return:
+    """
     global state_table
 
     last_state = get_last_entry(led_id)
-    _add_new_led_id(led_id, state, color)
+    _add_new_led_id(led_id, state, color, timestamp)
     if last_state is None:
         return
     insert_last_time_state(led_id, state, last_state)
+
 
 def get_state_table():
     """
@@ -24,6 +34,7 @@ def get_state_table():
     """
     global state_table
     return state_table
+
 
 def insert_last_time_state(led_id, state, last_entry):
     """
@@ -55,22 +66,25 @@ def calculate_frequency(led_id):
 
 def _add_new_led_id(led_id,
                     state,
-                    color):
+                    color,
+                    timestamp=None):
     """
     adds a new row to the state_table for a new led_id.
-    :param led_id:
-    :param state:
-    :param color:
+    :param led_id: is the name of the led
+    :param state: is the current state and can be "on" or "off"
+    :param color: is the color given as str
+    :param timestamp: the current timestamp or None if time.time() should be used.
     :return:
     """
     global state_table
+    time_now = timestamp if timestamp is not None else time.time()
     if (state == "on"):
         state_table = state_table.append(
-            {"led_id": led_id, "state": state, "color": color, "time": time.time(), "last_time_off": np.NINF,
-             "last_time_on": time.time(), "frequency": 0}, ignore_index=True)
+            {"led_id": led_id, "state": state, "color": color, "time": time_now, "last_time_off": np.NINF,
+             "last_time_on": time_now, "frequency": 0}, ignore_index=True)
     else:
         state_table = state_table.append(
-            {"led_id": led_id, "state": state, "color": color, "time": time.time(), "last_time_off": time.time(),
+            {"led_id": led_id, "state": state, "color": color, "time": time_now, "last_time_off": time_now,
              "last_time_on": np.NINF, "frequency": 0}, ignore_index=True)
 
 
@@ -107,18 +121,20 @@ def get_led_time_series(led_id):
     global state_table
     return state_table.loc[state_table["led_id"] == led_id]
 
+
 def load_state_table(file_name: str):
     """
     Loads the state table from the given file.
     :param file_name:
-    :return:
+    :return: the state table
     """
     global state_table
     with open(file_name, "r") as file:
-        new_state_table = pd.read_csv(file)
+        new_state_table = pd.read_csv(file, delimiter=";")
         # check if the new state table is valid
-        assert new_state_table.columns == state_table.columns
+        assert np.all(new_state_table.columns==state_table.columns)
         state_table = new_state_table
+    return state_table
 
 
 def save_state_table(file_name: str):
@@ -131,7 +147,8 @@ def save_state_table(file_name: str):
     with open(file_name, "w") as file:
         state_table.to_csv(file, index=True)
 
-def get_led_as_time_series(led_id):
+
+def get_led_as_time_series(led_id: str):
     """
     Returns the time series of the given led_id.
     :param led_id:
@@ -139,8 +156,11 @@ def get_led_as_time_series(led_id):
     """
     global state_table
     table = state_table.loc[state_table["led_id"] == led_id]
-    table.index = table["time"]
+    #table["time"] = pd.to_datetime(table["time"])
+    table = table.set_index("time")
+
     return table
+
 
 def plot_led_time_series(led_id):
     """
@@ -169,5 +189,14 @@ def plot_all_led_time_series():
     Plots all leds as time series.
     :return:
     """
-    for led_id in get_led_ids():
-        plot_led_time_series(led_id)
+    global state_table
+    led_ids = get_led_ids()
+    fig, axs = plt.subplots(len(led_ids))
+    for id, val in enumerate(led_ids):
+        table = get_led_as_time_series(val)
+        table["state"] = table["state"].map({"on": 1, "off": 0})
+        axs[id].step(table.index, table["state"], where="post")
+        axs[id].set_title(val)
+        axs[id].set_ylim([-0.3,1.3])
+
+    plt.show()
