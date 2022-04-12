@@ -36,53 +36,30 @@ def test_blackbox_state_detector_with_zcu102():
 
 def test_blackbox_state_detector():
     reference = jsutil.from_json(file_path="resources/Pi/pi_test.json")
-    dec = StateDetector(reference=reference, webcam_id=0)
-    dec.open_stream(MockVideoCapture("./resources/Pi/pi_test.mp4", False))
+    with StateDetector(reference=reference, webcam_id=0) as dec:
+        dec.open_stream(MockVideoCapture("./resources/Pi/pi_test.mp4", False))
 
-    for i in range(400):
-        dec._detect_current_state()
+        for i in range(400):
+            dec._detect_current_state()
 
-        if dec.state_table[0].current_state is None or dec.state_table[1].current_state is None:
-            continue
+            if dec.state_table[0].current_state is None or dec.state_table[1].current_state is None:
+                continue
 
-        # Assert LEDs on and off based on the video
-        if i < 120:
-            assert dec.state_table[0].current_state.power == "on", "LED 0 not detected correctly"
-            assert dec.state_table[1].current_state.power == "on", "LED 1 not detected correctly"
-        elif 135 < i < 200:
-            assert dec.state_table[0].current_state.power == "off", "LED 0 not detected correctly"
-            assert dec.state_table[1].current_state.power == "off", "LED 1 not detected correctly"
-        elif 223 < i < 305:
-            assert dec.state_table[0].current_state.power == "on", "LED 0 not detected correctly"
-            assert dec.state_table[1].current_state.power == "on", "LED 1 not detected correctly"
-        elif 325 < i < 373:
-            assert dec.state_table[0].current_state.power == "off", "LED 0 not detected correctly"
-            assert dec.state_table[1].current_state.power == "off", "LED 1 not detected correctly"
-        elif 390 < i:
-            assert dec.state_table[0].current_state.power == "on", "LED 0 not detected correctly"
-            assert dec.state_table[1].current_state.power == "on", "LED 1 not detected correctly"
+            # Assert LEDs on and off based on the video
+            if i < 120:
+                assert dec.state_table[0].current_state.power == "on", "LED 0 not detected correctly"
+                assert dec.state_table[1].current_state.power == "on", "LED 1 not detected correctly"
+            elif 135 < i < 200:
+                assert dec.state_table[0].current_state.power == "off", "LED 0 not detected correctly"
+                assert dec.state_table[1].current_state.power == "off", "LED 1 not detected correctly"
+            elif 223 < i < 305:
+                assert dec.state_table[0].current_state.power == "on", "LED 0 not detected correctly"
+                assert dec.state_table[1].current_state.power == "on", "LED 1 not detected correctly"
+            elif 325 < i < 373:
+                assert dec.state_table[0].current_state.power == "off", "LED 0 not detected correctly"
+                assert dec.state_table[1].current_state.power == "off", "LED 1 not detected correctly"
+            elif 390 < i:
+                assert dec.state_table[0].current_state.power == "on", "LED 0 not detected correctly"
+                assert dec.state_table[1].current_state.power == "on", "LED 1 not detected correctly"
 
     cv2.destroyAllWindows()
-
-
-def run_in_thread(to_run):
-    global e
-    e = None
-
-    def loop():
-        try:
-            to_run()
-        except Exception as ex:
-            global e
-            e = ex
-
-    th = threading.Thread(target=loop)
-    th.start()
-
-    th.join()
-
-    if e is not None:
-        raise e
-
-    assert e is None, "Exception:" + str(e)
-
