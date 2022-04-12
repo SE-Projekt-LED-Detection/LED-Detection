@@ -55,7 +55,7 @@ class StateDetector:
 
         self.broker_address = kwargs["broker_host"]
         self.broker_port = kwargs["broker_port"]
-        self.validity_seconds = 300 if kwargs["validity_seconds"] is None else kwargs["validity_seconds"]
+        self.validity_seconds = 300 if "validity_seconds" not in kwargs else kwargs["validity_seconds"]
 
         self._closed = False
 
