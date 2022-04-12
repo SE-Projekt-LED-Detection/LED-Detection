@@ -147,17 +147,17 @@ class StateDetector:
         if not self.bufferless_video_capture.cap.isOpened():
             raise Exception(f"StateDetector is unable to open VideoCapture with index {self.webcam_id}")
 
-    def on_change(self, id: int, name: str, state: bool, color: str, time, *args, **kwargs) -> None:
+    def on_change(self, index: int, name: str, state: bool, color: str, time, *args, **kwargs) -> None:
         """
         Function that should be called when a LED state change has been detected.
-        :param id: The id of the LED used to assign the table slot.
+        :param index: The index of the LED used to assign the table slot.
         :param name: The name of the LED for clear debug outputs.
         :param state: True if this LED is currently powered on.
         :param color: The color that has been detected.
         :param time: The time the LED changed it's state.
         :return: None.
         """
-        entry = self.state_table[id]
+        entry = self.state_table[index]
         new_state = LedState("on" if state else "off", color, time)
 
         # Calculates the frequency

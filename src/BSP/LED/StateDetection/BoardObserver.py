@@ -21,7 +21,7 @@ class BoardObserver:
 
         for i in range(len(board_leds)):
             led = board_leds[i]
-            self.leds.append(LedStateDetector(i, led.id, led.colors))
+            self.leds.append(LedStateDetector(led.id, led.colors))
 
     def check(self, frame: np.array, rois: List[np.array], on_change, *args, **kwargs) -> None:
         """
@@ -47,10 +47,11 @@ class BoardObserver:
 
         self._brightnesses.append(brightness)
 
-        for led in self.leds:
-            led_img = rois[led.id]
+        for i in range(len(self.leds)):
+            led = self.leds[i]
+            led_img = rois[i]
             if led.detect_change(led_img):
-                on_change(led.id, led.name, led.is_on, led.color, led.last_state_time, args, kwargs)
+                on_change(i, led.name, led.is_on, led.color, led.last_state_time, args, kwargs)
             # Detect initial state
             if led.is_on is None:
                 led_brightness = Brightness.avg_brightness(led_img)
@@ -59,20 +60,20 @@ class BoardObserver:
                 if led_brightness > board_brightness:
                     dominant = DominantColor.get_dominant_color_value(led_img)
                     dominant_name = Util.get_color(dominant)
-                    on_change(led.id, led.name, True, dominant_name, time.time(), args, kwargs)
+                    on_change(i, led.name, True, dominant_name, time.time(), args, kwargs)
                     # Debug
-                    rois[led.id][:] = (0, 255, 0)
+                    rois[i][:] = (0, 255, 0)
                 else:
-                    on_change(led.id, led.name, False, "", time.time(), args, kwargs)
+                    on_change(i, led.name, False, "", time.time(), args, kwargs)
                     # Debug
-                    rois[led.id][:] = (0, 0, 255)
+                    rois[i][:] = (0, 0, 255)
             else:
                 # Debug show LEDs
-                cv2.imshow(str(led.id), rois[led.id])
+                cv2.imshow(str(i), rois[i])
                 if led.is_on:
-                    rois[led.id][:] = (0, 255, 0)
+                    rois[i][:] = (0, 255, 0)
                 else:
-                    rois[led.id][:] = (0, 0, 255)
+                    rois[i][:] = (0, 0, 255)
 
         # Debug show LEDs
         imR = cv2.resize(frame, (1632, 1224))
