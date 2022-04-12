@@ -63,26 +63,3 @@ def test_blackbox_state_detector():
             assert dec.state_table[1].current_state.power == "on", "LED 1 not detected correctly"
 
     cv2.destroyAllWindows()
-
-
-def run_in_thread(to_run):
-    global e
-    e = None
-
-    def loop():
-        try:
-            to_run()
-        except Exception as ex:
-            global e
-            e = ex
-
-    th = threading.Thread(target=loop)
-    th.start()
-
-    th.join()
-
-    if e is not None:
-        raise e
-
-    assert e is None, "Exception:" + str(e)
-
