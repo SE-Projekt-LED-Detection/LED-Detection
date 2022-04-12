@@ -51,10 +51,10 @@ class StateDetector:
         self.current_orientation: BoardOrientation = None
         self.bufferless_video_capture: BufferlessVideoCapture = None
 
-        self._board_observer = None
+        self._board_observer = BoardObserver(self.board.led)
 
-        self.broker_address = kwargs["broker_host"]
-        self.broker_port = kwargs["broker_port"]
+        self.broker_address = "localhost"  # DEBUG ONLY
+        self.broker_port = 1111  # DEBUG ONLY
         self.validity_seconds = 300 if "validity_seconds" not in kwargs else kwargs["validity_seconds"]
 
         self._closed = False
@@ -112,29 +112,19 @@ class StateDetector:
         frame = self.bufferless_video_capture.read()
 
         if frame is None:
-            return
+            return  # Indicates that video capture is closed and state detector stopped
 
         frame = cv2.rotate(frame, cv2.ROTATE_180)
 
         if self.current_orientation is None or self.current_orientation.check_if_outdated():
             self.current_orientation = homography_by_sift(self.board.image, frame, display_result=False, validity_seconds=self.validity_seconds)
 
-        leds_roi = get_led_roi(frame, self.board.led, self.current_orientation)
-        for roi in leds_roi:
-            if roi.shape[0] <= 0 or roi.shape[1] <= 0:
-                self.current_orientation = None
-                print("Wrong homography matrix. Retry on next frame...")
-                return
-                # raise DetectionException("Could not detect ROIs probably because of a wrong homography matrix. (ROI size is 0)")
+        try:
+            leds_roi = get_led_roi(frame, self.board.led, self.current_orientation)
+        except DetectionException as de:
+            logging.error(getattr(de, 'message', repr(de)))
+            return  # Retry on next frame
 
-        assert len(leds_roi) == len(self.board.led), "Not all LEDs have been detected."
-
-        # Initialize BoardObserver and all LEDs
-        if self._board_observer is None:
-            self._board_observer = BoardObserver()
-            for i in range(len(self.board.led)):
-                led = self.board.led[i]
-                self._board_observer.leds.append(LedStateDetector(i, led.id, led.colors))
 
         # Check LED states
         self._board_observer.check(frame, leds_roi, self.on_change)

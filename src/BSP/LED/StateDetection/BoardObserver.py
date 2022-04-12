@@ -6,18 +6,22 @@ import time
 import numpy as np
 
 from BSP.LED.ColorDetection import DominantColor, Util
+from BSP.LED.LedStateDetector import LedStateDetector
 from BSP.LED.StateDetection import Brightness
-from BSP.LED import LedStateDetector
+
 
 deviation = 5
 
 
 class BoardObserver:
 
-    def __init__(self):
+    def __init__(self, board_leds):
         self.leds: List[LedStateDetector] = []
-
         self._brightnesses = collections.deque(maxlen=30)
+
+        for i in range(len(board_leds)):
+            led = board_leds[i]
+            self.leds.append(LedStateDetector(i, led.id, led.colors))
 
     def check(self, frame: np.array, rois: List[np.array], on_change, *args, **kwargs) -> None:
         """
