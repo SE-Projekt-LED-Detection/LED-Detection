@@ -17,7 +17,7 @@ from publisher.connection.mqtt.mqtt_connector import publish_heartbeat
 from BSP.BoardOrientation import BoardOrientation
 from BSP.BufferlessVideoCapture import BufferlessVideoCapture
 from BSP.DetectionException import DetectionException
-from BSP.homographyProvider import homography_by_sift
+from BSP.HomographyProvider import homography_by_sift
 from BSP.led_extractor import get_led_roi
 from BSP.led_state import LedState
 from BSP.state_table_entry import StateTableEntry
@@ -160,6 +160,7 @@ class StateDetector:
     def on_change(self, id: int, name: str, state: bool, color: str, time, *args, **kwargs) -> None:
         """
         Function that should be called when a LED state change has been detected.
+
         :param id: The id of the LED used to assign the table slot.
         :param name: The name of the LED for clear debug outputs.
         :param state: True if this LED is currently powered on.
