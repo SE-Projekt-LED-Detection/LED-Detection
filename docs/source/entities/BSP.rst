@@ -208,12 +208,12 @@ The detection is run in another thread.
     # Load json reference from file
     reference = jsutil.from_json(file_path=reference-file-path)
     # Creat new State Detector instance with webcam on /dev/video1
-    dec = StateDetector(reference,1)
-    # Open video stream
-    dec.open_stream()
-    # Start detection in other thread
-    th = threading.Thread(target=dec.start)
-    th.start()
-
-    # Avoid closing main thread
-    th.join()
+    with StateDetector(reference=reference, webcam_id=1) as dec:
+        # Open video stream
+        dec.open_stream()
+        # Start detection in other thread
+        th = threading.Thread(target=dec.start)
+        th.start()
+        
+        # Avoid closing main thread
+        th.join()
