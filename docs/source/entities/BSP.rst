@@ -49,6 +49,29 @@ The frequency saved in the attribute 'hertz' will be calculated by the detector 
 occurs.
 Changes of the table will then be forwarded to MQTT.
 
+.. _lighting_conditions:
+
+Lighting conditions
+~~~~~~~~~~~~~~~~~~~
+The lighting conditions are important for the detection to work properly. As a rule of thumb one can use the assumption
+that if the LEDs light is overlapping wrong detection is possible.
+
+.. figure:: images/too_bright.png
+
+    In this picture the light of the LEDs interferes with the neighbour LEDs. It is not clearly visible which LEDs
+    are on and which off, hence the detection is mislead.
+
+If the detection yields wrong results it is necessary to improve the conditions. This can be done in a few ways:
+
+* Change the exposure setting of the camera. This is the best solution as it does not require any changes in the general setup. Though most of the cameras do not support this.
+
+* Add additional light focused on the board to make the LEDs not as bright in comparison to the rest of the board.
+
+
+Furthermore, what can be helpful is to decrease the size of the LED ROIs in the BDG. If the ROIs are smaller, interference
+is not as much likely. Note that this is only effective to a certain degree.
+
+In general, it requires testing to find good conditions.
 
 
 
