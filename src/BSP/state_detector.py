@@ -21,6 +21,7 @@ from BSP.homographyProvider import homography_by_sift
 from BSP.led_extractor import get_led_roi
 from BSP.led_state import LedState
 from BSP.state_table_entry import StateTableEntry
+from BSP.state_handler.state_table import insert_state_entry
 
 
 class StateDetector:
@@ -117,7 +118,8 @@ class StateDetector:
         frame = cv2.rotate(frame, cv2.ROTATE_180)
 
         if self.current_orientation is None or self.current_orientation.check_if_outdated():
-            self.current_orientation = homography_by_sift(self.board.image, frame, display_result=False, validity_seconds=self.validity_seconds)
+            self.current_orientation = homography_by_sift(self.board.image, frame, display_result=False,
+                                                          validity_seconds=self.validity_seconds)
 
         leds_roi = get_led_roi(frame, self.board.led, self.current_orientation)
         for roi in leds_roi:
@@ -167,22 +169,5 @@ class StateDetector:
         :param time: The time the LED changed it's state.
         :return: None.
         """
-        entry = self.state_table[id]
-        new_state = LedState("on" if state else "off", color, time)
-
-        # Calculates the frequency
-        if entry.current_state is not None and entry.current_state.power != new_state.power:
-            print("Led" + str(name) + ": " + new_state.power)
-
-            if new_state.power == "on":
-                entry.hertz = 1.0 / (new_state.timestamp - entry.last_time_on)
-            self.mqtt_connector.publish_changes(
-                BoardChanges(self.board.id, name, new_state.power, new_state.color, entry.hertz,
-                             new_state.timestamp))
-
-        if new_state.power == "on":
-            entry.last_time_on = new_state.timestamp
-        else:
-            entry.last_time_off = new_state.timestamp
-
-        entry.current_state = new_state
+        state_str = "on" if state else "off"
+        insert_state_entry(name, state_str, color, time)
