@@ -17,3 +17,10 @@ def test_plot():
     load_state_table("resources/example_log.csv")
     plot_all_led_time_series()
 
+def test_insert_in_new():
+    timestamp = time.time_ns()
+    insert_state_entry("LED_1", "on", "red", timestamp)
+    assert np.all(get_led_ids() == "LED_1")
+    insert_state_entry("LED_1", "off", "green", timestamp+1)
+    entry = get_last_entry("LED_1")
+    assert entry["last_time_on"] == timestamp

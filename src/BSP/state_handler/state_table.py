@@ -21,10 +21,11 @@ def insert_state_entry(led_id:str,
     global state_table
 
     last_state = get_last_entry(led_id)
-    _add_new_led_id(led_id, state, color, timestamp)
-    if last_state is None:
-        return
-    insert_last_time_state(led_id, state, last_state)
+    entry = _add_new_led_id(led_id, state, color, timestamp)
+    if last_state is not None:
+        entry = insert_last_time_state(entry, last_state)
+    state_table = state_table.append(entry, ignore_index=True)
+
 
 
 def get_state_table():
@@ -36,20 +37,21 @@ def get_state_table():
     return state_table
 
 
-def insert_last_time_state(led_id, state, last_entry):
+def insert_last_time_state(current_entry, last_entry):
     """
     insert the last time entry for the given led_id.
     :param led_id:
     :param state:
     :return:
     """
-    global state_table
-    inverse_state = "off" if state == "on" else "on"
+
+    inverse_state = "off" if current_entry["state"] == "on" else "on"
     column_name = "last_time_" + inverse_state
-    if last_entry["state"] is state:
-        state_table.loc[led_id, column_name][-1] = last_entry[column_name]
+    if current_entry["state"] is last_entry["state"]:
+        current_entry[column_name] = last_entry[column_name]
     else:
-        state_table.loc[led_id, column_name][-1] = last_entry["time"]
+        current_entry[column_name] = last_entry["time"]
+    return current_entry
 
 
 def calculate_frequency(led_id):
@@ -79,13 +81,13 @@ def _add_new_led_id(led_id,
     global state_table
     time_now = timestamp if timestamp is not None else time.time()
     if (state == "on"):
-        state_table = state_table.append(
-            {"led_id": led_id, "state": state, "color": color, "time": time_now, "last_time_off": np.NINF,
-             "last_time_on": time_now, "frequency": 0}, ignore_index=True)
+        return pd.Series({"led_id": led_id, "state": state, "color": color, "time": time_now, "last_time_off": np.NINF,
+             "last_time_on": time_now, "frequency": 0})
+
     else:
-        state_table = state_table.append(
-            {"led_id": led_id, "state": state, "color": color, "time": time_now, "last_time_off": time_now,
-             "last_time_on": np.NINF, "frequency": 0}, ignore_index=True)
+        return pd.Series({"led_id": led_id, "state": state, "color": color, "time": time_now, "last_time_off": time_now,
+             "last_time_on": np.NINF, "frequency": 0})
+
 
 
 def check_if_led_is_new(led_id):
@@ -200,3 +202,4 @@ def plot_all_led_time_series():
         axs[id].set_ylim([-0.3,1.3])
 
     plt.show()
+
