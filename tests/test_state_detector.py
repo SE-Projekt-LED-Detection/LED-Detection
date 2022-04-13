@@ -8,12 +8,13 @@ from BSP.state_detector import StateDetector
 from cv2 import cv2
 import BDG.utils.json_util as jsutil
 from MockVideoCapture import MockVideoCapture
-from BSP.state_handler.state_table import get_state_table, get_last_entry
+from BSP.state_handler.state_table import get_state_table, get_last_entry, get_current_state, get_led_ids
 
 
 def test_blackbox_state_detector_with_zcu102():
     """
     Runs the StateDetector with an example video.
+    TODO: This test is not working, because the homography matrix is not correct.
     """
 
     reference = jsutil.from_json(file_path="./resources/ZCU102/reference/ref.json")
@@ -25,13 +26,16 @@ def test_blackbox_state_detector_with_zcu102():
 
     dec._detect_current_state()
 
-    state_table = get_state_table()
+    current_state = get_current_state()
+    led_ids = get_led_ids()
+    # Assert LEDs on and off based on the video
+    print(current_state)
 
-    assert dec.state_table[0].current_state.power == "off", "LED 0 not detected correctly"
-    assert dec.state_table[1].current_state.power == "on", "LED 1 not detected correctly"
-    assert dec.state_table[4].current_state.power == "on", "LED 4 not detected correctly"
-    assert dec.state_table[5].current_state.power == "on", "LED 5 not detected correctly"
-    assert dec.state_table[6].current_state.power == "off", "LED 6 not detected correctly"
+    assert current_state[current_state["led_id"] == led_ids[0]]["state"] == "off", "LED 0 not detected correctly"
+    assert current_state[current_state["led_id"] == led_ids[1]]["state"] == "on", "LED 1 not detected correctly"
+    assert current_state[current_state["led_id"] == led_ids[4]]["state"] == "on", "LED 4 not detected correctly"
+    assert current_state[current_state["led_id"] == led_ids[5]]["state"] == "on", "LED 5 not detected correctly"
+    assert current_state[current_state["led_id"] == led_ids[6]]["state"] == "off", "LED 6 not detected correctly"
 
     cv2.waitKey(100)
 

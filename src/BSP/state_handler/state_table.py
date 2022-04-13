@@ -176,6 +176,15 @@ def plot_led_time_series(led_id):
     table.plot(x="time", y="state")
     plt.show()
 
+def get_current_state():
+    """
+    Returns the last detected state of all leds
+    :return:
+    """
+    global state_table
+    assert not state_table.empty # check if the state table is empty
+    last_time = state_table["time"].iloc[-1]
+    return state_table.loc[state_table["time"] == last_time]
 
 def get_led_ids():
     """
