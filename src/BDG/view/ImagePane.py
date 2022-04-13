@@ -64,6 +64,10 @@ class ImagePane(tk.Frame):
         self.canvas.bind("<Button-2>", self.handler.delete_point)
         self.master.bind("<Control-z>", lambda x: self.handler.undo())
         self.master.bind("<Control-y>", lambda x: self.handler.redo())
+        self.canvas.bind("<Left>", lambda x: self.handler.move_current_led_one_pixel_horizontally(-1))
+        self.canvas.bind("<Right>", lambda x: self.handler.move_current_led_one_pixel_horizontally(1))
+        self.canvas.bind("<Up>", lambda x: self.handler.move_current_led_one_pixel_vertically(-1))
+        self.canvas.bind("<Down>", lambda x: self.handler.move_current_led_one_pixel_vertically(1))
 
         self.activate_board_state()
 
@@ -107,6 +111,7 @@ class ImagePane(tk.Frame):
 
         self.update_polygon()
         self.update_led_indices()
+        self.canvas.focus_set()
 
     def on_resize(self, event):
         """
@@ -190,7 +195,7 @@ class ImagePane(tk.Frame):
                                                fill="red",
                                                width=2,
                                                tag="poly",
-                                               alpha=0.5)
+                                               alpha=0.25)
         else:
             self.polygon = None
 

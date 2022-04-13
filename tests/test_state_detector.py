@@ -7,7 +7,7 @@ from BSP.BufferlessVideoCapture import BufferlessVideoCapture
 from BSP.state_detector import StateDetector
 from cv2 import cv2
 import BDG.utils.json_util as jsutil
-from tests.MockVideoCapture import MockVideoCapture
+from MockVideoCapture import MockVideoCapture
 
 
 def test_blackbox_state_detector_with_zcu102():
@@ -15,27 +15,51 @@ def test_blackbox_state_detector_with_zcu102():
     Runs the StateDetector with an example video.
     """
 
-    try:
-        reference = jsutil.from_json(file_path="./resources/ZCU102/reference/ref.json")
 
-        dec = StateDetector(reference, 4)
+    reference = jsutil.from_json(file_path="./resources/ZCU102/reference/ref.json")
 
-        cap = MockVideoCapture("./resources/ZCU102/zcu102_video.avi", False)
-        dec.open_stream(cap)
+    dec = StateDetector(reference=reference, webcam_id=4)
 
-        th = threading.Thread(target=dec.start)
-        th.start()
+    cap = MockVideoCapture("./resources/ZCU102/zcu102_video.avi", False)
+    dec.open_stream(cap)
 
-        th.join()
+    dec._detect_current_state()
 
-    except Exception as e:
-        pytest.fail(e)
+    assert dec.state_table[0].current_state.power == "off", "LED 0 not detected correctly"
+    assert dec.state_table[1].current_state.power == "on", "LED 1 not detected correctly"
+    assert dec.state_table[4].current_state.power == "on", "LED 4 not detected correctly"
+    assert dec.state_table[5].current_state.power == "on", "LED 5 not detected correctly"
+    assert dec.state_table[6].current_state.power == "off", "LED 6 not detected correctly"
+
+    cv2.waitKey(100)
+
 
 def test_blackbox_state_detector():
-    reference = jsutil.from_json(file_path="resources/pi_test.json")
-    dec = StateDetector(reference, 0)
-    dec.open_stream(BufferlessVideoCapture("./resources/piOnOff2.mp4"))
-    th = threading.Thread(target=dec.start)
-    th.start()
+    reference = jsutil.from_json(file_path="resources/Pi/pi_test.json")
+    with StateDetector(reference=reference, webcam_id=0) as dec:
+        dec.open_stream(MockVideoCapture("./resources/Pi/pi_test.mp4", False))
 
-    th.join()
+        for i in range(400):
+            dec._detect_current_state()
+
+            if dec.state_table[0].current_state is None or dec.state_table[1].current_state is None:
+                continue
+
+            # Assert LEDs on and off based on the video
+            if i < 120:
+                assert dec.state_table[0].current_state.power == "on", "LED 0 not detected correctly"
+                assert dec.state_table[1].current_state.power == "on", "LED 1 not detected correctly"
+            elif 135 < i < 200:
+                assert dec.state_table[0].current_state.power == "off", "LED 0 not detected correctly"
+                assert dec.state_table[1].current_state.power == "off", "LED 1 not detected correctly"
+            elif 223 < i < 305:
+                assert dec.state_table[0].current_state.power == "on", "LED 0 not detected correctly"
+                assert dec.state_table[1].current_state.power == "on", "LED 1 not detected correctly"
+            elif 325 < i < 373:
+                assert dec.state_table[0].current_state.power == "off", "LED 0 not detected correctly"
+                assert dec.state_table[1].current_state.power == "off", "LED 1 not detected correctly"
+            elif 390 < i:
+                assert dec.state_table[0].current_state.power == "on", "LED 0 not detected correctly"
+                assert dec.state_table[1].current_state.power == "on", "LED 1 not detected correctly"
+
+    cv2.destroyAllWindows()

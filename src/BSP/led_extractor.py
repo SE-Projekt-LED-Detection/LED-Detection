@@ -9,7 +9,6 @@ from BSP.BoardOrientation import BoardOrientation
 def get_led_roi(frame: np.array, leds: List[Led], board_orientation: BoardOrientation) -> List[np.array]:
     """
     Returns the LEDs in the target image based on the homography matrix
-    Returns the LEDs in the target image based on the homography matrix
 
     :param leds: A list with the LED objects which shall be evaluated
     :param frame: The frame where the LEDs will be cut out
@@ -36,18 +35,6 @@ def get_led_roi(frame: np.array, leds: List[Led], board_orientation: BoardOrient
     #radius = list(map(lambda led: round(led.radius * max(scale_x, scale_y)), leds))
     led_rois: List[np.array] = _led_by_circle_coordinates(frame, led_centers_transformed.astype(int), radius)
 
-
-    # Fills the squares except the circles of the LEDs with gray color
-    for (led, roi) in zip(leds,led_rois):
-        x_coords = np.arange(0, roi.shape[0])
-        y_coords = np.arange(0, roi.shape[1])
-
-        cx = x_coords.size / 2
-        cy = y_coords.size / 2
-        for x in x_coords:
-            for y in y_coords:
-                in_circle = (x - cx)**2 + (y-cy)**2 < led.radius**2
-                roi[x, y] = roi[x, y, :] if in_circle else np.array([127, 127, 127])
 
     return led_rois
 

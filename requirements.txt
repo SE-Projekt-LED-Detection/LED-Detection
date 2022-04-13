@@ -12,7 +12,8 @@ scipy
 dataclasses
 scikit-learn
 numpyencoder
-
+configargparse
+ffmpeg-python
 
 paho-mqtt
 pytest
@@ -23,3 +24,4 @@ requests
 packaging
 jinja2
 setuptools
+wget
