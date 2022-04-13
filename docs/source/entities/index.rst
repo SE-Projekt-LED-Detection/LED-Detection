@@ -11,6 +11,7 @@ Entities
     BSP
     BDG
     BSV
+    CLI
 
 
 
