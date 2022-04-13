@@ -8,10 +8,10 @@ Entities
     :maxdepth: 2
     :caption: The different entities
 
+    CLI
     BSP
     BDG
     BSV
-    CLI
 
 
 

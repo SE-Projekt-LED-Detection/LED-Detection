@@ -25,9 +25,11 @@ The main method is used via a command line interface and comes with following di
 
 * **-lf, --log_file**: Writes the log to a file but not in the console anymore. See also --log_to_console.
 
-* **-s, --validity_seconds**: The seconds until the homography matrix is calculated anew. The default value is 300 seconds but if the board or camera might not be as stable a lower value is advised.
+* **-s, --validity_seconds**: The seconds until the homography matrix is calculated anew. The default value is 300 seconds but if the board or camera might not be stable a lower value is advised.
 
 To terminate the application press Control + C. The Threads will be terminated then.
+
+Required arguments are: --reference and --webcam_id
 
 
 
