@@ -47,20 +47,21 @@ class StateDetector:
         self.board = kwargs["reference"].get_cropped_board()
         self.webcam_id = kwargs["webcam_id"]
         self.delay_in_seconds = 0.05
-        self.state_table: List[StateTableEntry] = []
+        # self.state_table: List[StateTableEntry] = []
         self.timer: sched.scheduler = sched.scheduler(time.time, time.sleep)
         self.current_orientation: BoardOrientation = None
         self.bufferless_video_capture: BufferlessVideoCapture = None
 
         self._board_observer = None
 
-        self.broker_address = kwargs["broker_host"]
-        self.broker_port = kwargs["broker_port"]
-        self.validity_seconds = 300 if kwargs["validity_seconds"] is None else kwargs["validity_seconds"]
+        if "broker_host" in kwargs:
+            # TODO: shouldn't be in here
+            self.broker_address = kwargs.get("broker_host")
+            self.broker_port = kwargs.get("broker_port")
+
+        self.validity_seconds = kwargs.get("validity_seconds", 300)
 
         self._closed = False
-
-        self.create_state_table()
 
         Thread(target=self.start_mqtt_client).start()
 
@@ -86,13 +87,6 @@ class StateDetector:
         self.mqtt_connector.loop_start()
         self.mqtt_connector.add_config_handler(lambda client, userdata, message: print(message.payload))
         asyncio.run(publish_heartbeat(self.mqtt_connector))
-
-    def create_state_table(self):
-        """
-        Creates the state table and fills it with empty entries.
-        """
-        for led in self.board.led:
-            self.state_table.append(StateTableEntry(led.id, None, 0, 0))
 
     def start(self):
         """
