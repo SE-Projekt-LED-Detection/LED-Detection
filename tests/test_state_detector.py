@@ -42,11 +42,11 @@ def test_blackbox_state_detector_with_zcu102():
 
 def test_blackbox_state_detector():
     reference = jsutil.from_json(file_path="resources/Pi/pi_test.json")
-    dec = StateDetector(reference=reference, webcam_id=0)
-    dec.open_stream(MockVideoCapture("./resources/Pi/pi_test.mp4", False))
+    with StateDetector(reference=reference, webcam_id=0) as dec:
+        dec.open_stream(MockVideoCapture("./resources/Pi/pi_test.mp4", False))
 
-    for i in range(400):
-        dec._detect_current_state()
+        for i in range(400):
+            dec._detect_current_state()
 
         # if dec.state_table[0].current_state is None or dec.state_table[1].current_state is None:
         #     continue
@@ -70,25 +70,3 @@ def test_blackbox_state_detector():
             assert led_1["state"] == "on", "LED 1 not detected correctly"
 
     cv2.destroyAllWindows()
-
-
-def run_in_thread(to_run):
-    global e
-    e = None
-
-    def loop():
-        try:
-            to_run()
-        except Exception as ex:
-            global e
-            e = ex
-
-    th = threading.Thread(target=loop)
-    th.start()
-
-    th.join()
-
-    if e is not None:
-        raise e
-
-    assert e is None, "Exception:" + str(e)

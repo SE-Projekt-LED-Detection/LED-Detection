@@ -1,3 +1,5 @@
+import queue
+
 from BSP.BufferlessVideoCapture import BufferlessVideoCapture
 import cv2
 
@@ -14,6 +16,8 @@ class MockVideoCapture(BufferlessVideoCapture):
             super().__init__(name)
         else:
             self.cap = cv2.VideoCapture(name)
+
+        self.q = queue.Queue()  # Needed for proper closing
 
     def read(self):
         if self.bufferless:
