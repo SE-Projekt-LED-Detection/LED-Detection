@@ -2,13 +2,14 @@ import numpy as np
 import pandas as pd
 import time
 import matplotlib.pyplot as plt
+from threading import Lock
 
 state_table = pd.DataFrame(columns=["led_id", "state", "color", "time", "last_time_off", "last_time_on", "frequency"])
 
 
-def insert_state_entry(led_id:str,
-                       state:str,
-                       color:str,
+def insert_state_entry(led_id: str,
+                       state: str,
+                       color: str,
                        timestamp=None):
     """
     insert a new row to the state_table
@@ -19,22 +20,21 @@ def insert_state_entry(led_id:str,
     :return:
     """
     global state_table
-
-    last_state = get_last_entry(led_id)
-    entry = _add_new_led_id(led_id, state, color, timestamp)
-    if last_state is not None:
-        entry = insert_last_time_state(entry, last_state)
-    state_table = state_table.append(entry, ignore_index=True)
-
+    with Lock():
+        last_state = get_last_entry(led_id)
+        entry = _add_new_led_id(led_id, state, color, timestamp)
+        if last_state is not None:
+            entry = insert_last_time_state(entry, last_state)
+        state_table = state_table.append(entry, ignore_index=True)
 
 
 def get_state_table():
     """
-    Returns the state table.
+    Returns an copy of the state table.
     :return:
     """
     global state_table
-    return state_table
+    return state_table.copy()
 
 
 def insert_last_time_state(current_entry, last_entry):
@@ -82,12 +82,11 @@ def _add_new_led_id(led_id,
     time_now = timestamp if timestamp is not None else time.time()
     if (state == "on"):
         return pd.Series({"led_id": led_id, "state": state, "color": color, "time": time_now, "last_time_off": np.NINF,
-             "last_time_on": time_now, "frequency": 0})
+                          "last_time_on": time_now, "frequency": 0})
 
     else:
         return pd.Series({"led_id": led_id, "state": state, "color": color, "time": time_now, "last_time_off": time_now,
-             "last_time_on": np.NINF, "frequency": 0})
-
+                          "last_time_on": np.NINF, "frequency": 0})
 
 
 def check_if_led_is_new(led_id):
@@ -134,7 +133,7 @@ def load_state_table(file_name: str):
     with open(file_name, "r") as file:
         new_state_table = pd.read_csv(file, delimiter=";")
         # check if the new state table is valid
-        assert np.all(new_state_table.columns==state_table.columns)
+        assert np.all(new_state_table.columns == state_table.columns)
         state_table = new_state_table
     return state_table
 
@@ -158,7 +157,7 @@ def get_led_as_time_series(led_id: str):
     """
     global state_table
     table = state_table.loc[state_table["led_id"] == led_id]
-    #table["time"] = pd.to_datetime(table["time"])
+    # table["time"] = pd.to_datetime(table["time"])
     table = table.set_index("time")
 
     return table
@@ -176,15 +175,17 @@ def plot_led_time_series(led_id):
     table.plot(x="time", y="state")
     plt.show()
 
+
 def get_current_state():
     """
     Returns the last detected state of all leds
     :return:
     """
     global state_table
-    assert not state_table.empty # check if the state table is empty
+    assert not state_table.empty  # check if the state table is empty
     last_time = state_table["time"].iloc[-1]
     return state_table.loc[state_table["time"] == last_time]
+
 
 def get_led_ids():
     """
@@ -208,7 +209,6 @@ def plot_all_led_time_series():
         table["state"] = table["state"].map({"on": 1, "off": 0})
         axs[id].step(table.index, table["state"], where="post")
         axs[id].set_title(val)
-        axs[id].set_ylim([-0.3,1.3])
+        axs[id].set_ylim([-0.3, 1.3])
 
     plt.show()
-
