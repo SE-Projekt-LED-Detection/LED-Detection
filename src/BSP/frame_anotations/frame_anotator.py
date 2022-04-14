@@ -1,4 +1,4 @@
-from BSP.state_handler.state_table import get_current_state, plot_all_led_time_series
+from BSP.state_handler.state_table import get_current_state, plot_all_led_time_series, get_led_ids
 import numpy as np
 import cv2
 
@@ -38,16 +38,21 @@ def draw_plot_in_frame(frame):
     cv2.imwrite("plot.png", canvas)
     return canvas
 
+
 def draw_bounding_boxes(frame, boxes):
     """
-    draws the bounding boxes on the frame
+    draws the bounding boxes as well as the labels on the frame
     :param frame:
     :param boxes:
     :return:
     """
-    for box in boxes:
+    labels = get_led_ids()
+    for idx, box in enumerate(boxes):
+        label = labels[idx]
+        cv2.putText(frame, label, (box[0] - 10, box[1] - 10), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 255, 0), 2)
         cv2.rectangle(frame, (box[0], box[1]), (box[2], box[3]), (0, 255, 0), 2)
     return frame
+
 
 def draw_frame_rate(frame, fps):
     """
@@ -59,3 +64,16 @@ def draw_frame_rate(frame, fps):
     cv2.putText(frame, "FPS: " + str(fps), (10, 20), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 255, 0), 2)
     return frame
 
+
+def annotate_frame(frame, boxes, fps):
+    """
+    annotates the frame with the plot and the bounding boxes
+    :param frame:
+    :param boxes:
+    :param fps:
+    :return:
+    """
+    frame = draw_bounding_boxes(frame, boxes)
+    frame = draw_frame_rate(frame, fps)
+    frame = draw_plot_in_frame(frame)
+    return frame
