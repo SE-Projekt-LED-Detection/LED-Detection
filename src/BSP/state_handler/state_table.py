@@ -198,6 +198,7 @@ def get_led_ids():
 def plot_all_led_time_series():
     """
     Plots all leds as time series.
+    :param limit: limits the series to a certain number of entries
     :return:
     """
     global state_table
@@ -209,6 +210,5 @@ def plot_all_led_time_series():
         axs[id].step(table.index, table["state"], where="post")
         axs[id].set_title(val)
         axs[id].set_ylim([-0.3,1.3])
-
-    plt.show()
+    return fig, axs
 
