@@ -68,10 +68,10 @@ def draw_frame_rate(frame, fps):
 def annotate_frame(frame, boxes, fps):
     """
     annotates the frame with the plot and the bounding boxes
-    :param frame:
-    :param boxes:
-    :param fps:
-    :return:
+    :param frame: the frame to annotate
+    :param boxes: the regions of interest
+    :param fps: the frame rate
+    :return: the annotated frame
     """
     frame = draw_bounding_boxes(frame, boxes)
     frame = draw_frame_rate(frame, fps)
