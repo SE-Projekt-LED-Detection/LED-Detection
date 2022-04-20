@@ -28,7 +28,7 @@ def main(args):
         logging.error("Could not load board: %s", e)
 
     # Open StateDetector
-    with StateDetector(reference=board, webcam_id=args.webcam_id, broker_host=args.broker_host, broker_port=args.broker_port, validity_seconds=args.validity_seconds) as detector:
+    with StateDetector(reference=board, webcam_id=args.webcam_id, broker_host=args.broker_host, broker_port=args.broker_port, validity_seconds=args.validity_seconds, debug=args.debug) as detector:
         try:
             detector.open_stream()
         except Exception as e:
