@@ -1,4 +1,5 @@
 import asyncio
+from logging import debug, error, warning, info
 import logging
 from threading import Thread
 from typing import List
@@ -78,12 +79,14 @@ class StateDetector:
     def start_mqtt_client(self):
         config = {"broker_address": self.broker_address, "broker_port": self.broker_port,
                   "topics": {"changes": "changes", "avail": "avail", "config": "config"}}
+        debug("Logging config %s", config)
         self.mqtt_connector = MQTTConnector(config)
         try:
             self.mqtt_connector.connect()
         except ConnectionRefusedError:
             logging.error("Connection to mqtt failed: connection refused")
 
+        debug("Connecting mqtt and starting loop")
         self.mqtt_connector.loop_start()
         self.mqtt_connector.add_config_handler(lambda client, userdata, message: print(message.payload))
         asyncio.run(publish_heartbeat(self.mqtt_connector))
@@ -119,9 +122,8 @@ class StateDetector:
         for roi in leds_roi:
             if roi.shape[0] <= 0 or roi.shape[1] <= 0:
                 self.current_orientation = None
-                print("Wrong homography matrix. Retry on next frame...")
+                warning("One ROI's size is 0. Assuming the homography matrix is wrong, retry on next frame.")
                 return
-                # raise DetectionException("Could not detect ROIs probably because of a wrong homography matrix. (ROI size is 0)")
 
         assert len(leds_roi) == len(self.board.led), "Not all LEDs have been detected."
 
@@ -146,12 +148,15 @@ class StateDetector:
             assert isinstance(video_capture, BufferlessVideoCapture), "The passed video capture argument is not of " \
                                                                       "type BufferlessVideoCapture "
             self.bufferless_video_capture = video_capture
+            debug("Set video capture to the provided one")
             return
 
+        debug("Opening video capture with device id %s", self.webcam_id)
         self.bufferless_video_capture = BufferlessVideoCapture(self.webcam_id)
 
         if not self.bufferless_video_capture.cap.isOpened():
-            raise Exception(f"StateDetector is unable to open VideoCapture with index {self.webcam_id}")
+            error("The created video capture is not opened.")
+            raise Exception(f"StateDetector is unable to open VideoCapture with index {self.webcam_id}.")
 
     def on_change(self, id: int, name: str, state: bool, color: str, time, *args, **kwargs) -> None:
         """
