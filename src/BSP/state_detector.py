@@ -12,6 +12,7 @@ import time
 from BSP.LED.StateDetection.BoardObserver import BoardObserver
 from BSP.LED.LedStateDetector import LedStateDetector
 from BDG.model.board_model import Board
+from BSP.frame_anotations import frame_anotator
 from publisher.connection.message.change_msg import BoardChanges
 from publisher.connection.mqtt import MQTTConnector
 from publisher.connection.mqtt.mqtt_connector import publish_heartbeat
@@ -19,7 +20,7 @@ from BSP.BoardOrientation import BoardOrientation
 from BSP.BufferlessVideoCapture import BufferlessVideoCapture
 from BSP.DetectionException import DetectionException
 from BSP.homographyProvider import homography_by_sift
-from BSP.led_extractor import get_led_roi
+from BSP.led_extractor import get_led_roi, get_transformed_borders
 from BSP.led_state import LedState
 from BSP.state_table_entry import StateTableEntry
 from BSP.state_handler.state_table import insert_state_entry
@@ -56,6 +57,9 @@ class StateDetector:
         self.validity_seconds = kwargs.get("validity_seconds", 300)
 
         self._closed = False
+
+        self.prev_frame_time = time.time()
+        self.new_frame_time = time.time()
 
         self.state_queue = Queue()
 
@@ -98,6 +102,8 @@ class StateDetector:
                                                           validity_seconds=self.validity_seconds)
 
         leds_roi = get_led_roi(frame, self.board.led, self.current_orientation)
+
+
         for roi in leds_roi:
             if roi.shape[0] <= 0 or roi.shape[1] <= 0:
                 self.current_orientation = None
@@ -118,6 +124,14 @@ class StateDetector:
         self._board_observer.check(frame, leds_roi, self.on_change)
 
         # Publish frame
+        leds_borders = get_transformed_borders(self.board.led, self.current_orientation)
+
+        # Calculate FPS
+        self.new_frame_time = time.time()
+        fps = int(1 / (self.new_frame_time - self.prev_frame_time))
+        self.prev_frame_time = self.new_frame_time
+
+        frame_anotator.annotate_frame(frame, leds_borders, fps)
         self.state_queue.put({"frame": frame})
 
     def open_stream(self, video_capture: BufferlessVideoCapture = None):
@@ -149,9 +163,9 @@ class StateDetector:
         :return: None.
         """
         state_str = "on" if state else "off"
-        insert_state_entry(name, state_str, color, time)
+        entry = insert_state_entry(name, state_str, color, time)
 
         new_state = LedState("on" if state else "off", color, time)
-        board_changes = BoardChanges(self.board.id, name, new_state.power, new_state.color, entry.hertz,
+        board_changes = BoardChanges(self.board.id, name, new_state.power, new_state.color, entry["frequency"],
                                      new_state.timestamp)
         self.state_queue.put({"changes": board_changes})

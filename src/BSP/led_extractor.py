@@ -6,6 +6,24 @@ from BDG.model.board_model import Led
 from BSP.BoardOrientation import BoardOrientation
 
 
+def get_transformed_borders(leds: List[Led], board_orientation: BoardOrientation) -> List[np.array]:
+    """
+    Transforms the ROIs with the given board orientation
+    :param leds: The list with the position of the LEDs
+    :param board_orientation: The orientation of the board
+    :return: A list with the upper left and lower right corner coordinates of the leds in the coordinate system of the
+        transformed board
+    """
+    upper_led_borders = np.float32(list(map(lambda x: [x.position[0] - x.radius, x.position[1] - x.radius], leds)))
+    upper_borders_transformed = cv2.perspectiveTransform(np.array([upper_led_borders]), board_orientation.homography_matrix)[0]
+
+    lower_led_borders = np.float32(list(map(lambda x: [x.position[0] + x.radius, x.position[1] + x.radius], leds)))
+    lower_borders_transformed = \
+    cv2.perspectiveTransform(np.array([lower_led_borders]), board_orientation.homography_matrix)[0]
+
+    return list(map(lambda x: [int(round(x[0][0])), int(round(x[0][1])), int(round(x[1][0])), int(round(x[1][1]))], zip(upper_borders_transformed, lower_borders_transformed)))
+
+
 def get_led_roi(frame: np.array, leds: List[Led], board_orientation: BoardOrientation) -> List[np.array]:
     """
     Returns the LEDs in the target image based on the homography matrix

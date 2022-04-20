@@ -32,7 +32,11 @@ def draw_plot():
     draws the state over time plot for all leds and converts the plot it to a frame eg np.array
     :return: a np.array of the plot
     """
-    fig, axs = plot_all_led_time_series()
+    global fig, axs
+    led_ids = get_led_ids()
+    if fig == None:
+        fig, axs = plt.subplots(len(led_ids))
+    plot_all_led_time_series(led_ids)
     fig.canvas.draw()
     img_plot = np.fromstring(fig.canvas.tostring_rgb(), dtype=np.uint8,
                              sep='')
@@ -54,7 +58,6 @@ def draw_plot_in_frame(frame):
     canvas = np.zeros((height, width, 3), dtype=np.uint8)
     canvas[:frame.shape[0], :frame.shape[1]] = frame
     canvas[:plot.shape[0], frame.shape[1]:] = plot
-    cv2.imwrite("plot.png", canvas)
     return canvas
 
 
@@ -94,5 +97,5 @@ def annotate_frame(frame, boxes, fps):
     """
     frame = draw_bounding_boxes(frame, boxes)
     frame = draw_frame_rate(frame, fps)
-    frame = draw_plot_in_frame(frame)
+    #frame = draw_plot_in_frame(frame)
     return frame
