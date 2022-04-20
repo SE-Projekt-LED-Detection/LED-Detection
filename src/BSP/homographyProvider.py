@@ -6,6 +6,7 @@ import matplotlib.pyplot as plt
 from BSP.BoardOrientation import BoardOrientation
 
 
+
 def homography_by_sift(ref_img, target_img, distance_factor=0.65, display_result=False, validity_seconds=300) -> BoardOrientation:
     """
     Calculates the board orientation based on SIFT with knnMatch

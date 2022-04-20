@@ -71,7 +71,7 @@ class StateDetector:
     def __exit__(self, exc_type, exc_val, exc_tb):
         logging.info("Closing StateDetector")
         self._closed = True
-        self.mqtt_connector.disconnect()
+        # self.mqtt_connector.disconnect()
         self.bufferless_video_capture.close()
         cv2.destroyAllWindows()
 
@@ -134,6 +134,8 @@ class StateDetector:
 
         # Check LED states
         self._board_observer.check(frame, leds_roi, self.on_change)
+
+
 
     def open_stream(self, video_capture: BufferlessVideoCapture = None):
         """
