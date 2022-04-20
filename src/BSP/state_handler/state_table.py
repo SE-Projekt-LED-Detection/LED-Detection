@@ -210,19 +210,5 @@ def get_led_ids():
     return state_table["led_id"].unique()
 
 
-def plot_all_led_time_series():
-    """
-    Plots all leds as time series.
-    :return:
-    """
-    global state_table
-    led_ids = get_led_ids()
-    fig, axs = plt.subplots(len(led_ids))
-    for id, val in enumerate(led_ids):
-        table = get_led_as_time_series(val)
-        table["state"] = table["state"].map({"on": 1, "off": 0})
-        axs[id].step(table.index, table["state"], where="post")
-        axs[id].set_title(val)
-        axs[id].set_ylim([-0.3, 1.3])
 
-    plt.show()
+

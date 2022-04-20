@@ -1,12 +1,31 @@
-from BSP.state_handler.state_table import get_current_state, plot_all_led_time_series, get_led_ids
+from BSP.state_handler.state_table import get_led_ids, get_current_state, get_led_ids, \
+    get_led_as_time_series
 import numpy as np
 import cv2
-
-
+import matplotlib.pyplot as plt
 # current_state = get_current_state()
 # | led_id  |   state   |   color   |   time    |   last_time_off   |   last_time_on |  frequency   |
 # |---------|-----------|-----------|-----------|-------------------|----------------|--------------|
 # |    led_1|  off      |  "red"    |   123456  |            123456 |                |             1|
+
+fig = axs = None
+
+
+def plot_all_led_time_series(led_ids=None):
+    """
+    Plots all leds as time series.
+    :return:
+    """
+    global axs
+    assert axs is not None
+
+    for id, val in enumerate(led_ids):
+        table = get_led_as_time_series(val)
+        table["state"] = table["state"].map({"on": 1, "off": 0})
+        axs[id].step(table.index, table["state"], where="post")
+        axs[id].set_title(val)
+        axs[id].set_ylim([-0.3, 1.3])
+
 
 def draw_plot():
     """
