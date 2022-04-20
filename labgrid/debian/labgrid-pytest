@@ -1,5 +1,0 @@
-#!/bin/sh
-
-cmd="pytest"
-
-exec /opt/venvs/labgrid/bin/$cmd "$@"

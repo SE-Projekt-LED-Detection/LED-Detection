@@ -1,9 +1,0 @@
-targets:
-  main:
-    resources:
-      RemotePlace:
-        name: dedi
-    drivers:
-      DeditecRelaisDriver: {}
-options:
-  crossbar_url: 'ws://labgrid:20408/ws'
