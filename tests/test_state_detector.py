@@ -42,7 +42,7 @@ def test_blackbox_state_detector_with_zcu102():
 
 def test_blackbox_state_detector():
     reference = jsutil.from_json(file_path="resources/Pi/pi_test.json")
-    with StateDetector(reference=reference, webcam_id=0) as dec:
+    with StateDetector(reference=reference, webcam_id=0, debug=True) as dec:
         dec.open_stream(MockVideoCapture("./resources/Pi/pi_test.mp4", False))
 
         for i in range(400):

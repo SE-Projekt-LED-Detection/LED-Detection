@@ -43,7 +43,7 @@ class StateDetector:
         logging_level = "DEFAULT": The logging level
         visualizer = FALSE: Visualise the results with the BIP
         validity_seconds = 300: The time until a new homography matrix is calculated
-
+        debug = False: If True shows the windows with the LEDs and the current frame otherwise shows nothing
         """
         self.board = kwargs["reference"].get_cropped_board()
         self.webcam_id = kwargs["webcam_id"]
@@ -61,6 +61,7 @@ class StateDetector:
             self.broker_port = kwargs.get("broker_port")
 
         self.validity_seconds = kwargs.get("validity_seconds", 300)
+        self.debug = kwargs.get("debug", False)
 
         self._closed = False
 
@@ -129,7 +130,7 @@ class StateDetector:
 
         # Initialize BoardObserver and all LEDs
         if self._board_observer is None:
-            self._board_observer = BoardObserver()
+            self._board_observer = BoardObserver(self.debug)
             for i in range(len(self.board.led)):
                 led = self.board.led[i]
                 self._board_observer.leds.append(LedStateDetector(i, led.id, led.colors))
