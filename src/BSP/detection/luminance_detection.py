@@ -1,4 +1,7 @@
 import cv2
+
+import matplotlib.pyplot as plt
+
 def convert_to_yuv(img):
     """
     Convert an RGB image to YUV
@@ -20,3 +23,13 @@ def get_most_frequent_luminance(img, is_yuv=False):
     hist = cv2.calcHist([y_channel], [0], None, [256], [0, 256])
     return hist.argmax()
 
+def plot_luminance(img, is_yuv=False):
+    """
+    Plot the luminance of the image
+    :img: an image in YUV color space
+    """
+    if is_yuv == False:
+        img = convert_to_yuv(img)
+    y_channel = img[:, :, 0]
+    plt.hist(y_channel.ravel(), 256, [0, 256])
+    plt.show()
