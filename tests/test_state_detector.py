@@ -70,3 +70,4 @@ def test_blackbox_state_detector():
             assert led_1["state"] == "on", "LED 1 not detected correctly"
 
     cv2.destroyAllWindows()
+
