@@ -17,7 +17,7 @@ def insert_state_entry(led_id: str,
     :param state: the current state. Can be "on" or "off"
     :param color: the color as str
     :param timestamp: the timestamp or None if time.time() should be used.
-    :return:
+    :return: The created entry
     """
     global state_table
     with Lock():
@@ -26,6 +26,7 @@ def insert_state_entry(led_id: str,
         if last_state is not None:
             entry = insert_last_time_state(entry, last_state)
         state_table = state_table.append(entry, ignore_index=True)
+        return entry
 
 
 def get_state_table():
@@ -35,6 +36,18 @@ def get_state_table():
     """
     global state_table
     return state_table.copy()
+
+
+def insert_frequency(current_entry, last_entry, inverse_state):
+    if inverse_state == "off":
+        frequence = calc_frequency(current_time=current_entry["time"], last_time_on=last_entry["last_time_on"])
+    else:
+        frequence = last_entry["frequency"]
+    current_entry["frequency"] = frequence
+
+
+def calc_frequency(current_time, last_time_on):
+    return 1 / np.sqrt((current_time - last_time_on) ** 2)
 
 
 def insert_last_time_state(current_entry, last_entry):
@@ -50,6 +63,7 @@ def insert_last_time_state(current_entry, last_entry):
     if current_entry["state"] is last_entry["state"]:
         current_entry[column_name] = last_entry[column_name]
     else:
+        insert_frequency(current_entry, last_entry, inverse_state)
         current_entry[column_name] = last_entry["time"]
     return current_entry
 
