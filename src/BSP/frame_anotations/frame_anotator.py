@@ -1,5 +1,5 @@
 from BSP.state_handler.state_table import get_led_ids, get_current_state, get_led_ids, \
-    get_led_as_time_series
+    get_led_as_time_series, get_last_entry
 import numpy as np
 import cv2
 import matplotlib.pyplot as plt
@@ -71,8 +71,10 @@ def draw_bounding_boxes(frame, boxes):
     labels = get_led_ids()
     for idx, box in enumerate(boxes):
         label = labels[idx]
-        cv2.putText(frame, label, (box[0] - 10, box[1] - 10), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 255, 0), 2)
-        cv2.rectangle(frame, (box[0], box[1]), (box[2], box[3]), (0, 255, 0), 2)
+        entry = get_last_entry(label)
+        color = (0, 255, 0) if entry["state"] == "on" else (0, 0, 255)
+        cv2.putText(frame, label, (box[0] - 20, box[1] - 20), cv2.FONT_HERSHEY_SIMPLEX, 0.5, color, 1)
+        cv2.rectangle(frame, (box[0], box[1]), (box[2], box[3]), color, 2)
     return frame
 
 
@@ -83,7 +85,7 @@ def draw_frame_rate(frame, fps):
     :param fps:
     :return:
     """
-    cv2.putText(frame, "FPS: " + str(fps), (10, 20), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 255, 0), 2)
+    cv2.putText(frame, "FPS: " + str(fps), (10, 20), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 255, 0), 1)
     return frame
 
 

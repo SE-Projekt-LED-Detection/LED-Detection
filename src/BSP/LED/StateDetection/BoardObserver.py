@@ -58,19 +58,8 @@ class BoardObserver:
                     dominant = DominantColor.get_dominant_color_value(led_img)
                     dominant_name = Util.get_color(dominant)
                     on_change(led.id, led.name, True, dominant_name, time.time(), args, kwargs)
-                    # Debug
-                    rois[led.id][:] = (0, 255, 0)
                 else:
                     on_change(led.id, led.name, False, "", time.time(), args, kwargs)
-                    # Debug
-                    rois[led.id][:] = (0, 0, 255)
-            else:
-                # Debug show LEDs
-                cv2.imshow(str(led.id), rois[led.id])
-                if led.is_on:
-                    rois[led.id][:] = (0, 255, 0)
-                else:
-                    rois[led.id][:] = (0, 0, 255)
 
         # Debug show LEDs
         resized_frame = cv2.resize(frame, (1632, 1224))
