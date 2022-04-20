@@ -1,6 +1,7 @@
 import numpy as np
 import cv2
 import matplotlib.pyplot as plt
+from BDG.utils.util_functions import sort_points
 
 
 def convert_to_yuv(img):
@@ -32,6 +33,8 @@ def mask_background(frame, contours):
     :param contours: is the contours of the object
     :return:
     """
+    sort_points(contours)
+    contours = np.array(contours, dtype=int)
     mask = create_mask(contours, frame.shape[1], frame.shape[0])
     img = cv2.bitwise_and(frame, frame, mask=mask)
     return img

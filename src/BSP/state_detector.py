@@ -3,6 +3,7 @@ import logging
 from threading import Thread
 from typing import List
 
+import matplotlib.pyplot as plt
 from cv2 import cv2
 import numpy as np
 import sched
@@ -23,6 +24,9 @@ from BSP.led_state import LedState
 from BSP.state_table_entry import StateTableEntry
 from BSP.state_handler.state_table import insert_state_entry
 
+
+from BSP.detection.image_preprocessing import mask_background
+from BSP.detection.luminance_detection import plot_luminance, avg_board_brightness
 
 class StateDetector:
     """
@@ -63,7 +67,7 @@ class StateDetector:
 
         self._closed = False
 
-        Thread(target=self.start_mqtt_client).start()
+
 
     def __enter__(self):
         return self
@@ -75,18 +79,7 @@ class StateDetector:
         self.bufferless_video_capture.close()
         cv2.destroyAllWindows()
 
-    def start_mqtt_client(self):
-        config = {"broker_address": self.broker_address, "broker_port": self.broker_port,
-                  "topics": {"changes": "changes", "avail": "avail", "config": "config"}}
-        self.mqtt_connector = MQTTConnector(config)
-        try:
-            self.mqtt_connector.connect()
-        except ConnectionRefusedError:
-            logging.error("Connection to mqtt failed: connection refused")
 
-        self.mqtt_connector.loop_start()
-        self.mqtt_connector.add_config_handler(lambda client, userdata, message: print(message.payload))
-        asyncio.run(publish_heartbeat(self.mqtt_connector))
 
     def start(self):
         """
@@ -115,13 +108,19 @@ class StateDetector:
             self.current_orientation = homography_by_sift(self.board.image, frame, display_result=False,
                                                           validity_seconds=self.validity_seconds)
 
+        masked_frame = mask_background(frame, self.current_orientation.corners)
+        #plot_luminance(masked_frame, title="Masked frame")
+        avg_brightness = avg_board_brightness(frame, self.current_orientation.corners)
+
+        #plot_luminance(frame, title="Original frame")
         leds_roi = get_led_roi(frame, self.board.led, self.current_orientation)
-        for roi in leds_roi:
+        for index, roi in enumerate(leds_roi):
             if roi.shape[0] <= 0 or roi.shape[1] <= 0:
                 self.current_orientation = None
                 print("Wrong homography matrix. Retry on next frame...")
                 return
                 # raise DetectionException("Could not detect ROIs probably because of a wrong homography matrix. (ROI size is 0)")
+            #plot_luminance(roi, title="LED {}".format(index))
 
         assert len(leds_roi) == len(self.board.led), "Not all LEDs have been detected."
 
@@ -133,7 +132,7 @@ class StateDetector:
                 self._board_observer.leds.append(LedStateDetector(i, led.id, led.colors))
 
         # Check LED states
-        self._board_observer.check(frame, leds_roi, self.on_change)
+        self._board_observer.check(frame, leds_roi,avg_brightness, self.on_change)
 
 
 

@@ -19,7 +19,7 @@ class BoardObserver:
 
         self._brightnesses = collections.deque(maxlen=30)
 
-    def check(self, frame: np.array, rois: List[np.array], on_change, *args, **kwargs) -> None:
+    def check(self, frame: np.array, rois: List[np.array],avg_brightness, on_change) -> None:
         """
         Checks if brightness changed substantially in the image. Invalidates the LEDs if necessary and checks
         all LED states.
@@ -32,7 +32,7 @@ class BoardObserver:
         :return: None.
         """
         gray_frame = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
-        brightness = Brightness.avg_brightness(gray_frame)
+        brightness = avg_brightness
 
         if len(self._brightnesses) > 0:
             avg_brightness = int(sum(self._brightnesses) / len(self._brightnesses))
@@ -46,7 +46,7 @@ class BoardObserver:
         for led in self.leds:
             led_img = rois[led.id]
             if led.detect_change(led_img):
-                on_change(led.id, led.name, led.is_on, led.color, led.last_state_time, args, kwargs)
+                on_change(led.id, led.name, led.is_on, led.color, led.last_state_time)
             # Detect initial state
             if led.is_on is None:
                 led_brightness = Brightness.avg_brightness(led_img)
@@ -55,11 +55,11 @@ class BoardObserver:
                 if led_brightness > board_brightness:
                     dominant = DominantColor.get_dominant_color_value(led_img)
                     dominant_name = Util.get_color(dominant)
-                    on_change(led.id, led.name, True, dominant_name, time.time(), args, kwargs)
+                    on_change(led.id, led.name, True, dominant_name, time.time())
                     # Debug
                     rois[led.id][:] = (0, 255, 0)
                 else:
-                    on_change(led.id, led.name, False, "", time.time(), args, kwargs)
+                    on_change(led.id, led.name, False, "", time.time())
                     # Debug
                     rois[led.id][:] = (0, 0, 255)
             else:
