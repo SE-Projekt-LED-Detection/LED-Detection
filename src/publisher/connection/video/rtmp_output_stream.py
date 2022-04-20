@@ -1,3 +1,4 @@
+import logging
 import queue
 import sys
 
@@ -17,18 +18,24 @@ class VideoStream:
     VideoStream class
     for creating an rtmp stream out of opencv frames
     """
-    def __init__(self, url, logger: log.Logger):
+    def __init__(self, url, publish_stream, logger: log.Logger = logging.root):
 
         self.url = url
+        self.publish_stream = publish_stream
         self.process = None
         self.logger = logger
 
     def write(self, frame):
         """
-        Writes the frame to the ffmpeg process
+        Writes the frame to the ffmpeg process.
+        !If the flag publish_stream is set, this method will return without doing anything!
         :param frame: is an opencv frame type: numpy.ndarray
         :return:
         """
+
+        if not self.publish_stream:
+            return
+
         if not self.process:
             self.start_streaming(frame.shape[1], frame.shape[0])
         try:

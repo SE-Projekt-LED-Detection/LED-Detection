@@ -1,4 +1,5 @@
 import asyncio
+from queue import Queue
 import logging
 from threading import Thread
 from typing import List
@@ -37,8 +38,6 @@ class StateDetector:
         webcam_id (int): The id of the webcam
 
         Optional parameters:
-        broker_host (str): The url to the mqtt broker
-        broker_port (int): The port of the mqtt broker
         logging_level = "DEFAULT": The logging level
         visualizer = FALSE: Visualise the results with the BIP
         validity_seconds = 300: The time until a new homography matrix is calculated
@@ -54,16 +53,11 @@ class StateDetector:
 
         self._board_observer = None
 
-        if "broker_host" in kwargs:
-            # TODO: shouldn't be in here
-            self.broker_address = kwargs.get("broker_host")
-            self.broker_port = kwargs.get("broker_port")
-
         self.validity_seconds = kwargs.get("validity_seconds", 300)
 
         self._closed = False
 
-        Thread(target=self.start_mqtt_client).start()
+        self.state_queue = Queue()
 
     def __enter__(self):
         return self
@@ -71,22 +65,10 @@ class StateDetector:
     def __exit__(self, exc_type, exc_val, exc_tb):
         logging.info("Closing StateDetector")
         self._closed = True
-        self.mqtt_connector.disconnect()
-        self.bufferless_video_capture.close()
+        if self.bufferless_video_capture is not None:
+            self.bufferless_video_capture.close()
         cv2.destroyAllWindows()
 
-    def start_mqtt_client(self):
-        config = {"broker_address": self.broker_address, "broker_port": self.broker_port,
-                  "topics": {"changes": "changes", "avail": "avail", "config": "config"}}
-        self.mqtt_connector = MQTTConnector(config)
-        try:
-            self.mqtt_connector.connect()
-        except ConnectionRefusedError:
-            logging.error("Connection to mqtt failed: connection refused")
-
-        self.mqtt_connector.loop_start()
-        self.mqtt_connector.add_config_handler(lambda client, userdata, message: print(message.payload))
-        asyncio.run(publish_heartbeat(self.mqtt_connector))
 
     def start(self):
         """
@@ -135,6 +117,9 @@ class StateDetector:
         # Check LED states
         self._board_observer.check(frame, leds_roi, self.on_change)
 
+        # Publish frame
+        self.state_queue.put({"frame": frame})
+
     def open_stream(self, video_capture: BufferlessVideoCapture = None):
         """
         Opens the video stream.
@@ -165,3 +150,8 @@ class StateDetector:
         """
         state_str = "on" if state else "off"
         insert_state_entry(name, state_str, color, time)
+
+        new_state = LedState("on" if state else "off", color, time)
+        board_changes = BoardChanges(self.board.id, name, new_state.power, new_state.color, entry.hertz,
+                                     new_state.timestamp)
+        self.state_queue.put({"changes": board_changes})
