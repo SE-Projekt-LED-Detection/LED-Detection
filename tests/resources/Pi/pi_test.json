@@ -1,0 +1,1 @@
+{"id": "Pi", "author": "", "corners": [[230, 237], [215, 536], [673, 571], [693, 272]], "led": [{"id": "LED_Red", "position": [235, 279], "radius": 4, "colors": ["red"]}, {"id": "LED_Green", "position": [232, 300], "radius": 4, "colors": ["green"]}], "image_path": "pi_test.jpg"}
