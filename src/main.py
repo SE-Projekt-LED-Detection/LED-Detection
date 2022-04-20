@@ -8,6 +8,7 @@ import sys
 
 from BSP.state_detector import StateDetector
 import BDG.utils.json_util as jsutil
+from publisher.master_publisher import MasterPublisher
 
 
 def main(args):
@@ -28,7 +29,12 @@ def main(args):
         logging.error("Could not load board: %s", e)
 
     # Open StateDetector
-    with StateDetector(reference=board, webcam_id=args.webcam_id, broker_host=args.broker_host, broker_port=args.broker_port, validity_seconds=args.validity_seconds) as detector:
+    with StateDetector(reference=board, webcam_id=args.webcam_id, validity_seconds=args.validity_seconds) as detector:
+        publisher = MasterPublisher(detector.state_queue)
+        publisher.init_video("rtmp://localhost:8080", args.visualizer)
+        start_publisher(publisher, args.broker_host, args.broker_port)
+
+
         try:
             detector.open_stream()
         except Exception as e:
@@ -41,7 +47,18 @@ def main(args):
             th.join()
         except KeyboardInterrupt:
             logging.info("Exiting...")
+            publisher.stop()
             return
+
+
+def start_publisher(publisher: MasterPublisher, broker_host, broker_port):
+    publisher.init_mqqt({"broker_address": broker_host, "broker_port": broker_port,
+                         "topics": {"changes": "changes", "avail": "avail", "config": "config"}})
+
+
+    threading.Thread(target=publisher.start_publish_heartbeats).start()
+    threading.Thread(target=publisher.run).start()
+
 
 
 def parse_arguments():

@@ -31,18 +31,15 @@ class MasterPublisher:
         self.mqqt_publisher = mqtt.MQTTConnector(mqqt_config)
         self.mqqt_publisher.connect()
 
-    def init_video(self, video_config):
+    def init_video(self, video_config, publish_stream):
         """
         initialize video publisher and start streaming
+        :param publish_stream:
         :param video_config:
         :return:
         """
 
-        self.video_publisher = VideoStream(video_config)
-
-    def start_stream(self):
-        if self.video_publisher is not None:
-            self.video_publisher.start_stream()
+        self.video_publisher = VideoStream(video_config, publish_stream)
 
     def run(self):
         """
@@ -54,9 +51,9 @@ class MasterPublisher:
             # get the next message from the queue and publish it
             state = self.state_queue.get(block=True)
             if state is not None:
-                if self.mqqt_publisher is not None:
+                if self.mqqt_publisher is not None and state.has_key("changes"):
                     self.mqqt_publisher.publish_changes(state.changes)
-                if self.video_publisher is not None:
+                if self.video_publisher is not None and state.has_key("frame"):
                     self.video_publisher.write(state.frame)
 
 
@@ -66,6 +63,7 @@ class MasterPublisher:
         :return:
         """
         self.running = False
+        self.state_queue.put(None)  # Needed to stop the get method in the run method
         if self.video_publisher is not None:
             self.video_publisher.stop_streaming()
         if self.mqqt_publisher is not None:
@@ -77,7 +75,10 @@ class MasterPublisher:
         :return:
         """
         if self.heartbeat_thread is None:
-            self.heartbeat_thread = asyncio.create_task(mqtt.publish_heartbeat_routine(self.mqqt_publisher))
+            loop = asyncio.new_event_loop()
+            asyncio.set_event_loop(loop)
+            self.heartbeat_thread = loop.create_task(mqtt.publish_heartbeat_routine(self.mqqt_publisher))
+            loop.run_until_complete(self.heartbeat_thread)
 
     def __del__(self):
         self.stop()

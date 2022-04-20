@@ -43,6 +43,8 @@ class BoardObserver:
 
         self._brightnesses.append(brightness)
 
+
+
         for led in self.leds:
             led_img = rois[led.id]
             if led.detect_change(led_img):
@@ -71,6 +73,6 @@ class BoardObserver:
                     rois[led.id][:] = (0, 0, 255)
 
         # Debug show LEDs
-        imR = cv2.resize(frame, (1632, 1224))
-        cv2.imshow("Frame", imR)
+        resized_frame = cv2.resize(frame, (1632, 1224))
+        cv2.imshow("Frame", resized_frame)
         cv2.waitKey(10)

@@ -1,4 +1,5 @@
 import asyncio
+from queue import Queue
 import logging
 from threading import Thread
 from typing import List
@@ -12,6 +13,7 @@ import time
 from BSP.LED.StateDetection.BoardObserver import BoardObserver
 from BSP.LED.LedStateDetector import LedStateDetector
 from BDG.model.board_model import Board
+from BSP.frame_anotations import frame_anotator
 from publisher.connection.message.change_msg import BoardChanges
 from publisher.connection.mqtt import MQTTConnector
 from publisher.connection.mqtt.mqtt_connector import publish_heartbeat
@@ -19,7 +21,7 @@ from BSP.BoardOrientation import BoardOrientation
 from BSP.BufferlessVideoCapture import BufferlessVideoCapture
 from BSP.DetectionException import DetectionException
 from BSP.homographyProvider import homography_by_sift
-from BSP.led_extractor import get_led_roi
+from BSP.led_extractor import get_led_roi, get_transformed_borders
 from BSP.led_state import LedState
 from BSP.state_table_entry import StateTableEntry
 from BSP.state_handler.state_table import insert_state_entry
@@ -41,8 +43,6 @@ class StateDetector:
         webcam_id (int): The id of the webcam
 
         Optional parameters:
-        broker_host (str): The url to the mqtt broker
-        broker_port (int): The port of the mqtt broker
         logging_level = "DEFAULT": The logging level
         visualizer = FALSE: Visualise the results with the BIP
         validity_seconds = 300: The time until a new homography matrix is calculated
@@ -58,16 +58,14 @@ class StateDetector:
 
         self._board_observer = None
 
-        if "broker_host" in kwargs:
-            # TODO: shouldn't be in here
-            self.broker_address = kwargs.get("broker_host")
-            self.broker_port = kwargs.get("broker_port")
-
         self.validity_seconds = kwargs.get("validity_seconds", 300)
 
         self._closed = False
 
+        self.prev_frame_time = time.time()
+        self.new_frame_time = time.time()
 
+        self.state_queue = Queue()
 
     def __enter__(self):
         return self
@@ -75,10 +73,9 @@ class StateDetector:
     def __exit__(self, exc_type, exc_val, exc_tb):
         logging.info("Closing StateDetector")
         self._closed = True
-        # self.mqtt_connector.disconnect()
-        self.bufferless_video_capture.close()
+        if self.bufferless_video_capture is not None:
+            self.bufferless_video_capture.close()
         cv2.destroyAllWindows()
-
 
 
     def start(self):
@@ -120,7 +117,6 @@ class StateDetector:
                 print("Wrong homography matrix. Retry on next frame...")
                 return
                 # raise DetectionException("Could not detect ROIs probably because of a wrong homography matrix. (ROI size is 0)")
-            #plot_luminance(roi, title="LED {}".format(index))
 
         assert len(leds_roi) == len(self.board.led), "Not all LEDs have been detected."
 
@@ -135,6 +131,17 @@ class StateDetector:
         self._board_observer.check(frame, leds_roi,avg_brightness, self.on_change)
 
 
+
+        # Publish frame
+        leds_borders = get_transformed_borders(self.board.led, self.current_orientation)
+
+        # Calculate FPS
+        self.new_frame_time = time.time()
+        fps = int(1 / (self.new_frame_time - self.prev_frame_time))
+        self.prev_frame_time = self.new_frame_time
+
+        frame_anotator.annotate_frame(frame, leds_borders, fps)
+        self.state_queue.put({"frame": frame})
 
     def open_stream(self, video_capture: BufferlessVideoCapture = None):
         """
@@ -165,4 +172,9 @@ class StateDetector:
         :return: None.
         """
         state_str = "on" if state else "off"
-        insert_state_entry(name, state_str, color, time)
+        entry = insert_state_entry(name, state_str, color, time)
+
+        new_state = LedState("on" if state else "off", color, time)
+        board_changes = BoardChanges(self.board.id, name, new_state.power, new_state.color, entry["frequency"],
+                                     new_state.timestamp)
+        self.state_queue.put({"changes": board_changes})

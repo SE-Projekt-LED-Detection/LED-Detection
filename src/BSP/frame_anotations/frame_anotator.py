@@ -1,19 +1,42 @@
-from BSP.state_handler.state_table import get_current_state, plot_all_led_time_series, get_led_ids
+from BSP.state_handler.state_table import get_led_ids, get_current_state, get_led_ids, \
+    get_led_as_time_series
 import numpy as np
 import cv2
-
-
+import matplotlib.pyplot as plt
 # current_state = get_current_state()
 # | led_id  |   state   |   color   |   time    |   last_time_off   |   last_time_on |  frequency   |
 # |---------|-----------|-----------|-----------|-------------------|----------------|--------------|
 # |    led_1|  off      |  "red"    |   123456  |            123456 |                |             1|
+
+fig = axs = None
+
+
+def plot_all_led_time_series(led_ids=None):
+    """
+    Plots all leds as time series.
+    :return:
+    """
+    global axs
+    assert axs is not None
+
+    for id, val in enumerate(led_ids):
+        table = get_led_as_time_series(val)
+        table["state"] = table["state"].map({"on": 1, "off": 0})
+        axs[id].step(table.index, table["state"], where="post")
+        axs[id].set_title(val)
+        axs[id].set_ylim([-0.3, 1.3])
+
 
 def draw_plot():
     """
     draws the state over time plot for all leds and converts the plot it to a frame eg np.array
     :return: a np.array of the plot
     """
-    fig, axs = plot_all_led_time_series()
+    global fig, axs
+    led_ids = get_led_ids()
+    if fig == None:
+        fig, axs = plt.subplots(len(led_ids))
+    plot_all_led_time_series(led_ids)
     fig.canvas.draw()
     img_plot = np.fromstring(fig.canvas.tostring_rgb(), dtype=np.uint8,
                              sep='')
@@ -35,7 +58,6 @@ def draw_plot_in_frame(frame):
     canvas = np.zeros((height, width, 3), dtype=np.uint8)
     canvas[:frame.shape[0], :frame.shape[1]] = frame
     canvas[:plot.shape[0], frame.shape[1]:] = plot
-    cv2.imwrite("plot.png", canvas)
     return canvas
 
 
@@ -75,5 +97,5 @@ def annotate_frame(frame, boxes, fps):
     """
     frame = draw_bounding_boxes(frame, boxes)
     frame = draw_frame_rate(frame, fps)
-    frame = draw_plot_in_frame(frame)
+    #frame = draw_plot_in_frame(frame)
     return frame
