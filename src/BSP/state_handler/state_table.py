@@ -210,5 +210,7 @@ def get_led_ids():
     return state_table["led_id"].unique()
 
 
-
+def clear_state_table():
+    global state_table
+    state_table.drop(state_table.index, inplace=True)
 
