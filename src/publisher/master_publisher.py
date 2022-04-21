@@ -51,10 +51,10 @@ class MasterPublisher:
             # get the next message from the queue and publish it
             state = self.state_queue.get(block=True)
             if state is not None:
-                if self.mqqt_publisher is not None and state.has_key("changes"):
-                    self.mqqt_publisher.publish_changes(state.changes)
-                if self.video_publisher is not None and state.has_key("frame"):
-                    self.video_publisher.write(state.frame)
+                if self.mqqt_publisher is not None and state.__contains__("changes"):
+                    self.mqqt_publisher.publish_changes(state["changes"])
+                if self.video_publisher is not None and state.__contains__("frame"):
+                    self.video_publisher.write(state["frame"])
 
 
     def stop(self):
