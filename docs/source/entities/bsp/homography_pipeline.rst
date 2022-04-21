@@ -8,7 +8,7 @@ With this matrix, it is possible to calculate the locations of the led coordinat
 with the prior knowledge of the location of the leds in the reference image.
 
 The classical Pipeline
----------------------
+----------------------
 
 .. figure:: images/pipeline.png
     :width: 500px
@@ -16,6 +16,7 @@ The classical Pipeline
     :alt: The general pipeline for the homography estimation
 
     The general pipeline for the homography estimation. Source: https://ducha-aiki.medium.com/are-all-sifts-created-equal-part-1-1dbdc565bffb
+
 There are 5 basic steps for getting the homography matrix of an image pair:
     1. Detection of Keypoints which are repeatable structures in the images.
     2. Description of the Keypoints which means that the patches are converted to an vector.
@@ -120,7 +121,9 @@ It describes the rotation and the translation of the camera.
 
 .. math::
   \begin{bmatrix} u \\ v \\ w \end{bmatrix} = \underbrace{\begin{bmatrix}f_x && 0 && c_x && 0 \\ 0 && f_y && c_y && 0 \\ 0 && 0 && 1 && 0  \end{bmatrix}}_{\text{Camera Intrinsic}}\underbrace{\begin{bmatrix} r_{11} && r_{12} && r_{13} && {t_1} \\ r_{21} && r_{22} && r_{23} && t_2 \\ r_{31} && r_{32} && r_{33} && t_3 \\ 0 && 0 && 0 && 1 \end{bmatrix}}_{\text{Camera extrinsic}} \begin{bmatrix} X \\ Y \\ Z \\ 1 \end{bmatrix}
+
 Those two matrices are combined to get the camera matrix.
+
 .. math::
   C = \begin{bmatrix} C_{11} && C_{12} && C_{13} && C_{14} \\ C_{21} && C_{22}  && C_{23} &&  C_{24} \\ C_{31}v && C_{32} && C_{33} && C_{34}\end{bmatrix}
 
@@ -133,7 +136,7 @@ If you need more information about the camera model, you can read about it here:
 
 In our case we project the reference image as well as the webcam image to the same "world".
 
-.. figure:: images/homography_transformation_example2.jpeg.
+.. figure:: images/homography_transformation_example2.jpeg
   :align: center
   :width: 50%
   :alt: Planar homography

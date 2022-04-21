@@ -143,18 +143,6 @@ JsonUtil
 .. automodule:: BDG.utils.json_util
     :members:
 
-SvgParser
-"""""""""
-
-.. automodule:: BDG.utils.svg_parser
-    :members:
-
-SvgUtil
-"""""""
-
-.. automodule:: BDG.utils.svg_util
-    :members:
-
 UtilFunctions
 """""""""""""
 
