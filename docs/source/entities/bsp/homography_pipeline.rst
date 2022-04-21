@@ -1,14 +1,11 @@
 .. _homography_pipeline:
 
 Homography Pipeline
-====================
+~~~~~~~~~~~~~~~~~~~
 
-The homography pipeline provides a homography matrix for estimating the transformation between two images.
-With this matrix, it is possible to calculate the locations of the led coordinates in the second image
-with the prior knowledge of the location of the leds in the reference image.
 
 The classical Pipeline
-----------------------
+""""""""""""""""""""""
 
 .. figure:: images/pipeline.png
     :width: 500px
@@ -25,7 +22,7 @@ There are 5 basic steps for getting the homography matrix of an image pair:
     5. Refinement of the homography matrix.
 
 Keypointdetection
-------------------
+"""""""""""""""""
 
 There are several options for the keypoint detection.
 
@@ -35,14 +32,14 @@ There are several options for the keypoint detection.
 
 
 The Homography Matrix
-----------------------
+"""""""""""""""""""""
 The homography matrix describes projection of on plane onto another plane.
 With this matrix, it is possible to calculate the locations of the led coordinates in the second image
 with the prior knowledge of the location of the leds in the reference image.
 
 
 The basic theory
-----------------
+""""""""""""""""
 
 We have two images, the first one is the reference image, the second one is the image we get from our webcam stream.
 
@@ -88,7 +85,7 @@ Altogether we get the following equation for our projection:
 
 
 But how can we calculate the homography matrix?
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+"""""""""""""""""""""""""""""""""""""""""""""""
 As said in the previous section, the homography matrix is used to project the coordinates from one plane to another.  
 
 To understand that we first need to understand how we project an 3D point to a point in arbitrary space.
@@ -101,7 +98,7 @@ This model is a simple model of a camera that projects a 3D image (our real worl
   :alt: pinhole_camera_model
   :figclass: align-center
 
-Pin Hole Camera Model source: https://towardsdatascience.com/image-processing-class-egbe443-0-1-image-aquisition-7e80cc89de84
+  Pin Hole Camera Model. Source: https://towardsdatascience.com/image-processing-class-egbe443-0-1-image-aquisition-7e80cc89de84
 
 Let's consider the 3D world as a 3-tuple:
 

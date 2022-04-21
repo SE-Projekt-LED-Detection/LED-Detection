@@ -74,6 +74,17 @@ is not as much likely. Note that this is only effective to a certain degree.
 In general, it requires testing to find good conditions.
 
 
+Homography Pipeline
+~~~~~~~~~~~~~~~~~~~
+
+The homography pipeline provides a homography matrix for estimating the transformation between two images.
+With this matrix, it is possible to calculate the locations of the led coordinates in the second image
+with the prior knowledge of the location of the leds in the reference image.
+
+.. toctree::
+    :glob:
+
+    bsp/homography_pipeline
 
 
 
