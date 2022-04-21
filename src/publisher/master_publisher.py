@@ -22,7 +22,7 @@ class MasterPublisher:
         self.mqqt_publisher = None  # type: mqtt.MQTTConnector or None
         self.video_publisher = None  # type: VideoStream or None
         self.running = False  # type: bool
-        self.heartbeat_thread = None # type: asyncio.Task or None
+        self.heartbeat_thread = None  # type: asyncio.Task or None
 
     def init_mqqt(self, mqqt_config):
         """
@@ -55,7 +55,6 @@ class MasterPublisher:
                     self.mqqt_publisher.publish_changes(state["changes"])
                 if self.video_publisher is not None and state.__contains__("frame"):
                     self.video_publisher.write(state["frame"])
-
 
     def stop(self):
         """
