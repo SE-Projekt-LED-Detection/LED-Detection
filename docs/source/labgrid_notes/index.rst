@@ -1,10 +1,10 @@
 .. _labgrid_notes:
 
 Add Labgrid LED command
-=======================
+~~~~~~~~~~~~~~~~~~~~~~~
 
-Setup:
-------
+Setup
+"""""
 
 For the labgrid client we follow the official documentation but instead of the official repository for labgrid we use our own
     
@@ -19,7 +19,7 @@ For the labgrid client we follow the official documentation but instead of the o
 Follow the `official setup <https://labgrid.readthedocs.io/en/latest/getting_started.html#coordinator>`_ for the coordinator and the exporter.
 
 Usage
------
+"""""
 
 MQTT Driver:
     First add a ``MQTTResource`` for the Exporter. A sample for this config would be:
@@ -73,12 +73,12 @@ LED Driver:
         labgrid-venv $ labgrid-client -p <place> led all
 
 MQTT Driver/Resource/Client Documentation
-=========================================
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 All the relevant code blocks as the labgrid project itself is quite complex:
 
 Resources
----------
+"""""""""
 
 Found in ``labgrid/resource``
 
@@ -165,7 +165,7 @@ For the mqtt driver is this resource enough, for the led driver we also want to 
             board_topic = attr.ib(default=None, validator=attr.validators.instance_of(str))
 
 Driver
------
+""""""
 
 Found in ``labgrid/driver``
 
@@ -245,7 +245,7 @@ The led driver gets a list from the client of topics to which it should subscrib
                     self.payload = msg.payload
 
 Client
-------
+""""""
 found in ``labgrid/remote/client.py``
 
 MQTT
@@ -339,15 +339,15 @@ Calling/initialising the driver:
                         break
 
 
-Labgrid developer notes:
-========================
+Labgrid developer notes
+~~~~~~~~~~~~~~~~~~~~~~~
 
 Since the `labgrid documentation <https://labgrid.readthedocs.io/en/latest/index.html>`_,
 was a bit confusing for us we want to add some notes and experience on
 how to write a proper Driver.
 
-Steps for creating a Resource:
--------------------------------
+Steps for creating a Resource
+"""""""""""""""""""""""""""""
 
    
 At first you have to import the Driver module as well as the `attr <https://www.attrs.org/en/stable/>`_ module
