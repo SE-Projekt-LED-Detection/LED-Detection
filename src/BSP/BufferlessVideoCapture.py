@@ -8,6 +8,9 @@ class BufferlessVideoCapture:
     A special VideoCapture which will always return the most recent frame instead of the next available, meaning
     that all frames except the most recent one are dropped.
     Opens a cv2 VideoCapture with the given name what can be the webcam id to be wrapped.
+
+    The resolution is hardcoded but can be changed depending on the camera used. There is no way in Open CV to automatically
+    set the resolution to the maximum. Depending on the camera, more properties can be set here as well.
     """
 
     def __init__(self, name):
