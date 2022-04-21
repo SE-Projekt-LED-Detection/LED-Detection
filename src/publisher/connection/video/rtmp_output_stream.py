@@ -6,11 +6,8 @@ import ffmpeg
 import cv2
 import logging as log
 
-
-
 video_format = "flv"
 server_url = "rtmp://localhost:8080"
-
 
 
 class VideoStream:
@@ -18,6 +15,7 @@ class VideoStream:
     VideoStream class
     for creating an rtmp stream out of opencv frames
     """
+
     def __init__(self, url, publish_stream, logger: log.Logger = logging.root):
 
         self.url = url
@@ -47,11 +45,7 @@ class VideoStream:
             self.logger.error("Error writing to ffmpeg process: {}".format(e))
             self.stop_streaming()
 
-
-
-
-
-    def start_streaming(self, width, height,fps=30):
+    def start_streaming(self, width, height, fps=30):
         """
         Starts the ffmpeg process to stream the video and stores it in self.process
         :param width: is the input and output width of the video type: int
@@ -61,24 +55,21 @@ class VideoStream:
         """
         self.process = (
             ffmpeg
-            .input('pipe:', format='rawvideo',codec="rawvideo", pix_fmt='bgr24', s='{}x{}'.format(width, height))
-            .output(
+                .input('pipe:', format='rawvideo', codec="rawvideo", pix_fmt='bgr24', s='{}x{}'.format(width, height))
+                .output(
                 self.url,
-                #codec = "copy", # use same codecs of the original video
-                listen=1, # enables HTTP server
+                # codec = "copy", # use same codecs of the original video
+                listen=1,  # enables HTTP server
                 pix_fmt="yuv420p",
                 preset="ultrafast",
                 f=video_format,
 
             )
-            .global_args('-re')
-            .overwrite_output()
-            .run_async(pipe_stdin=True)
+                .global_args('-re')
+                .overwrite_output()
+                .run_async(pipe_stdin=True)
         )
         self.logger.info("Start streaming to {}".format(self.url))
-
-
-
 
     def stop_streaming(self):
         """
@@ -89,34 +80,3 @@ class VideoStream:
             self.process.kill()
             self.process = None
             self.logger.info("Stopped streaming to {}".format(self.url))
-
-
-
-def main():
-    """
-    Main function just for testing
-    :return:
-    """
-    video_stream = VideoStream(server_url)
-
-    try:
-        cap = cv2.VideoCapture(1)
-        height = int(cap.get(cv2.CAP_PROP_FRAME_HEIGHT))
-        width = int(cap.get(cv2.CAP_PROP_FRAME_WIDTH))
-        video_stream.start_streaming(width, height)
-
-        while True:
-            ret, frame = cap.read()
-            if ret:
-                video_stream.write(frame)
-            else:
-                video_stream.stop_streaming()
-                break
-    except KeyboardInterrupt:
-        video_stream.stop_streaming()
-        cv2.destroyAllWindows()
-        sys.exit(0)
-
-
-if __name__ == '__main__':
-    sys.exit(main())
