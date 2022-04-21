@@ -20,7 +20,11 @@ The code for that was copied from
 `Syncing Conda Environments with requirements.txt (05.10.2021) Lee Hanchung <https://leehanchung.github.io/2021-08-04-conda-requirements/>`_
 
 
+Code
+~~~~
 
+The whole project is hosted on `Github <https://github.com/SE-Projekt-LED-Detection/LED-Detection>`_ where the project
+can be forked.
 
 
 Creating a virtual environment
