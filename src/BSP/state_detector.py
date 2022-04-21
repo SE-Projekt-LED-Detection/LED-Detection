@@ -1,4 +1,5 @@
 import asyncio
+from logging import debug, error, warning, info
 from queue import Queue
 import logging
 from threading import Thread
@@ -46,7 +47,7 @@ class StateDetector:
         logging_level = "DEFAULT": The logging level
         visualizer = FALSE: Visualise the results with the BIP
         validity_seconds = 300: The time until a new homography matrix is calculated
-
+        debug = False: If True shows the windows with the LEDs and the current frame otherwise shows nothing
         """
         self.board = kwargs["reference"].get_cropped_board()
         self.webcam_id = kwargs["webcam_id"]
@@ -59,6 +60,7 @@ class StateDetector:
         self._board_observer = None
 
         self.validity_seconds = kwargs.get("validity_seconds", 300)
+        self.debug = kwargs.get("debug", False)
 
         self._closed = False
 
@@ -114,15 +116,14 @@ class StateDetector:
         for index, roi in enumerate(leds_roi):
             if roi.shape[0] <= 0 or roi.shape[1] <= 0:
                 self.current_orientation = None
-                print("Wrong homography matrix. Retry on next frame...")
+                warning("One ROI's size is 0. Assuming the homography matrix is wrong, retry on next frame.")
                 return
-                # raise DetectionException("Could not detect ROIs probably because of a wrong homography matrix. (ROI size is 0)")
 
         assert len(leds_roi) == len(self.board.led), "Not all LEDs have been detected."
 
         # Initialize BoardObserver and all LEDs
         if self._board_observer is None:
-            self._board_observer = BoardObserver()
+            self._board_observer = BoardObserver(self.debug)
             for i in range(len(self.board.led)):
                 led = self.board.led[i]
                 self._board_observer.leds.append(LedStateDetector(i, led.id, led.colors))
@@ -154,12 +155,15 @@ class StateDetector:
             assert isinstance(video_capture, BufferlessVideoCapture), "The passed video capture argument is not of " \
                                                                       "type BufferlessVideoCapture "
             self.bufferless_video_capture = video_capture
+            debug("Set video capture to the provided one")
             return
 
+        debug("Opening video capture with device id %s", self.webcam_id)
         self.bufferless_video_capture = BufferlessVideoCapture(self.webcam_id)
 
         if not self.bufferless_video_capture.cap.isOpened():
-            raise Exception(f"StateDetector is unable to open VideoCapture with index {self.webcam_id}")
+            error("The created video capture is not opened.")
+            raise Exception(f"StateDetector is unable to open VideoCapture with index {self.webcam_id}.")
 
     def on_change(self, id: int, name: str, state: bool, color: str, time, *args, **kwargs) -> None:
         """

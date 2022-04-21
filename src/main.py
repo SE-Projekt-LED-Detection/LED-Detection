@@ -29,11 +29,10 @@ def main(args):
         logging.error("Could not load board: %s", e)
 
     # Open StateDetector
-    with StateDetector(reference=board, webcam_id=args.webcam_id, validity_seconds=args.validity_seconds) as detector:
+    with StateDetector(reference=board, webcam_id=args.webcam_id, validity_seconds=args.validity_seconds, debug=args.debug) as detector:
         publisher = MasterPublisher(detector.state_queue)
         publisher.init_video("rtmp://localhost:8080", args.visualizer)
         start_publisher(publisher, args.broker_host, args.broker_port)
-
 
         try:
             detector.open_stream()

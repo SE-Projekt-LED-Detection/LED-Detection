@@ -14,8 +14,14 @@ deviation = 5
 
 class BoardObserver:
 
-    def __init__(self):
+    def __init__(self, debug):
+        """
+
+        :param debug: If True shows the windows with the LEDs and the current frame otherwise shows nothing
+        """
+
         self.leds: List[LedStateDetector] = []
+        self.debug = debug
 
         self._brightnesses = collections.deque(maxlen=30)
 
@@ -24,6 +30,7 @@ class BoardObserver:
         Checks if brightness changed substantially in the image. Invalidates the LEDs if necessary and checks
         all LED states.
         A LED that changed it's state will be passed into the on_change function.
+
         :param frame: the current frame of the camera stream.
         :param rois: all regions of interest for the LEDs in order.
         :param on_change: the function that should be called when a LED has changed it's state.
@@ -62,6 +69,7 @@ class BoardObserver:
                     on_change(led.id, led.name, False, "", time.time())
 
         # Debug show LEDs
-        resized_frame = cv2.resize(frame, (1632, 1224))
-        cv2.imshow("Frame", resized_frame)
-        cv2.waitKey(10)
+        if self.debug:
+            resized_frame = cv2.resize(frame, (1632, 1224))
+            cv2.imshow("Frame", resized_frame)
+            cv2.waitKey(10)

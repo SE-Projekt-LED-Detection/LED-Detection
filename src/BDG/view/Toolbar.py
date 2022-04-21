@@ -39,4 +39,4 @@ class Toolbar(tk.Frame):
     def _make_boardid_entry_visible(self):
         self.boardid_label.grid(column=2, row=0, sticky=tk.W, padx=2)
         self.boardid_entry.grid(column=3, row=0, sticky=tk.W, padx=2)
-        self.handler.board_id.set("")
+        self.handler.board_id.set(self.handler.board().id)  # Load boardid

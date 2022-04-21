@@ -105,7 +105,7 @@ class MQTTConnector(mqtt.Client):
         """
         publish heartbeat to the broker
         """
-        print("publish heartbeat")
+        logging.debug("Publish heartbeat")
         topic = self._topics["avail"]
         self.publish(topic, payload="online")
 
@@ -113,10 +113,10 @@ class MQTTConnector(mqtt.Client):
         def connect_callback(client, userdata, flags, rc):
             if rc == 0:
                 self.subscribe(self._topics["config"])
-                print("connected to broker")
+                logging.info("Connected to broker.")
                 self._is_connected = True
             else:
-                print("BAD CONNECTION")
+                logging.critical("Bad mqtt connection")
 
         self.on_connect = connect_callback
 
@@ -143,7 +143,6 @@ async def publish_heartbeat(mqtt_connector: MQTTConnector):
             if mqtt_connector.closed:
                 break
 
-        print("calling coroutine")
         if mqtt_connector.is_connected():
             mqtt_connector.publish_heartbeat()
 
