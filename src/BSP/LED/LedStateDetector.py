@@ -2,6 +2,7 @@ import time
 
 from BSP.LED.StateDetection.BrightnessComparison import BrightnessComparison
 from BSP.LED.ColorDetection.HueComparison import Comparison
+from BSP.LED.ColorDetection.Util import create_new_cmap
 
 
 class LedStateDetector:
@@ -23,6 +24,7 @@ class LedStateDetector:
         self.is_on = None
         self.last_state_time = None
         self.color: str = ""
+        self.cmap = create_new_cmap(colors)
 
     def detect_change(self, image):
         """
