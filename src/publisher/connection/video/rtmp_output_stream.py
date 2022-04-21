@@ -75,7 +75,7 @@ class VideoStream:
             .overwrite_output()
             .run_async(pipe_stdin=True)
         )
-        self.logger.log("Start streaming to {}".format(self.url))
+        self.logger.info("Start streaming to {}".format(self.url))
 
 
 
@@ -88,7 +88,7 @@ class VideoStream:
         if self.process:
             self.process.kill()
             self.process = None
-            self.logger.log("Stopped streaming to {}".format(self.url))
+            self.logger.info("Stopped streaming to {}".format(self.url))
 
 
 
