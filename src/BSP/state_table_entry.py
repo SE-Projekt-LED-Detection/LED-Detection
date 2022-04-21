@@ -1,5 +1,6 @@
 from BSP.led_state import LedState
 
+import pandas as pd
 
 class StateTableEntry:
     """
@@ -14,4 +15,9 @@ class StateTableEntry:
         self.current_state = current_state
         self.hertz = 0
         self.name = name
+
+
+    def __str__(self):
+        return "Name: {}, State: {}, Last time on: {}, Last time off: {}".format(self.name, self.current_state, self.last_time_on, self.last_time_off)
+
 
