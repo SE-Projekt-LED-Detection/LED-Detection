@@ -34,9 +34,6 @@ def get_led_roi(frame: np.array, leds: List[Led], board_orientation: BoardOrient
     :return: The LEDs in the target image as a list
     """
 
-    # Calculates the scaling between the reference and the target board
-    scale_x = abs(board_orientation.corners[0][0] - board_orientation.corners[2][0]) / board_orientation.reference_h
-    scale_y = abs(board_orientation.corners[0][1] - board_orientation.corners[1][1]) / board_orientation.reference_w
 
     # Transforms the center points
     led_centers = np.float32(list(map(lambda x: x.position, leds)))

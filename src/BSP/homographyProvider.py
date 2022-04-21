@@ -6,6 +6,7 @@ import matplotlib.pyplot as plt
 from BSP.BoardOrientation import BoardOrientation
 
 
+
 def homography_by_sift(ref_img, target_img, distance_factor=0.65, display_result=False, validity_seconds=300) -> BoardOrientation:
     """
     Calculates the board orientation based on SIFT with knnMatch
@@ -45,7 +46,7 @@ def homography_by_sift(ref_img, target_img, distance_factor=0.65, display_result
         h, w, d = ref_img.shape
         pts = np.float32([[0, 0], [0, h - 1], [w - 1, h - 1], [w - 1, 0]])
         dst = cv2.perspectiveTransform(np.array([pts]), homography_matrix)[0]
-        dst[1], dst[3] = dst[3], dst[1]
+        #dst[1], dst[3] = dst[3], dst[1]
     else:
         print("Not enough matches are found - {}/{}".format(len(good), 10))
         matches_mask = None
@@ -58,7 +59,7 @@ def homography_by_sift(ref_img, target_img, distance_factor=0.65, display_result
         img3 = cv2.drawMatches(ref_img, kp1, target_img, kp2, good, None, **draw_params)
         plt.imshow(img3, 'gray'), plt.show()
 
-    return BoardOrientation(homography_matrix, dst, ref_img.shape[:2], validity_seconds)
+    return BoardOrientation(homography_matrix, dst, validity_seconds)
 
 
 

@@ -4,6 +4,7 @@ import logging
 from threading import Thread
 from typing import List
 
+import matplotlib.pyplot as plt
 from cv2 import cv2
 import numpy as np
 import sched
@@ -25,6 +26,9 @@ from BSP.led_state import LedState
 from BSP.state_table_entry import StateTableEntry
 from BSP.state_handler.state_table import insert_state_entry
 
+
+from BSP.detection.image_preprocessing import mask_background
+from BSP.detection.luminance_detection import plot_luminance, avg_board_brightness
 
 class StateDetector:
     """
@@ -101,10 +105,13 @@ class StateDetector:
             self.current_orientation = homography_by_sift(self.board.image, frame, display_result=False,
                                                           validity_seconds=self.validity_seconds)
 
+        masked_frame = mask_background(frame, self.current_orientation.corners)
+        #plot_luminance(masked_frame, title="Masked frame")
+        avg_brightness = avg_board_brightness(frame, self.current_orientation.corners)
+
+        #plot_luminance(frame, title="Original frame")
         leds_roi = get_led_roi(frame, self.board.led, self.current_orientation)
-
-
-        for roi in leds_roi:
+        for index, roi in enumerate(leds_roi):
             if roi.shape[0] <= 0 or roi.shape[1] <= 0:
                 self.current_orientation = None
                 print("Wrong homography matrix. Retry on next frame...")
@@ -121,7 +128,9 @@ class StateDetector:
                 self._board_observer.leds.append(LedStateDetector(i, led.id, led.colors))
 
         # Check LED states
-        self._board_observer.check(frame, leds_roi, self.on_change)
+        self._board_observer.check(frame, leds_roi,avg_brightness, self.on_change)
+
+
 
         # Publish frame
         leds_borders = get_transformed_borders(self.board.led, self.current_orientation)
