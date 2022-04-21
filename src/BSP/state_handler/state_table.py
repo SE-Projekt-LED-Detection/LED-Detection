@@ -1,3 +1,6 @@
+import warnings
+warnings.simplefilter(action='ignore', category=FutureWarning)  # Ignore the warning of the dataframe append
+
 import numpy as np
 import pandas as pd
 import time
