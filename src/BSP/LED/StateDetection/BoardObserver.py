@@ -13,6 +13,10 @@ deviation = 5
 
 
 class BoardObserver:
+    """
+    The Board Observer
+
+    """
 
     def __init__(self, debug):
         """

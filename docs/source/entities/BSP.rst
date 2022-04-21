@@ -67,6 +67,8 @@ If the detection yields wrong results it is necessary to improve the conditions.
 
 * Add additional light focused on the board to make the LEDs not as bright in comparison to the rest of the board.
 
+* It is also possible to move the camera to only have a part of the board in view making the LEDs more clearly visible. This might impact the detection of the board and therefore has to be tested in practice.
+
 
 Furthermore, what can be helpful is to decrease the size of the LED ROIs in the BDG. If the ROIs are smaller, interference
 is not as much likely. Note that this is only effective to a certain degree.
@@ -151,10 +153,22 @@ Led State
 .. automodule:: BSP.led_state
     :members:
 
+State Table
+"""""""""""
+
+.. automodule:: BSP.state_handler.state_table
+    :members:
+
 State Table Entry
 """""""""""""""""
 
 .. automodule:: BSP.state_table_entry
+    :members:
+
+Url Board Loader
+""""""""""""""""
+
+.. automodule:: BSP.util.UrlBoardLoader
     :members:
 
 Homography Provider
@@ -171,6 +185,34 @@ For a detailed and mathematical description of the homography matrix, see :ref:`
     :hidden:
     
     bsp/homography_pipeline
+
+
+Color Detection
+"""""""""""""""
+
+.. automodule:: BSP.LED.ColorDetection.DominantColor
+    :members:
+
+.. automodule:: BSP.LED.ColorDetection.HueComparison
+    :members:
+
+.. automodule:: BSP.LED.ColorDetection.KMeans
+    :members:
+
+.. automodule:: BSP.LED.ColorDetection.Util
+    :members:
+
+State Detection
+"""""""""""""""
+
+.. automodule:: BSP.LED.StateDetection.Brightness
+    :members:
+
+.. automodule:: BSP.LED.StateDetection.BoardObserver
+    :members:
+
+.. automodule:: BSP.LED.StateDetection.BrightnessComparison
+    :members:
 
 
 
@@ -204,8 +246,8 @@ Returns a list of numpy arrays, the ROIs of the LEDs in the same order as in the
 Test coverage
 """""""""""""
 
-The BSP has a blackbox test which runs a detection of LEDs on a Raspberry Pi. As this yields not precise tests
-more unit tests a possible but currently not planed.
+The BSP has a blackbox test which runs a detection of LEDs on a Raspberry Pi. The other modules have unit tests as far as possible.
+There are no UI tests for the BDG as the unit tests already cover the logic.
 
 Example
 """"""""""""""""""
@@ -218,7 +260,7 @@ The detection is run in another thread.
 
     # Load json reference from file
     reference = jsutil.from_json(file_path=reference-file-path)
-    # Creat new State Detector instance with webcam on /dev/video1
+    # Create new State Detector instance with webcam on /dev/video1
     with StateDetector(reference=reference, webcam_id=1) as dec:
         # Open video stream
         dec.open_stream()

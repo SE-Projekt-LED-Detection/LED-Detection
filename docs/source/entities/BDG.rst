@@ -8,7 +8,7 @@ General approach
 The Board Description Generator (BDG) is a tool which allows to generate description files for boards. For doing so, a
 picture of the board is needed which will serve as reference image for the BSP.
 
-The picture should meet the following criteria: well lightning conditions, board is fully visible and not too small.
+The picture should meet the following criteria: well lightning conditions, at least hd resolution, board is fully visible and not too small.
 Generally, the window is resizable and the content will be scaled accordingly. The radius of the LEDs will be adjusted
 as well.
 
@@ -20,24 +20,29 @@ Place board corner points
 
 With the BDG such an image can be loaded and edited. The BDG ca be operated in two modes 'Place corner point' or 'Place LED'.
 In 'Place corner point' mode, corner points can be placed. These corner points are intended to mark the corners of the
-board in the picture.
+board in the picture. The region marked will be visible in red.
 
 .. figure:: images/bdg/example_corner_points.png
 
     An example where a picture of a raspberry pi is loaded and the corners points have been placed.
 
-The selected area will be used by the BSP to perform a feature detection, so the resolution should be around full hd for
-for better results in the detection.
+The selected area will be used by the BSP to perform a feature detection, so the resolution should be around full hd for 
+better results in the detection.
+
+Additionally, the board id has to be set. The id will be used to publish the changes via Mqtt.
 
 Place LEDs
 ~~~~~~~~~~
 
-In the second mode markers for the LEDs can be placed. For each placed LED there is an entry for the name or function
+In the second mode markers for the LEDs can be placed. For each placed LED there is an entry for the unique name or function
 and checkboxes for the possible colors on the right hand side of the window. The index of the LED is displayed in the
 list and on the lower left corner of each LED as well. By using the mousewheel the radius of the circles can be adjusted.
 
 
 The BSP will use these regions to detect the status of the LED.
+
+.. warning::
+    The names of the LEDs should be unique because they are used to publish the changes in the mqtt.
 
 Key support
 ~~~~~~~~~~~
@@ -55,6 +60,9 @@ Classes of the BDG
 ~~~~~~~~~~~~~~~~~~
 
 The BDG is implemented with the Model View Controller (MVC) pattern in mind to allow easy maintenance.
+View is responsible for the UI and displays the data which is saved in the coordinator. The coordinator module has
+classes which allow to register for events (image change or point change). Thus there is no dependency of the view in
+the coordinator. Finally, the model provides the Board object which is used in the BSP as well.
 
 .. uml:: ../uml/BDG.puml
    :align: center
@@ -101,7 +109,7 @@ Every change of the the corners or LEDs is processed here. The view takes the da
 .. automodule:: BDG.coordinator.edit_handler
     :members:
 
-Filehandler
+FileHandler
 """""""""""
 
 .. automodule:: BDG.coordinator.file_handler

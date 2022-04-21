@@ -6,6 +6,13 @@ from BDG.model.board_model import Board
 
 
 def load_board_from_url(config_folder: str, url: str) -> Board:
+    """
+    Loads a board into the config folder from the given url
+
+    :param config_folder: The folder where the board files should be stored
+    :param url: The direct url of the zip board file
+    :return: The loaded Board object
+    """
     resources_path = os.path.join(config_folder, "boards")
 
     if not os.path.exists(resources_path):

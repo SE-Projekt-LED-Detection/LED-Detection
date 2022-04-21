@@ -6,6 +6,7 @@ def get_dominant_color_value(img, title: str = None):
     """
     Code from: https://github.com/rauferreira/LED-board-tracking-OpenCV/tree/410600b48ea4beb2b7cac39ef152f55b3eab5cde
     Returns the Hue Value of the dominant color.
+
     :param img: A BGR Image.
     :param title: A title for the bar chart used for debugging.
     :return: Hue value of the dominant color.

@@ -1,9 +1,10 @@
 import cv2
 
 
-def hist_avg(hist: [[int]]) -> int:
+def hist_avg(hist) -> int:
     """
     Returns the average in a histogram, returned by cv2.calcHist.
+
     :param hist: The histogram.
     :return: The average of the given histogram.
     """
@@ -15,9 +16,10 @@ def hist_avg(hist: [[int]]) -> int:
     return int(s / e)
 
 
-def avg_brightness(gray_img: [[int]]) -> int:
+def avg_brightness(gray_img) -> int:
     """
     Calculates the histogram of the given grayscale image and returns the result of hist_avg().
+
     :param gray_img: The grayscale image.
     :return: The average gray level of the given grayscale image.
     """

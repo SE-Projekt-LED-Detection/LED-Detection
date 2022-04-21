@@ -6,6 +6,10 @@ from BSP.LED.ColorDetection.Util import color_range
 
 
 class Comparison:
+    """
+    Responsible for the color detection
+
+    """
     def __init__(self, colors: [str] = None):
         if colors is None:
             colors = []
@@ -17,6 +21,7 @@ class Comparison:
         """
         Helper function using a naive attempt at detecting the LED's color by comparing the color changes
         from an off-state and an on-state. The difference in color should be the LED's color.
+
         :param frame: A BGR frame of the led.
         :param is_on: True if the LED is on. False if LED is off. None if LED state is unknown.
         :return: Name of the color or an empty string for no color.
