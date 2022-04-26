@@ -31,6 +31,7 @@ class LedStateDetector:
         Checks if the LED in the given image changes it's state.
         If the LED changed it's state, the color will be checked.
         Returns True if the LED has changed it's state i.e. from on to off.
+
         :param image: The BGR image of the board that should be checked.
         :return: True if the led has changed it's state.
         """
@@ -46,6 +47,7 @@ class LedStateDetector:
     def _state_change(self, on: bool, image) -> None:
         """
         Function that is called when the LED changed it's state.
+
         :param on: True if the LED is on.
         :param image: The roi image of this LED.
         :return: None.
@@ -60,6 +62,7 @@ class LedStateDetector:
     def invalidate(self) -> None:
         """
         Invalidates this led to restart the state detection.
+
         :return: None.
         """
         self._brightness_comparison.invalidate()

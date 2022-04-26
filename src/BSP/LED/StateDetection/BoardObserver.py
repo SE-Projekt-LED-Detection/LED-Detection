@@ -22,7 +22,7 @@ class BoardObserver:
             led = board_leds[i]
             self.leds.append(LedStateDetector(led.id, led.colors))
 
-    def check(self, frame: np.array, rois: List[np.array], on_change)-> None:
+    def check(self, frame: np.array, rois: List[np.array], avg_brightness, on_change)-> None:
         """
         Checks if brightness changed substantially in the image. Invalidates the LEDs if necessary and checks
         all LED states.
@@ -31,12 +31,11 @@ class BoardObserver:
         :param frame: the current frame of the camera stream.
         :param rois: all regions of interest for the LEDs in order.
         :param on_change: the function that should be called when a LED has changed it's state.
-        :param args: Further arguments for the on_change function.
-        :param kwargs: Further keyword arguments for the on_change function.
+        :param avg_brightness:
         :return: None.
         """
         gray_frame = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
-        brightness = Brightness.avg_brightness(gray_frame)
+        brightness = avg_brightness
 
         self._check_invalidation(brightness)
 
@@ -51,22 +50,27 @@ class BoardObserver:
                 self._detect_initial_state(led_img, i, led, on_change)
             else:
                 # Debug show LEDs
-                cv2.imshow(str(i), led_img)
-                if led.is_on:
-                    led_img[:] = (0, 255, 0)
-                else:
-                    led_img[:] = (0, 0, 255)
+                if self.debug:
+                    cv2.imshow(str(i), led_img)
+                    if led.is_on:
+                        led_img[:] = (0, 255, 0)
+                    else:
+                        led_img[:] = (0, 0, 255)
 
-        # Debug show LEDs
-        imR = cv2.resize(frame, (1632, 1224))
-        cv2.imshow("Frame", frame)
-        cv2.waitKey(10)
+        if self.debug:
+            height, width, channels = frame.shape
+            if width > 3000:
+                frame = cv2.resize(frame, (int(width / 3), int(height / 3)))
+
+            cv2.imshow("Frame", frame)
+            cv2.waitKey(10)
 
     def _check_invalidation(self, brightness: int) -> None:
         """
         Checks if brightness changed substantially in the image, invalidating all LEDs in this case.
         Large brightness shifts could indicate that the lighting conditions changed which could influence
         the LED state detection.
+
         :param brightness: the new brightness that should be checked
         :return: None
         """
@@ -83,6 +87,7 @@ class BoardObserver:
         """
         Tries to determine the given LEDs status by comparing the LEDs brightness with the brightness of the full image.
         Only used to determine the initial state up to the point where the BrightnessComparison of the LED itself works.
+
         :param led_img: the LEDs roi.
         :param idx: the current Index for this LED in the StateTable.
         :param led: the LED.
@@ -97,9 +102,11 @@ class BoardObserver:
             dominant = DominantColor.get_dominant_color(led_img)
             dominant_name = Util.get_closest_color(dominant, led.cmap)
             on_change(idx, led.name, True, dominant_name, time.time(), args, kwargs)
-            # Debug
-            led_img[:] = (0, 255, 0)
+
+            if self.debug:
+                led_img[:] = (0, 255, 0)
         else:
             on_change(idx, led.name, False, "", time.time(), args, kwargs)
-            # Debug
-            led_img[:] = (0, 0, 255)
+
+            if self.debug:
+                led_img[:] = (0, 0, 255)

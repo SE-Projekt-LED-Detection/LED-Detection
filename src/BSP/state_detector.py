@@ -1,9 +1,11 @@
 import asyncio
 from logging import debug, error, warning, info
+from queue import Queue
 import logging
 from threading import Thread
 from typing import List
 
+import matplotlib.pyplot as plt
 from cv2 import cv2
 import numpy as np
 import sched
@@ -12,6 +14,7 @@ import time
 from BSP.LED.StateDetection.BoardObserver import BoardObserver
 from BSP.LED.LedStateDetector import LedStateDetector
 from BDG.model.board_model import Board
+from BSP.frame_anotations import frame_anotator
 from publisher.connection.message.change_msg import BoardChanges
 from publisher.connection.mqtt import MQTTConnector
 from publisher.connection.mqtt.mqtt_connector import publish_heartbeat
@@ -19,11 +22,14 @@ from BSP.BoardOrientation import BoardOrientation
 from BSP.BufferlessVideoCapture import BufferlessVideoCapture
 from BSP.DetectionException import DetectionException
 from BSP.homographyProvider import homography_by_sift
-from BSP.led_extractor import get_led_roi
+from BSP.led_extractor import get_led_roi, get_transformed_borders
 from BSP.led_state import LedState
 from BSP.state_table_entry import StateTableEntry
 from BSP.state_handler.state_table import insert_state_entry
 
+
+from BSP.detection.image_preprocessing import mask_background
+from BSP.detection.luminance_detection import plot_luminance, avg_board_brightness
 
 class StateDetector:
     """
@@ -38,8 +44,6 @@ class StateDetector:
         webcam_id (int): The id of the webcam
 
         Optional parameters:
-        broker_host (str): The url to the mqtt broker
-        broker_port (int): The port of the mqtt broker
         logging_level = "DEFAULT": The logging level
         visualizer = FALSE: Visualise the results with the BIP
         validity_seconds = 300: The time until a new homography matrix is calculated
@@ -55,17 +59,15 @@ class StateDetector:
 
         self._board_observer = BoardObserver(self.board.led)
 
-        if "broker_host" in kwargs:
-            # TODO: shouldn't be in here
-            self.broker_address = kwargs.get("broker_host")
-            self.broker_port = kwargs.get("broker_port")
-
         self.validity_seconds = kwargs.get("validity_seconds", 300)
         self.debug = kwargs.get("debug", False)
 
         self._closed = False
 
-        Thread(target=self.start_mqtt_client).start()
+        self.prev_frame_time = time.time()
+        self.new_frame_time = time.time()
+
+        self.state_queue = Queue()
 
     def __enter__(self):
         return self
@@ -73,23 +75,10 @@ class StateDetector:
     def __exit__(self, exc_type, exc_val, exc_tb):
         logging.info("Closing StateDetector")
         self._closed = True
-        self.bufferless_video_capture.close()
+        if self.bufferless_video_capture is not None:
+            self.bufferless_video_capture.close()
         cv2.destroyAllWindows()
 
-    def start_mqtt_client(self):
-        config = {"broker_address": self.broker_address, "broker_port": self.broker_port,
-                  "topics": {"changes": "changes", "avail": "avail", "config": "config"}}
-        debug("Logging config %s", config)
-        self.mqtt_connector = MQTTConnector(config)
-        try:
-            self.mqtt_connector.connect()
-        except ConnectionRefusedError:
-            logging.error("Connection to mqtt failed: connection refused")
-
-        debug("Connecting mqtt and starting loop")
-        self.mqtt_connector.loop_start()
-        self.mqtt_connector.add_config_handler(lambda client, userdata, message: print(message.payload))
-        asyncio.run(publish_heartbeat(self.mqtt_connector))
 
     def start(self):
         """
@@ -118,8 +107,13 @@ class StateDetector:
             self.current_orientation = homography_by_sift(self.board.image, frame, display_result=False,
                                                           validity_seconds=self.validity_seconds)
 
+        masked_frame = mask_background(frame, self.current_orientation.corners)
+        #plot_luminance(masked_frame, title="Masked frame")
+        avg_brightness = avg_board_brightness(frame, self.current_orientation.corners)
+
+        #plot_luminance(frame, title="Original frame")
         leds_roi = get_led_roi(frame, self.board.led, self.current_orientation)
-        for roi in leds_roi:
+        for index, roi in enumerate(leds_roi):
             if roi.shape[0] <= 0 or roi.shape[1] <= 0:
                 self.current_orientation = None
                 warning("One ROI's size is 0. Assuming the homography matrix is wrong, retry on next frame.")
@@ -127,7 +121,20 @@ class StateDetector:
 
 
         # Check LED states
-        self._board_observer.check(frame, leds_roi, self.on_change)
+        self._board_observer.check(frame, leds_roi,avg_brightness, self.on_change)
+
+
+
+        # Publish frame
+        leds_borders = get_transformed_borders(self.board.led, self.current_orientation)
+
+        # Calculate FPS
+        self.new_frame_time = time.time()
+        fps = int(1 / (self.new_frame_time - self.prev_frame_time))
+        self.prev_frame_time = self.new_frame_time
+
+        frame_anotator.annotate_frame(frame, leds_borders, fps)
+        self.state_queue.put({"frame": frame})
 
     def open_stream(self, video_capture: BufferlessVideoCapture = None):
         """
@@ -153,6 +160,7 @@ class StateDetector:
     def on_change(self, index: int, name: str, state: bool, color: str, time, *args, **kwargs) -> None:
         """
         Function that should be called when a LED state change has been detected.
+
         :param index: The index of the LED used to assign the table slot.
         :param name: The name of the LED for clear debug outputs.
         :param state: True if this LED is currently powered on.
@@ -161,4 +169,9 @@ class StateDetector:
         :return: None.
         """
         state_str = "on" if state else "off"
-        insert_state_entry(name, state_str, color, time)
+        entry = insert_state_entry(name, state_str, color, time)
+
+        new_state = LedState("on" if state else "off", color, time)
+        board_changes = BoardChanges(self.board.id, name, new_state.power, new_state.color, entry["frequency"],
+                                     new_state.timestamp)
+        self.state_queue.put({"changes": board_changes})
