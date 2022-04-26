@@ -35,9 +35,8 @@ class BoardObserver:
         :return: None.
         """
         gray_frame = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
-        brightness = avg_brightness
 
-        self._check_invalidation(brightness)
+        # self._check_invalidation(brightness)
 
         for i in range(len(self.leds)):
             led = self.leds[i]
@@ -47,7 +46,7 @@ class BoardObserver:
                 on_change(i, led.name, led.is_on, led.color, led.last_state_time)
 
             if led.is_on is None:
-                self._detect_initial_state(led_img, i, led, on_change)
+                self._detect_initial_state(led_img, i, led, avg_brightness, on_change)
             else:
                 # Debug show LEDs
                 if self.debug:
@@ -82,7 +81,7 @@ class BoardObserver:
                     led.invalidate()
         self._brightnesses.append(brightness)
 
-    def _detect_initial_state(self, led_img: np.array, idx: int, led: LedStateDetector, on_change) -> None:
+    def _detect_initial_state(self, led_img: np.array, idx: int, led: LedStateDetector, board_brightness, on_change) -> None:
         """
         Tries to determine the given LEDs status by comparing the LEDs brightness with the brightness of the full image.
         Only used to determine the initial state up to the point where the BrightnessComparison of the LED itself works.
@@ -90,21 +89,24 @@ class BoardObserver:
         :param led_img: the LEDs roi.
         :param idx: the current Index for this LED in the StateTable.
         :param led: the LED.
+        :param board_brightness
         :param on_change: the function that should be called with the current LEDs state.
         :return: None.
         """
-        led_brightness = Brightness.avg_brightness(led_img)
-        board_brightness = int(sum(self._brightnesses) / len(self._brightnesses))
-        deviation = np.std(self._brightnesses)
-        if led_brightness > board_brightness + deviation:
-            dominant = DominantColor.get_dominant_color(led_img)
-            dominant_name = Util.get_closest_color(dominant, led.cmap)
-            on_change(idx, led.name, True, dominant_name, time.time())
+        self._brightnesses.append(board_brightness)
+        if len(self._brightnesses) > 0:
+            led_brightness = Brightness.avg_brightness(led_img)
+            avg_brightness = int(sum(self._brightnesses) / len(self._brightnesses))
+            deviation = np.std(self._brightnesses)
+            if led_brightness > avg_brightness + deviation:
+                dominant = DominantColor.get_dominant_color(led_img)
+                dominant_name = Util.get_closest_color(dominant, led.cmap)
+                on_change(idx, led.name, True, dominant_name, time.time())
 
-            if self.debug:
-                led_img[:] = (0, 255, 0)
-        else:
-            on_change(idx, led.name, False, "", time.time())
+                if self.debug:
+                    led_img[:] = (0, 255, 0)
+            else:
+                on_change(idx, led.name, False, "", time.time())
 
-            if self.debug:
-                led_img[:] = (0, 0, 255)
+                if self.debug:
+                    led_img[:] = (0, 0, 255)
