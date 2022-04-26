@@ -20,8 +20,7 @@ pytest
 pexpect
 attrs
 
-requests
-packaging
-jinja2
+
+
 setuptools
 wget

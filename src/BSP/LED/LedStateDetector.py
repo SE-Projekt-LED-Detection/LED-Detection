@@ -2,11 +2,12 @@ import time
 
 from BSP.LED.StateDetection.BrightnessComparison import BrightnessComparison
 from BSP.LED.ColorDetection.HueComparison import Comparison
+from BSP.LED.ColorDetection.Util import create_new_cmap
 
 
 class LedStateDetector:
 
-    def __init__(self, id: int, name: str, colors: [str] = None):
+    def __init__(self, name: str, colors: [str] = None):
         """
         Current LED state can be checked with is_on.
         Current LED color can be checked with color.
@@ -19,11 +20,11 @@ class LedStateDetector:
         self._brightness_comparison = BrightnessComparison()
         self._hue_comparison = Comparison(colors)
 
-        self.id: int = id
         self.name: str = name
         self.is_on = None
         self.last_state_time = None
         self.color: str = ""
+        self.cmap = create_new_cmap(colors)
 
     def detect_change(self, image):
         """
