@@ -61,7 +61,7 @@ def get_closest_color(hue, cmap):
     return list(cmap.keys())[np.argmax(cosine)]
 
 
-def create_new_cmap(colors: list[str]):
+def create_new_cmap(colors):
     """
     Create new color map
     """

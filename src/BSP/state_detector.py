@@ -73,7 +73,6 @@ class StateDetector:
     def __exit__(self, exc_type, exc_val, exc_tb):
         logging.info("Closing StateDetector")
         self._closed = True
-        self.mqtt_connector.disconnect()
         self.bufferless_video_capture.close()
         cv2.destroyAllWindows()
 
