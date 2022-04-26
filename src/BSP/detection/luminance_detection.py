@@ -60,4 +60,4 @@ def avg_board_brightness(img, board_corner_points, is_yuv=False):
     img = convert_to_yuv(masked_img)
     y_channel = img[:, :, 0]
     y_channel = y_channel[y_channel > 0]
-    return y_channel.mean(), np.var(y_channel) # y_channel.variance()
+    return y_channel.mean(), np.var(y_channel)

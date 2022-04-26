@@ -22,7 +22,7 @@ class BoardObserver:
             led = board_leds[i]
             self.leds.append(LedStateDetector(led.id, led.colors))
 
-    def check(self, frame: np.array, rois: List[np.array], avg_brightness, on_change)-> None:
+    def check(self, frame: np.array, rois: List[np.array], avg_brightness, on_change) -> None:
         """
         Checks if brightness changed substantially in the image. Invalidates the LEDs if necessary and checks
         all LED states.
@@ -82,8 +82,7 @@ class BoardObserver:
                     led.invalidate()
         self._brightnesses.append(brightness)
 
-    def _detect_initial_state(self, led_img: np.array, idx: int, led: LedStateDetector, on_change, *args,
-                              **kwargs) -> None:
+    def _detect_initial_state(self, led_img: np.array, idx: int, led: LedStateDetector, on_change) -> None:
         """
         Tries to determine the given LEDs status by comparing the LEDs brightness with the brightness of the full image.
         Only used to determine the initial state up to the point where the BrightnessComparison of the LED itself works.
@@ -92,21 +91,20 @@ class BoardObserver:
         :param idx: the current Index for this LED in the StateTable.
         :param led: the LED.
         :param on_change: the function that should be called with the current LEDs state.
-        :param args: further args for the on_change function.
-        :param kwargs: further kwargs for the on_change function.
         :return: None.
         """
         led_brightness = Brightness.avg_brightness(led_img)
         board_brightness = int(sum(self._brightnesses) / len(self._brightnesses))
-        if led_brightness > board_brightness:
+        deviation = np.std(self._brightnesses)
+        if led_brightness > board_brightness + deviation:
             dominant = DominantColor.get_dominant_color(led_img)
             dominant_name = Util.get_closest_color(dominant, led.cmap)
-            on_change(idx, led.name, True, dominant_name, time.time(), args, kwargs)
+            on_change(idx, led.name, True, dominant_name, time.time())
 
             if self.debug:
                 led_img[:] = (0, 255, 0)
         else:
-            on_change(idx, led.name, False, "", time.time(), args, kwargs)
+            on_change(idx, led.name, False, "", time.time())
 
             if self.debug:
                 led_img[:] = (0, 0, 255)

@@ -57,7 +57,7 @@ class StateDetector:
         self.current_orientation: BoardOrientation = None
         self.bufferless_video_capture: BufferlessVideoCapture = None
 
-        self._board_observer = BoardObserver(self.board.led)
+        self._board_observer = BoardObserver(self.board.led, debug)
 
         self.validity_seconds = kwargs.get("validity_seconds", 300)
         self.debug = kwargs.get("debug", False)
