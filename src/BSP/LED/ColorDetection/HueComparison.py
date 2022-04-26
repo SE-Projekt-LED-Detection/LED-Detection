@@ -19,6 +19,7 @@ class Comparison:
         """
         Helper function using a naive attempt at detecting the LED's color by comparing the color changes
         from an off-state and an on-state. The difference in color should be the LED's color.
+
         :param frame: A BGR frame of the led.
         :param is_on: True if the LED is on. False if LED is off. None if LED state is unknown.
         :return: Name of the color or an empty string for no color.
@@ -43,6 +44,7 @@ class Comparison:
     def _color(self, hist: [int]) -> str:
         """
         Calculates the integrals over all assigned colors and their boundaries.
+
         :param hist: the histogram with flattened shape
         :return: returns the color with the greatest integral
         """
@@ -56,7 +58,8 @@ class Comparison:
 
 def integral(hist: [int], lower: int, upper: int):
     """
-    returns the integral of the given histogram within the given boundaries.
+    Returns the integral of the given histogram within the given boundaries.
+
     :param hist: the histogram
     :param lower: the lower boundary
     :param upper: the upper boundary

@@ -160,6 +160,7 @@ class StateDetector:
     def on_change(self, index: int, name: str, state: bool, color: str, time, *args, **kwargs) -> None:
         """
         Function that should be called when a LED state change has been detected.
+
         :param index: The index of the LED used to assign the table slot.
         :param name: The name of the LED for clear debug outputs.
         :param state: True if this LED is currently powered on.
