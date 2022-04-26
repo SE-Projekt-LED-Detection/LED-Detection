@@ -2,6 +2,7 @@ import cv2
 
 import matplotlib.pyplot as plt
 from .image_preprocessing import convert_to_yuv, mask_background
+import numpy as np
 
 
 def get_most_frequent_luminance(img, is_yuv=False):
@@ -59,4 +60,4 @@ def avg_board_brightness(img, board_corner_points, is_yuv=False):
     img = convert_to_yuv(masked_img)
     y_channel = img[:, :, 0]
     y_channel = y_channel[y_channel > 0]
-    return y_channel.mean()
+    return y_channel.mean(), np.var(y_channel) # y_channel.variance()

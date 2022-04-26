@@ -109,7 +109,7 @@ class StateDetector:
 
         masked_frame = mask_background(frame, self.current_orientation.corners)
         #plot_luminance(masked_frame, title="Masked frame")
-        avg_brightness = avg_board_brightness(frame, self.current_orientation.corners)
+        avg_brightness, variance = avg_board_brightness(frame, self.current_orientation.corners)
 
         #plot_luminance(frame, title="Original frame")
         leds_roi = get_led_roi(frame, self.board.led, self.current_orientation)
@@ -121,7 +121,7 @@ class StateDetector:
 
 
         # Check LED states
-        self._board_observer.check(frame, leds_roi,avg_brightness, self.on_change)
+        self._board_observer.check(frame, leds_roi, avg_brightness + np.sqrt(variance), self.on_change)
 
 
 
