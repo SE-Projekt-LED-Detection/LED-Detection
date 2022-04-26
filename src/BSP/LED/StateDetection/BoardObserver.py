@@ -12,8 +12,10 @@ from BSP.LED.StateDetection import Brightness
 
 class BoardObserver:
 
-    def __init__(self, board_leds):
+    def __init__(self, board_leds, debug=False):
         self.leds: List[LedStateDetector] = []
+        self.debug = debug
+
         self._brightnesses = collections.deque(maxlen=30)
 
         for i in range(len(board_leds)):
@@ -25,6 +27,7 @@ class BoardObserver:
         Checks if brightness changed substantially in the image. Invalidates the LEDs if necessary and checks
         all LED states.
         A LED that changed it's state will be passed into the on_change function.
+
         :param frame: the current frame of the camera stream.
         :param rois: all regions of interest for the LEDs in order.
         :param on_change: the function that should be called when a LED has changed it's state.

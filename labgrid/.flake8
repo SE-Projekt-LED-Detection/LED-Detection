@@ -1,9 +1,0 @@
-[flake8]
-exclude =
-	.git,
-	__pycache__,
-	docs/conf.py,
-	build,
-	dist
-ignore = E124, E128
-max-line-length = 119
