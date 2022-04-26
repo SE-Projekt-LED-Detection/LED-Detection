@@ -57,7 +57,7 @@ class StateDetector:
         self.current_orientation: BoardOrientation = None
         self.bufferless_video_capture: BufferlessVideoCapture = None
 
-        self._board_observer = None
+        self._board_observer = BoardObserver(self.board.led)
 
         self.validity_seconds = kwargs.get("validity_seconds", 300)
         self.debug = kwargs.get("debug", False)
@@ -99,7 +99,7 @@ class StateDetector:
         frame = self.bufferless_video_capture.read()
 
         if frame is None:
-            return
+            return  # Indicates that video capture is closed and state detector stopped
 
         frame = cv2.rotate(frame, cv2.ROTATE_180)
 
@@ -119,14 +119,6 @@ class StateDetector:
                 warning("One ROI's size is 0. Assuming the homography matrix is wrong, retry on next frame.")
                 return
 
-        assert len(leds_roi) == len(self.board.led), "Not all LEDs have been detected."
-
-        # Initialize BoardObserver and all LEDs
-        if self._board_observer is None:
-            self._board_observer = BoardObserver(self.debug)
-            for i in range(len(self.board.led)):
-                led = self.board.led[i]
-                self._board_observer.leds.append(LedStateDetector(i, led.id, led.colors))
 
         # Check LED states
         self._board_observer.check(frame, leds_roi,avg_brightness, self.on_change)
@@ -165,10 +157,10 @@ class StateDetector:
             error("The created video capture is not opened.")
             raise Exception(f"StateDetector is unable to open VideoCapture with index {self.webcam_id}.")
 
-    def on_change(self, id: int, name: str, state: bool, color: str, time, *args, **kwargs) -> None:
+    def on_change(self, index: int, name: str, state: bool, color: str, time, *args, **kwargs) -> None:
         """
         Function that should be called when a LED state change has been detected.
-        :param id: The id of the LED used to assign the table slot.
+        :param index: The index of the LED used to assign the table slot.
         :param name: The name of the LED for clear debug outputs.
         :param state: True if this LED is currently powered on.
         :param color: The color that has been detected.

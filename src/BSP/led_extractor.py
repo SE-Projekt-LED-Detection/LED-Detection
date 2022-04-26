@@ -4,6 +4,7 @@ from typing import List
 
 from BDG.model.board_model import Led
 from BSP.BoardOrientation import BoardOrientation
+from BSP.DetectionException import DetectionException
 
 
 def get_transformed_borders(leds: List[Led], board_orientation: BoardOrientation) -> List[np.array]:
@@ -50,6 +51,11 @@ def get_led_roi(frame: np.array, leds: List[Led], board_orientation: BoardOrient
     #radius = list(map(lambda led: round(led.radius * max(scale_x, scale_y)), leds))
     led_rois: List[np.array] = _led_by_circle_coordinates(frame, led_centers_transformed.astype(int), radius)
 
+    assert len(led_rois) == len(leds), "Not all LEDs have been detected."
+
+    for roi in led_rois:
+        if roi.shape[0] <= 0 or roi.shape[1] <= 0:
+            raise DetectionException("Wrong homography matrix. Retry on next frame...")
 
     return led_rois
 
