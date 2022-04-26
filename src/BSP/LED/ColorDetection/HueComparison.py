@@ -1,8 +1,10 @@
 import cv2
+import numpy as np
 
 from operator import itemgetter
 
-from BSP.LED.ColorDetection.Util import color_range
+from BSP.LED.ColorDetection.Util import get_closest_color
+from BSP.LED import ColorDetection
 
 
 class Comparison:
@@ -38,20 +40,48 @@ class Comparison:
         elif is_on:
             self._on_histogram = hist
             if self._off_histogram is not None:
-                diff = self._on_histogram
-                for i in range(len(self._on_histogram)):
-                    diff[i] = self._on_histogram[i, 0] - self._off_histogram[i, 0]
-                _, color = self._color(diff)
-                return color
+                diff = self._on_histogram[:, 0] - self._off_histogram[:, 0]
+                return self._color(diff)
         else:
             self._off_histogram = hist
 
-    def _color(self, hist):
+    def _color(self, hist: [int]) -> str:
+        """
+        Calculates the integrals over all assigned colors and their boundaries.
+
+        :param hist: the histogram with flattened shape
+        :return: returns the color with the greatest integral
+        """
         values = []
-        for c in self._colors:
-            lower, upper = color_range.get(c)
-            if lower < 0 < upper:
-                values.append((sum(hist[lower:] + hist[0: upper]), c))
-            else:
-                values.append((sum(hist[lower:upper]), c))
-        return max(values, key=itemgetter(0))
+        for color in self._colors:
+            lower, upper = ColorDetection.COLOR_RANGE.get(color)
+            i = integral(hist, lower, upper)
+            values.append((i, color))
+        return max(values, key=itemgetter(0))[1]
+
+
+def integral(hist: [int], lower: int, upper: int):
+    """
+    Returns the integral of the given histogram within the given boundaries.
+
+    :param hist: the histogram
+    :param lower: the lower boundary
+    :param upper: the upper boundary
+    :return: the integral of the given histogram within the given boundaries
+    """
+    if lower < 0 < upper:
+        return sum(hist[lower:] + hist[0: upper])
+    else:
+        return sum(hist[lower:upper])
+
+
+def detect_color_from_hist(hist) -> str:
+    """
+    returns the color which changed the most
+    :returns
+    """
+    values = np.linspace(0, 179, 180)
+    counts = hist[:, 0]
+    hue = (np.inner(values, counts) / np.sum(counts)) / 2
+    c = get_closest_color(int(hue), ColorDetection.COLOR_HUE_MEANS)
+    return c

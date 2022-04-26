@@ -4,6 +4,25 @@ from typing import List
 
 from BDG.model.board_model import Led
 from BSP.BoardOrientation import BoardOrientation
+from BSP.DetectionException import DetectionException
+
+
+def get_transformed_borders(leds: List[Led], board_orientation: BoardOrientation) -> List[np.array]:
+    """
+    Transforms the ROIs with the given board orientation
+    :param leds: The list with the position of the LEDs
+    :param board_orientation: The orientation of the board
+    :return: A list with the upper left and lower right corner coordinates of the leds in the coordinate system of the
+        transformed board
+    """
+    upper_led_borders = np.float32(list(map(lambda x: [x.position[0] - x.radius, x.position[1] - x.radius], leds)))
+    upper_borders_transformed = cv2.perspectiveTransform(np.array([upper_led_borders]), board_orientation.homography_matrix)[0]
+
+    lower_led_borders = np.float32(list(map(lambda x: [x.position[0] + x.radius, x.position[1] + x.radius], leds)))
+    lower_borders_transformed = \
+    cv2.perspectiveTransform(np.array([lower_led_borders]), board_orientation.homography_matrix)[0]
+
+    return list(map(lambda x: [int(round(x[0][0])), int(round(x[0][1])), int(round(x[1][0])), int(round(x[1][1]))], zip(upper_borders_transformed, lower_borders_transformed)))
 
 
 def get_led_roi(frame: np.array, leds: List[Led], board_orientation: BoardOrientation) -> List[np.array]:
@@ -16,9 +35,6 @@ def get_led_roi(frame: np.array, leds: List[Led], board_orientation: BoardOrient
     :return: The LEDs in the target image as a list
     """
 
-    # Calculates the scaling between the reference and the target board
-    scale_x = abs(board_orientation.corners[0][0] - board_orientation.corners[2][0]) / board_orientation.reference_h
-    scale_y = abs(board_orientation.corners[0][1] - board_orientation.corners[1][1]) / board_orientation.reference_w
 
     # Transforms the center points
     led_centers = np.float32(list(map(lambda x: x.position, leds)))
@@ -35,6 +51,11 @@ def get_led_roi(frame: np.array, leds: List[Led], board_orientation: BoardOrient
     #radius = list(map(lambda led: round(led.radius * max(scale_x, scale_y)), leds))
     led_rois: List[np.array] = _led_by_circle_coordinates(frame, led_centers_transformed.astype(int), radius)
 
+    assert len(led_rois) == len(leds), "Not all LEDs have been detected."
+
+    for roi in led_rois:
+        if roi.shape[0] <= 0 or roi.shape[1] <= 0:
+            raise DetectionException("Wrong homography matrix. Retry on next frame...")
 
     return led_rois
 

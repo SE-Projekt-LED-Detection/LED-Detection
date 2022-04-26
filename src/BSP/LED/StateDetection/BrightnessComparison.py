@@ -22,6 +22,7 @@ class BrightnessComparison:
         True - LED is powered on.
         False - LED is powered off.
         None - LED is in an undefined state.
+
         :param img: The BGR image of this LED.
         :param window_name: Set a name, to display a cv2 window with the given img in grayscale.
         :return: True if LED is powered on or None if undefined.

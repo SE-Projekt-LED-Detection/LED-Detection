@@ -48,25 +48,25 @@ def test_blackbox_state_detector():
         for i in range(400):
             dec._detect_current_state()
 
-        # if dec.state_table[0].current_state is None or dec.state_table[1].current_state is None:
-        #     continue
-        led_0 = get_last_entry("LED_Red")
-        led_1 = get_last_entry("LED_Green")
-        # Assert LEDs on and off based on the video
-        if i < 120:
-            assert led_0["state"] == "on", "LED 0 not detected correctly"
-            assert led_1["state"] == "on", "LED 1 not detected correctly"
-        elif 135 < i < 200:
-            assert led_0["state"] == "off", "LED 0 not detected correctly"
-            assert led_1["state"] == "off", "LED 1 not detected correctly"
-        elif 223 < i < 305:
-            assert led_0["state"] == "on", "LED 0 not detected correctly"
-            assert led_1["state"] == "on", "LED 1 not detected correctly"
-        elif 325 < i < 373:
-            assert led_0["state"] == "off", "LED 0 not detected correctly"
-            assert led_1["state"] == "off", "LED 1 not detected correctly"
-        elif 390 < i:
-            assert led_0["state"] == "on", "LED 0 not detected correctly"
-            assert led_1["state"] == "on", "LED 1 not detected correctly"
+            # if dec.state_table[0].current_state is None or dec.state_table[1].current_state is None:
+            #     continue
+            led_0 = get_last_entry("LED_Red")
+            led_1 = get_last_entry("LED_Green")
+            # Assert LEDs on and off based on the video
+            if i < 120:
+                assert led_0["state"] == "on", "LED 0 not detected correctly"
+                assert led_1["state"] == "on", "LED 1 not detected correctly"
+            elif 135 < i < 200:
+                assert led_0["state"] == "off", "LED 0 not detected correctly"
+                assert led_1["state"] == "off", "LED 1 not detected correctly"
+            elif 223 < i < 305:
+                assert led_0["state"] == "on", "LED 0 not detected correctly"
+                assert led_1["state"] == "on", "LED 1 not detected correctly"
+            elif 325 < i < 373:
+                assert led_0["state"] == "off", "LED 0 not detected correctly"
+                assert led_1["state"] == "off", "LED 1 not detected correctly"
+            elif 390 < i:
+                assert led_0["state"] == "on", "LED 0 not detected correctly"
+                assert led_1["state"] == "on", "LED 1 not detected correctly"
 
     cv2.destroyAllWindows()

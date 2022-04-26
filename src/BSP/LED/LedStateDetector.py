@@ -2,11 +2,12 @@ import time
 
 from BSP.LED.StateDetection.BrightnessComparison import BrightnessComparison
 from BSP.LED.ColorDetection.HueComparison import Comparison
+from BSP.LED.ColorDetection.Util import create_new_cmap
 
 
 class LedStateDetector:
 
-    def __init__(self, id: int, name: str, colors: [str] = None):
+    def __init__(self, name: str, colors: [str] = None):
         """
         Current LED state can be checked with is_on.
         Current LED color can be checked with color.
@@ -19,17 +20,18 @@ class LedStateDetector:
         self._brightness_comparison = BrightnessComparison()
         self._hue_comparison = Comparison(colors)
 
-        self.id: int = id
         self.name: str = name
         self.is_on = None
         self.last_state_time = None
         self.color: str = ""
+        self.cmap = create_new_cmap(colors)
 
     def detect_change(self, image):
         """
         Checks if the LED in the given image changes it's state.
         If the LED changed it's state, the color will be checked.
         Returns True if the LED has changed it's state i.e. from on to off.
+
         :param image: The BGR image of the board that should be checked.
         :return: True if the led has changed it's state.
         """
@@ -45,6 +47,7 @@ class LedStateDetector:
     def _state_change(self, on: bool, image) -> None:
         """
         Function that is called when the LED changed it's state.
+
         :param on: True if the LED is on.
         :param image: The roi image of this LED.
         :return: None.
@@ -59,6 +62,7 @@ class LedStateDetector:
     def invalidate(self) -> None:
         """
         Invalidates this led to restart the state detection.
+
         :return: None.
         """
         self._brightness_comparison.invalidate()
