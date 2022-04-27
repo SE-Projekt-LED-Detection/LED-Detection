@@ -5,6 +5,10 @@ from BSP.LED.StateDetection import Brightness
 
 
 class BrightnessComparison:
+    """
+    Detects with the brightness on/off for the LEDs
+
+    """
     def __init__(self, deviation: int = 10):
         """
         :param deviation: the deviation of the average on value.

@@ -10,7 +10,7 @@ from BDG.model.CreationState import CreationState
 
 
 class ImagePane(tk.Frame):
-    """This class consist the drawing functionalities
+    """This class contains the drawing functionalities
 
 
     :param self.img_path: is a relative path to the image which is loaded
@@ -32,6 +32,7 @@ class ImagePane(tk.Frame):
     def __init__(self, master, container, handler: EditHandler):
         """
         Creates the image pane window.
+
         :param master: The root window.
         :param container: The window in which the ImagePane will be contained.
         :param handler: The EditHandler where the callable for the events should be registered.
@@ -115,6 +116,7 @@ class ImagePane(tk.Frame):
     def on_resize(self, event):
         """
         Resizes the image in the canvas to fit the canvas while still having the same proportions.
+
         :param event:
         """
         basewidth = event.width
@@ -144,8 +146,8 @@ class ImagePane(tk.Frame):
     def draw_corner(self, point):
         """
         Draws a corner at the given coordinates
-        :param x: The x coordinate of the new corner
-        :param y: The y coordinate of the new corner
+
+        :param point: The coordinates to draw
         """
         point = np.array(point)
         reference = self.create_circle(point * self.handler.scaling, 10)
@@ -154,8 +156,8 @@ class ImagePane(tk.Frame):
     def draw_led(self, position, radius):
         """
         Draws a LED at the given coordinates
-        :param x: The x coordinate of the new LED
-        :param y: The y coordinate of the new LED
+
+        :param position: The coordinates of the new LED
         :param radius: The radius of the new LED
         """
         led_ref = self.create_circle(position * self.handler.scaling, radius)
@@ -163,9 +165,9 @@ class ImagePane(tk.Frame):
 
     def create_circle(self, position, r):
         """
-        helper function for creating circle
-        :param x: is the centered x
-        :param y: is the centered y
+        Helper function for creating circle
+
+        :param position: The coordinates of the circle
         :param r: is the radius
         :return: a canvas object ref represented as Integer
         """
@@ -222,6 +224,7 @@ class ImagePane(tk.Frame):
 
         Because tk.Canvas doesn't support RGBA, the PIL lib is used to create an tkImage,
         which is added to the canvas
+
         :param args: is an even array of coordinates such as [x0, y0, x1, y1, ... , xn, yn]
         :param kwargs: are some named arguments which can be read in the ImageDraw Documentation. The fill keyword is required!
 
@@ -254,6 +257,7 @@ class ImagePane(tk.Frame):
     def activate_board_state(self):
         """
         Change all bindings to board state settings
+
         :return: void
         """
         self.canvas.bind("<Button-1>", self.handler.add_corner)
@@ -265,6 +269,7 @@ class ImagePane(tk.Frame):
     def activate_led_state(self):
         """
         Change all bindings to LED state settings
+
         :return: void
         """
         self.delete_circles()

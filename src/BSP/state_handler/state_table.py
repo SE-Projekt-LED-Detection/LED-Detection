@@ -15,7 +15,8 @@ def insert_state_entry(led_id: str,
                        color: str,
                        timestamp=None):
     """
-    insert a new row to the state_table
+    Insert a new row to the state_table
+
     :param led_id: is the name of the LED type: str
     :param state: the current state. Can be "on" or "off"
     :param color: the color as str
@@ -35,6 +36,7 @@ def insert_state_entry(led_id: str,
 def get_state_table():
     """
     Returns an copy of the state table.
+
     :return:
     """
     global state_table
@@ -55,7 +57,8 @@ def calc_frequency(current_time, last_time_on):
 
 def insert_last_time_state(current_entry, last_entry):
     """
-    insert the last time entry for the given led_id.
+    Insert the last time entry for the given led_id.
+
     :param led_id:
     :param state:
     :return:
@@ -74,6 +77,7 @@ def insert_last_time_state(current_entry, last_entry):
 def calculate_frequency(led_id):
     """
     Calculates the frequency of the given led_id.
+
     :param led_id:
     :return:
     """
@@ -88,7 +92,8 @@ def _add_new_led_id(led_id,
                     color,
                     timestamp=None):
     """
-    adds a new row to the state_table for a new led_id.
+    Adds a new row to the state_table for a new led_id.
+
     :param led_id: is the name of the led
     :param state: is the current state and can be "on" or "off"
     :param color: is the color given as str
@@ -109,6 +114,7 @@ def _add_new_led_id(led_id,
 def check_if_led_is_new(led_id):
     """
     Checks if the given led_id is new.
+
     :param led_id:
     :return:
     """
@@ -119,6 +125,7 @@ def check_if_led_is_new(led_id):
 def get_last_entry(led_id):
     """
     Returns the entry.
+
     :param led_id: is the identifier of the led
     :param state: None if it doesn't matter, otherwise the state
     :return:
@@ -133,6 +140,7 @@ def get_last_entry(led_id):
 def get_led_time_series(led_id):
     """
     Returns the time series of the given led_id.
+
     :param led_id:
     :return:
     """
@@ -143,6 +151,7 @@ def get_led_time_series(led_id):
 def load_state_table(file_name: str):
     """
     Loads the state table from the given file.
+
     :param file_name:
     :return: the state table
     """
@@ -158,6 +167,7 @@ def load_state_table(file_name: str):
 def save_state_table(file_name: str):
     """
     Saves the state table to the given file.
+
     :param file_name:
     :return:
     """
@@ -169,6 +179,7 @@ def save_state_table(file_name: str):
 def get_led_as_time_series(led_id: str):
     """
     Returns the time series of the given led_id.
+
     :param led_id:
     :return:
     """
@@ -183,6 +194,7 @@ def get_led_as_time_series(led_id: str):
 def plot_led_time_series(led_id):
     """
     Plots the time series of the given led_id.
+
     :param led_id:
     :return:
     """
@@ -195,7 +207,8 @@ def plot_led_time_series(led_id):
 
 def get_current_state():
     """
-    Returns the last detected state of all leds
+    Returns the last detected state of all leds.
+
     :return:
     """
     global state_table
@@ -207,6 +220,7 @@ def get_current_state():
 def get_led_ids():
     """
     Returns the led_ids.
+
     :return:
     """
     global state_table

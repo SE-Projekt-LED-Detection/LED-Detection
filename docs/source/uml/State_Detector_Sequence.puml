@@ -3,7 +3,7 @@ activate boss_controller
 boss_controller -> state_detector: config: Board, webcam_id:Integer
 note over state_detector
 
-     example of an state table
+     Example of the state table
 
      | *name* | *current_state* | *last_time_on* | *last_time_off* | *hertz* |
      | led_1 | LedState | NUMBER | NUMBER | FLOAT |
@@ -14,6 +14,11 @@ state_detector -> state_detector: create_state_table
 boss_controller -> state_detector: open_stream()
 deactivate boss_controller
 loop interval 0.1 sec
+    note over state_detector
+        The orientation is only considered valid for a certain period.
+        For instance this helps to calibrate after the lightning conditions changed.
+
+    end note
     state_detector -> homography_provider: getBoardOrientation(frame: ndarray)
     activate homography_provider
     homography_provider --> state_detector: orientation: BoardOrientation
@@ -24,7 +29,7 @@ loop interval 0.1 sec
     deactivate led_extractor
     note over led_extractor
         ATTENTION: 
-        order of led_positions list is equal to led object in config object!!!
+        Order of led_positions list is equal to led object in config object!!!
     end note
     loop led in leds:
         state_detector -> led_state_detector: get_state(led_roi, colors)
@@ -36,7 +41,7 @@ loop interval 0.1 sec
             {
                 power: On,
                 color: "RED"
-                timestamp: nano_seconds
+                timestamp: seconds
             }
         end note
         led_state_detector --> state_detector: led_state: LedState

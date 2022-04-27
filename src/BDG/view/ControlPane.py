@@ -27,12 +27,14 @@ class ControlPane(tk.Frame):
         self.toolbar.grid(column=0, row=0, sticky=tk.W)
         self.imagePane.grid(column=0, row=1, sticky=tk.NSEW)
 
+    def exitProgram(self):
+        exit()
+
     def __init_menu(self):
         menu = tk.Menu(self)
         self.master.config(menu=menu)
         self.__init_filemenu(menu)
         self.__init_editmenu(menu)
-        #menu.add_command(label="Test", command=lambda: self.imagePane.choose_image("/home/cj7/Desktop/LED-Detection/src/prototyping/resources/ref.jpg"))
         return menu
 
     def __init_filemenu(self, menu):

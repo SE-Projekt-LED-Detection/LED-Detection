@@ -37,6 +37,7 @@ class EditHandler:
     def board(self) -> Board:
         """
         Returns the current board object
+
         :return: Board
         """
         return self.parent.board
@@ -44,6 +45,7 @@ class EditHandler:
     def add_corner(self, event):
         """
         Adds a corner at the coordinates of the click event
+
         :param event: The click event with the x and y coordinate
         :return: None
         """
@@ -76,6 +78,7 @@ class EditHandler:
     def delete_point(self, event):
         """
         Removes the currently hovered point or LED
+
         :param event: is a Mouse event
         :return:
         """
@@ -93,6 +96,7 @@ class EditHandler:
     def add_led(self, event):
         """
         Adds a LED on the coordinates in the click event.
+
         :param event: The click event with x and y coordinates
         :return: None
         """
@@ -170,6 +174,7 @@ class EditHandler:
     def moving_point(self, event):
         """
         Moves the currently selected anchor point or LED
+
         :param event:
         """
 
@@ -200,6 +205,7 @@ class EditHandler:
         """
         Processes a mousewheel event. Optimised for Windows and Unix events.
         Does increase/decrease the radius of the active led.
+
         :param event: The mousewheel event
         """
         scroll_amount = 0
@@ -223,6 +229,7 @@ class EditHandler:
     def check_hovered(self, cx, cy):
         """
         Helper function for checking the currently hovered anchor point or LED.
+
         :param cx: The x coordinate to check
         :param cy: The y coordinate to check
         :return: an np array
@@ -249,6 +256,7 @@ class EditHandler:
     def is_state(self, state):
         """
         Checks if the CreationState is currently in 'state'
+
         :param state: The state to check
         :return: True, if the CreationState is the passed state
         """
