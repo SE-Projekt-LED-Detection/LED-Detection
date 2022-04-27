@@ -7,8 +7,6 @@ from BDG.view.Scrollable import ScrollbarFrame
 from BDG.view.Toolbar import Toolbar
 
 
-
-
 class ControlPane(tk.Frame):
     def __init__(self, container):
         tk.Frame.__init__(self, container)
