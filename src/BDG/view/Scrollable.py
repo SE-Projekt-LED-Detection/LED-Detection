@@ -49,15 +49,13 @@ class ScrollbarFrame(tk.Frame):
 
     def redraw_led_description(self):
         board = self.edit_handler.board()
-        if len(board.led) == len(self.descriptions):
-            # Count of LEDs has not been changed, meaning no changes to be made
-            return
 
-        # Remove old descriptions, only if actually removed in board
-        for (led, des) in self.descriptions:
-            if led not in board.led:
-                des.destroy()
-                self.descriptions.remove((led, des))
+        # Remove all descriptions
+        while len(self.descriptions) > 0:
+            (led, des) = self.descriptions[0]
+            des.grid_forget()
+            des.destroy()
+            self.descriptions.remove((led, des))
 
         # Add new descriptions
         for led in board.led:
