@@ -9,6 +9,7 @@ import sys
 from BSP.state_detector import StateDetector
 import BDG.utils.json_util as jsutil
 from publisher.master_publisher import MasterPublisher
+from MockVideoCapture import MockVideoCapture
 
 
 def main(args):
@@ -34,8 +35,14 @@ def main(args):
         publisher.init_video("rtmp://localhost:8080", args.visualizer)
         start_publisher(publisher, args.broker_host, args.broker_port)
 
+
+
         try:
-            detector.open_stream()
+            # check if the input is a video path
+            if isinstance(args.webcam_id, int):
+                detector.open_stream()
+            else:
+                detector.open_stream(MockVideoCapture(args.webcam_id, False))
         except Exception as e:
             logging.warning("Could not open video stream: %s", e)
 
