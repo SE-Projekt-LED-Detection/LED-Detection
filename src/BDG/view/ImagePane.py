@@ -280,14 +280,6 @@ class ImagePane(tk.Frame):
         self.board = self.handler.board()
 
     def delete_circles(self):
-        for ref in self.corner_references:
-            self.canvas.delete(ref)
-        """
-        Sets the board object in self to the board object of the handler.
-        """
-        self.board = self.handler.board()
-
-    def delete_circles(self):
         """
         Deletes the corner points bounding circles in the canvas.
         Used when the CreationState is switched to LED as the circles are then not visible anymore
