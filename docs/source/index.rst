@@ -46,6 +46,15 @@ It can be displayed either as command line inside labgrid or as annotated video 
 
    entities/index
 
+Labgrid Integration
+===================
+
+.. toctree::
+   :caption: Labgrid integration
+   :maxdepth: 5
+
+   labgrid_notes/index
+
 
 Glossary
 ========

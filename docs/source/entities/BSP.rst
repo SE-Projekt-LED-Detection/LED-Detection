@@ -1,7 +1,14 @@
 .. _bsp:
 
-BSP
----
+BSP - Board State Provider
+----------------------------
+
+The board state provider is the brain of the detector.
+It is responsible for the localization of the LEDs as well as the detection of their states or state changes.
+
+
+
+.. _bsp_general_approach:
 
 General approach
 ~~~~~~~~~~~~~~~~
@@ -42,37 +49,81 @@ The frequency saved in the attribute 'hertz' will be calculated by the detector 
 occurs.
 Changes of the table will then be forwarded to MQTT.
 
+.. _lighting_conditions:
+
+Lighting conditions
+~~~~~~~~~~~~~~~~~~~
+The lighting conditions are important for the detection to work properly. As a rule of thumb one can use the assumption
+that if the LEDs light is overlapping wrong detection is possible.
+
+.. figure:: images/too_bright.png
+
+    In this picture the light of the LEDs interferes with the neighbour LEDs. It is not clearly visible which LEDs
+    are on and which off, hence the detection is mislead.
+
+If the detection yields wrong results it is necessary to improve the conditions. This can be done in a few ways:
+
+* Change the exposure setting of the camera. This is the best solution as it does not require any changes in the general setup. Though most of the cameras do not support this.
+
+* Add additional light focused on the board to make the LEDs not as bright in comparison to the rest of the board.
+
+* It is also possible to move the camera to only have a part of the board in view making the LEDs more clearly visible. This might impact the detection of the board and therefore has to be tested in practice.
+
+
+Furthermore, what can be helpful is to decrease the size of the LED ROIs in the BDG. If the ROIs are smaller, interference
+is not as much likely. Note that this is only effective to a certain degree.
+
+In general, it requires testing to find good conditions.
+
+
+Homography Pipeline
+~~~~~~~~~~~~~~~~~~~
+
+The homography pipeline provides a homography matrix for estimating the transformation between two images.
+With this matrix, it is possible to calculate the locations of the led coordinates in the second image
+with the prior knowledge of the location of the leds in the reference image.
+
+.. toctree::
+    :glob:
+
+    bsp/homography_pipeline
+
+
+
+The classes of the BSP
+~~~~~~~~~~~~~~~~~~~~~~
 
 Sequence diagram
 """"""""""""""""
 
-
 .. uml:: ../uml/State_Detector_Sequence.puml
    :align: center
-   :caption: The communication between the classes of the BSP
-
-The classes of the BSP
-~~~~~~~~~~~~~~~~~~~~~~
+   :caption: The communication between the classes of the BSP and the call hierarchy
 
 State Detector
 """"""""""""""
 The main entry point for accessing the BSP. Takes a Board object and the webcam id.
 
 First of all, the stream has to be opened with open_stream(). This is necessary for the tests to be able
-to pass a mock video capture which works with an already recorded video. Consequently, if the video capture passed is
+to pass a mock video capture which works with an already recorded video (see :ref:`MockVideoCapture` for more). Consequently, if the video capture passed is
 None, the open stream method will open one based on the webcam_id.
 
 .. note::
-    The open_stream uses a BufferlessVideoCapture the State Detector always needs the most recent picture. As the
-    processing normally takes longer than the time of new frames to arrive, effectively frames will be dropped.
+    The open_stream uses a BufferlessVideoCapture as the State Detector always needs the most recent picture. The
+    processing normally takes longer than the time for new frames to arrive, so effectively frames will be dropped.
 
 The current states will be saved in the state table and are meant to be accessible from the outside. Updates are placed
 by altering the existing entry in the list and not by creating a new one.
 
 .. warning::
-    The order of the state table entries or the content shall not be changed.
+    The order of the state table entries or the content shall not be changed from outside.
 
-.. automodule:: src.BSP.state_detector
+On the first detection the homography matrix is calculated and more following detections only check_if_outdated return true,
+meaning that the matrix is not fresh anymore. If the calculation fails indicated by ROIs with zero size the calculation
+will be repeated for the next iteration. The same happens when ROIs are overlapping because this indicates that the
+calculation went wrong as normal LEDs do not overlap.
+
+.. automodule:: BSP.state_detector
     :members:
 
 
@@ -91,34 +142,95 @@ used for the calculation of the homography matrix.
 The corners represent the corners of the board, consequently it is assumed that the board is at least rectangular.
 If the board does not have the required shape, a rectangular selection can be used for the matching as well.
 
-.. automodule:: src.BSP.BoardOrientation
+In addition the detection also works if the board is only partly visible.
+
+.. automodule:: BSP.BoardOrientation
     :members:
 
 Led State
 """""""""
 
-.. automodule:: src.BSP.led_state
+.. automodule:: BSP.led_state
+    :members:
+
+State Table
+"""""""""""
+
+.. automodule:: BSP.state_handler.state_table
     :members:
 
 State Table Entry
 """""""""""""""""
 
-.. automodule:: src.BSP.state_table_entry
+.. automodule:: BSP.state_table_entry
+    :members:
+
+Url Board Loader
+""""""""""""""""
+
+.. automodule:: BSP.util.UrlBoardLoader
     :members:
 
 Homography Provider
 """""""""""""""""""
-The homography provider is responsible for providing the board orientation, especially the homography matrix which
-is inside the BoardOrientation object.
 
-.. automodule:: src.BSP.homographyProvider
+
+The homography provider is responsible for providing the board orientation,
+especially the homography matrix which is inside the BoardOrientation object.
+
+For a detailed and mathematical description of the homography matrix, see :ref:`homography_pipeline`.
+
+.. toctree::
+    :maxdepth: 1
+    :hidden:
+    
+    bsp/homography_pipeline
+
+
+Color Detection
+"""""""""""""""
+
+.. automodule:: BSP.LED.ColorDetection.DominantColor
     :members:
+
+.. automodule:: BSP.LED.ColorDetection.HueComparison
+    :members:
+
+.. automodule:: BSP.LED.ColorDetection.KMeans
+    :members:
+
+.. automodule:: BSP.LED.ColorDetection.Util
+    :members:
+
+State Detection
+"""""""""""""""
+
+.. automodule:: BSP.LED.StateDetection.Brightness
+    :members:
+
+.. automodule:: BSP.LED.StateDetection.BoardObserver
+    :members:
+
+.. automodule:: BSP.LED.StateDetection.BrightnessComparison
+    :members:
+
 
 
 Bufferless Video Capture
 """"""""""""""""""""""""
 
-.. automodule:: src.BSP.BufferlessVideoCapture
+.. automodule:: BSP.BufferlessVideoCapture
+    :members:
+
+.. _MockVideoCapture:
+
+Mock Video Capture
+""""""""""""""""""
+
+Can be used for tests. Is of type BufferlessVideoCapture in order to pass the type check but with a flag can be set
+if is is actually bufferless or rather acts like a normal video capture.
+
+.. automodule:: MockVideoCapture
     :members:
 
 Led Extractor
@@ -128,35 +240,33 @@ In addition it fills the squares except the circles of the LEDs with gray color.
 
 Returns a list of numpy arrays, the ROIs of the LEDs in the same order as in the LED object list.
 
-.. automodule:: src.BSP.led_extractor
+.. automodule:: BSP.led_extractor
     :members:
 
 Test coverage
 """""""""""""
 
-The BSP has a blackbox test which runs a detection of LEDs on a Raspberry Pi. As this yields not precise tests
-more unit tests a possible but currently not planed.
+The BSP has a blackbox test which runs a detection of LEDs on a Raspberry Pi. The other modules have unit tests as far as possible.
+There are no UI tests for the BDG as the unit tests already cover the logic.
 
-Example (Outdated)
+Example
 """"""""""""""""""
 
-Following example calculates the orientation of the board, translates relative coordinates into
-absolute in the target image and finally extracts the roi for the LEDs.
+Following example starts the StateDetector with a video stream on /dev/video1.
+The detection is run in another thread.
 
-(Outdated: in the current version this examples does not work anymore)
 
 .. code-block:: python
 
-    #Loading the reference image
-    ref = cv2.imread("referenceCropped.jpg", cv2.IMREAD_COLOR)
-    #Loading the target image
-    img = cv2.imread("targetImage.jpg", cv2.IMREAD_COLOR)
-    #Calculate orientation of board in target
-    board_orientation = homography_by_sift(ref, img)
-    led_centers = np.float32([[2, 38], [2, 57]])
-    #Extract ROI from target
-    leds = get_led_roi(board_orientation, (ref.shape[0], ref.shape[1]), led_centers)
-    #Show LEDs
-    cv2.imshow("Led1", leds[0])
-    cv2.imshow("Led2", leds[1])
-    cv2.waitKey(0)
+    # Load json reference from file
+    reference = jsutil.from_json(file_path=reference-file-path)
+    # Create new State Detector instance with webcam on /dev/video1
+    with StateDetector(reference=reference, webcam_id=1) as dec:
+        # Open video stream
+        dec.open_stream()
+        # Start detection in other thread
+        th = threading.Thread(target=dec.start)
+        th.start()
+        
+        # Avoid closing main thread
+        th.join()

@@ -71,10 +71,9 @@ class Board:
             self.image = image
 
     def set_board_corners(self, points: typing.List):
-        """creates corner points and sorted them against clockwise direction
+        """Creates corner points and sorted them against clockwise direction
 
-        Args:
-            points (np.array): is an array of points which are a convex polygon
+        :param points: (np.array): is an array of points which are a convex polygon
         """
         points = split_to_list(points)
         if len(points) > 1:
@@ -84,9 +83,9 @@ class Board:
 
     def add_led(self, led: Led, relative_vector=False):
         """Adds an led object and calculates the relative vector if the given vector is from (0,0)
-        Args:
-            led ([type]): is an led object
-            relative_vector (bool, optional): True if the vector is from the upper left corner of the BOARD,
+
+        :param led: Is an LED object
+        :param relative_vector: (bool, optional): True if the vector is from the upper left corner of the BOARD,
                 False if the vector is from the upper left corner of the IMAGE.
                 Defaults to False.
         """
@@ -96,10 +95,9 @@ class Board:
         self.led.append(led)
 
     def set_image(self, image):
-        """sets pil image
+        """Sets pil image
 
-        Args:
-            image (Image): is an PIL image or a str
+        :param image: (Image): is an PIL image or a str
         """
         if isinstance(image, str):
             image = cv2.imread(image)
@@ -108,11 +106,8 @@ class Board:
     def get_relative_vector(self, vector: np.array):
         """helper class for calculating relative vector
 
-        Args:
-            vector (np.array): [description]
-
-        Returns:
-            [type]: [description]
+        :param vector: np.array
+        :return: vector
         """
         assert (self.corners is not None)
         assert (len(self.corners) > 0)

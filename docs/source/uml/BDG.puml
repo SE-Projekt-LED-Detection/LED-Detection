@@ -4,7 +4,7 @@
 
 
 
-package util {
+package utils {
 
     class svg_utils {
         + from_svg(str file_path): Board
@@ -19,10 +19,12 @@ package util {
     class util_functions {
         + sort_points(ndarray points): ndarray
         + led_id_generator(str prefix, int start) <<coroutine>>
+        + find_index_closest_point(arr: ndarray, point: ndarray)
+        + angle_between(v1: vector, v2: vector)
     }
 
     note as N1
-    all functions are static
+    All functions are static
     and can be used without
     initialization of its classes
     end note
@@ -30,38 +32,89 @@ package util {
 }
 
 package view {
-    class main {}
+    note as N3
+    Displays the data
+    changes made by the
+    Controller.
+    end note
 
-    class control_pane {
-        + Button edit_button
-        + Button file_button
+    class App {}
 
-    }
+    class ControlPane {
+        + master: tk.App
+        + handler: EventHandler
 
-    class image_pane {
-        + choose_image(Image image)
-        + update_poligon(ndarray corner_points)
-        + drawCircle(ndarray position)
-        + drawPoligon(ndarray points)
-        + zoom(int delta)
-    }
-
-    class tool_bar {
+        + __init_menu()
+        + __init_filemenu(menu)
+        + __init_editmenu(menu)
 
     }
 
-    class led_note_pane {
-        + TextBox id
-        + RadioButton colors
+    class ImagePane {
+        - img: PIlImage
+        - image: ImageTk.PhotoImage
+        - board: Board
+        - master: tk.App
+        - container: ControlPane
+        - handler: Edithandler
+        - corner_references: List[canvas obj ref]
+        - led_references: List[canvas obj ref]
+        - current_state: tkinter.IntVar
+        - canvas: tk.Canvas
+        - last_image_size = List[int]
+        - polygon: canvas element
+        - leds_text_indices_references: [canvas obj ref]
+
+        + update_image()
+        + update_points()
+        + on_resize(event)
+        + draw_corner(point: List[int])
+        + draw_led(position: ndarray, radius: int)
+        + create_circle(position: ndarray, r: int)
+        + update_polygon()
+        + update_led_indices()
+        + create_polygon()
+        + activate_board_state()
+        + activate_led_state()
+        + update_board()
+        + delete_circles()
     }
 
-    main *-- control_pane
+    class ToolBar {
+        - master: tk.App
+        - image_pane: ImagePane
+        - handler: EditHandler
+    }
 
-    control_pane *-- image_pane
+    class Scrollable {
+        - parent: tk.App
+        - edit_handler: Edithandler
 
-    control_pane *-- tool_bar
-    control_pane *-- scrollabel
-    scrollabel *-- led_note_pane
+        + on_configure(event)
+        + redraw_led_description()
+    }
+
+    class LedDisplay {
+        - parent: tk.Frame
+        - index: int
+        - led: Led
+        + number: tk.StringVar
+        + name: tk.StringVar
+        + red: tk.IntVar
+        + yellow: tk.IntVar
+        + green: tk.IntVar
+
+        + update_number(new_number: int)
+
+    }
+
+    App *-- ControlPane
+
+    ControlPane *-- ImagePane
+
+    ControlPane *-- ToolBar
+    ControlPane *-- Scrollable
+    Scrollable *-- LedDisplay
 
 
 
@@ -70,95 +123,96 @@ package view {
 }
 
 package controller {
-    class file_handler {
-        - Board board
-        + handle_save(Board board): str
-        + handle_load(): Board
+    note as N2
+    Handles the user input and alters
+    the data accordingly.
+    end note
 
-
+    class FileHandler {
+        - EventHandler parent
+        + save()
+        + load()
     }
 
-    class edit_handler {
-        - Board board
+    class EditHandler {
+        - EventHandler parent
+        - float scaling
+        - tkinter.Intvar current_state
+        - np.arrray active_cirlce
+        - List[np.array] deleted_corners
+        - List[Led] deleted_leds
+        - Board Board
 
-        + init_board()
+        + Board(): Board
         + add_led(event)
         + add_corner(event)
-        + delete_corner(event)
-        + delete_led(event)
-        + move_corner(event)
-        + move_led(event)
-        + resize_led(event)
+        + delete_point(event)
         + undo()
         + redo()
-
+        + moving_point(event)
+        + on_mousewheel(event)
+        + check_hovered(cx, cy)
+        + is_state(state)
     }
 
-    class annotation_handler {
-        - Board board
-        + add_author(str name)
-        + define_led_color([str] color)
-
-
-    }
-
-    class event_handler{
+    class EventHandler{
         + Enum state
-
-
-
+        + update_board(board)
+        + update(channel="")
+        + update_points()
+        + update_image()
     }
 
-    event_handler --> edit_handler
-    event_handler --> annotation_handler
-    event_handler --> file_handler
-
-
-
-
-
-
+    EventHandler --> EditHandler
+    EventHandler --> FileHandler
 
 }
 
 package model {
-    class led {
-        + str id
-        + ndarray position
-        + int radius
-        + [str] colors
+    class Led {
+        + indentifier: str
+        + position: ndarray
+        + radius: int
+        + colors: List[str]
     }
-    note left of led::position
+    note left of Led::position
     size= 2
     dtype= int32
     end note
 
-    class board {
-        + str id
-        + str author
-        + ndarray corners
-        + [Led] led
+    class Board {
+        + name: str
+        + author: str
+        + img_path: str
+        + corners: ndarray
+        + led_objects: [Led]
+        + image: ndarray
+
+        + set_board_corners(points: List)
+        + add_led(led: Led, relative_vector=False)
+        + set_image(image: ndarray)
+        + get_relative_vector(vector: ndarray)
+        + get_cropped_board()
     }
 
-    note left of board::corners
+    note left of Board::corners
     shape nx2
     dtype int32
     end note
 
-    board *-d- led
+    Board *-d- Led
 
 
 }
-control_pane --d-- event_handler
-file_handler -d-> svg_utils: <<use>>
-file_handler -d-> json_utils: <<use>>
-edit_handler -d-> util_functions: <<uses>>
-event_handler -l-> board
+ControlPane --d-- EventHandler
+FileHandler -d-> svg_utils: <<use>>
+FileHandler -d-> json_utils: <<use>>
+EditHandler -d-> util_functions: <<uses>>
+EventHandler -l-> Board
 
 controller --[hidden]l-- model
 view --[hidden]l-- model
-edit_handler -- image_pane: updates
-annotation_handler -- scrollabel: updates
+EditHandler -- ImagePane: updates
 
 
 @enduml

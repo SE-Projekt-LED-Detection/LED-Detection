@@ -8,6 +8,10 @@ from BSP.LED import ColorDetection
 
 
 class Comparison:
+    """
+    Responsible for the color detection
+
+    """
     def __init__(self, colors: [str] = None):
         if colors is None:
             colors = []

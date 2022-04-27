@@ -11,6 +11,10 @@ from BSP.LED.StateDetection import Brightness
 
 
 class BoardObserver:
+    """
+    The Board Observer
+
+    """
 
     def __init__(self, board_leds, debug=False):
         self.leds: List[LedStateDetector] = []
