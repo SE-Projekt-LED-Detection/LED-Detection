@@ -66,7 +66,7 @@ def parse_arguments():
     parser.add('-c', '--config', type=str, is_config_file=True,
                help='Path to config file. NOTE: this is not the reference path, but the path to the config file')
     parser.add('-r', '--reference', required=True, type=str, help='Path to reference file')
-    parser.add('-w', '--webcam_id', required=True, type=int, help='ID of the usb webcam')
+    parser.add('-w', '--webcam_id', required=True, help='ID of the usb webcam')
     parser.add('-bh', '--broker_host', type=str, default='localhost', help='Broker host for MQTT')
     parser.add('-bp', '--broker_port', type=int, default=1883, help='Broker port for MQTT')
 
