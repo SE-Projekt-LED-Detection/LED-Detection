@@ -19,4 +19,4 @@ We highly recommend to use a virtual environment such as pyenv or conda.
 
 ## Documentation
 
-The Docs are hosted on readthedocs and can be find [here](https://led-detection.readthedocs.io/en/latest/)
+The documentation is hosted on readthedocs and can be found [here](https://led-detection.readthedocs.io/en/latest/)
