@@ -61,6 +61,7 @@ class StateDetector:
 
         self.validity_seconds = kwargs.get("validity_seconds", 300)
         self.debug = kwargs.get("debug", False)
+        self._board_observer = BoardObserver(self.board.led, self.debug)
 
         self._closed = False
 
@@ -157,7 +158,7 @@ class StateDetector:
             error("The created video capture is not opened.")
             raise Exception(f"StateDetector is unable to open VideoCapture with index {self.webcam_id}.")
 
-    def on_change(self, index: int, name: str, state: bool, color: str, time, *args, **kwargs) -> None:
+    def on_change(self, name: str, state: bool, color: str, time_point) -> None:
         """
         Function that should be called when a LED state change has been detected.
 
@@ -165,13 +166,13 @@ class StateDetector:
         :param name: The name of the LED for clear debug outputs.
         :param state: True if this LED is currently powered on.
         :param color: The color that has been detected.
-        :param time: The time the LED changed it's state.
+        :param time_point: The time the LED changed it's state.
         :return: None.
         """
         state_str = "on" if state else "off"
-        entry = insert_state_entry(name, state_str, color, time)
+        entry = insert_state_entry(name, state_str, color, time_point)
 
-        new_state = LedState("on" if state else "off", color, time)
+        new_state = LedState("on" if state else "off", color, time_point)
         board_changes = BoardChanges(self.board.id, name, new_state.power, new_state.color, entry["frequency"],
                                      new_state.timestamp)
         self.state_queue.put({"changes": board_changes})

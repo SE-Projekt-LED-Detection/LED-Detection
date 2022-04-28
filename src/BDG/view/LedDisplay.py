@@ -76,6 +76,11 @@ class LedDisplay(Frame):
         self.led.id = var.get()
 
     def update_number(self, new_number):
+        """
+        Updates the displayed number
+        :param new_number: The new number to display
+        :return:
+        """
         self.number.set("LED " + str(new_number))
         self.grid(column=4, row=2 + new_number, sticky=tk.W, pady=10)
 

@@ -12,14 +12,15 @@
 #
 import os
 import sys
-sys.path.insert(0, os.path.abspath('../..'))
+sys.path.insert(0, os.path.abspath('../../src/'))
+sys.path.insert(0, os.path.abspath('../../tests'))
 
 
 # -- Project information -----------------------------------------------------
 
 project = 'LED / Board Status Detection'
 copyright = '2021, christoph meyer'
-author = 'christoph meyer'
+author = 'christoph meyer, clemens janns, mathias '
 
 # The full version, including alpha/beta/rc tags
 release = '0.0.1'
@@ -34,8 +35,9 @@ extensions = [
     'sphinx.ext.duration',
     'sphinx.ext.doctest',
     'sphinx.ext.autodoc',
-    #'sphinx.ext.autosummary',
+    'sphinx.ext.autosummary',
     'sphinx.ext.intersphinx',
+    'sphinx.ext.mathjax',
     'sphinxcontrib.plantuml'
 ]
 # PlantUML support

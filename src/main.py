@@ -9,6 +9,7 @@ import sys
 from BSP.state_detector import StateDetector
 import BDG.utils.json_util as jsutil
 from publisher.master_publisher import MasterPublisher
+from MockVideoCapture import MockVideoCapture
 
 
 def main(args):
@@ -34,8 +35,14 @@ def main(args):
         publisher.init_video("rtmp://localhost:8080", args.visualizer)
         start_publisher(publisher, args.broker_host, args.broker_port)
 
+
+
         try:
-            detector.open_stream()
+            # check if the input is a video path
+            if isinstance(args.webcam_id, int):
+                detector.open_stream()
+            else:
+                detector.open_stream(MockVideoCapture(args.webcam_id, False))
         except Exception as e:
             logging.warning("Could not open video stream: %s", e)
 
@@ -66,7 +73,7 @@ def parse_arguments():
     parser.add('-c', '--config', type=str, is_config_file=True,
                help='Path to config file. NOTE: this is not the reference path, but the path to the config file')
     parser.add('-r', '--reference', required=True, type=str, help='Path to reference file')
-    parser.add('-w', '--webcam_id', required=True, type=int, help='ID of the usb webcam')
+    parser.add('-w', '--webcam_id', required=True, help='ID of the usb webcam')
     parser.add('-bh', '--broker_host', type=str, default='localhost', help='Broker host for MQTT')
     parser.add('-bp', '--broker_port', type=int, default=1883, help='Broker port for MQTT')
 
